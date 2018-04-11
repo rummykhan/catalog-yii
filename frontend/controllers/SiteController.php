@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use RummyKhan\Collection\Collection;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
