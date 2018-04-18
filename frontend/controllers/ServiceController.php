@@ -124,4 +124,9 @@ class ServiceController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    public function actionAddAttribute($id)
+    {
+        dd($id);
+    }
 }

@@ -16,6 +16,7 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(),
             'type' => $this->integer(),
+            'input_type' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime(),
         ]);
@@ -117,6 +118,21 @@ class m180411_112456_add_attribute_table extends Migration
      */
     public function safeDown()
     {
+        $this->dropForeignKey('fk-psao-pso', 'provided_service_attribute_option');
+        $this->dropForeignKey('fk-psao-psa', 'provided_service_attribute_option');
+        $this->dropForeignKey('fk-psa-sa', 'provided_service_attribute');
+        $this->dropForeignKey('fk-psa-ps', 'provided_service_attribute');
+        $this->dropForeignKey('fk-sao-ao', 'service_attribute_option');
+        $this->dropForeignKey('fk-sao-sa', 'service_attribute_option');
+        $this->dropForeignKey('fk-sa-a', 'service_attribute');
+        $this->dropForeignKey('fk-sa-s', 'service_attribute');
+        $this->dropForeignKey('fk-ao-a', 'attribute_option');
+
+
+        $this->dropTable('provided_service_attribute_option');
+        $this->dropTable('provided_service_attribute');
+        $this->dropTable('service_attribute_option');
+        $this->dropTable('service_attribute');
         $this->dropTable('attribute_option');
         $this->dropTable('attribute');
     }
