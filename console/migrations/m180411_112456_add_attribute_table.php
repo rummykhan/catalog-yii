@@ -55,6 +55,24 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-a-at', 'attribute', 'type', 'attribute_type', 'id');
         $this->addForeignKey('fk-a-ait', 'attribute', 'input_type', 'attribute_input_type', 'id');
 
+
+        $this->createTable('validation_option', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(),
+            'created_at' => $this->dateTime(),
+            'updated_at' => $this->dateTime()
+        ]);
+
+        $this->createTable('attribute_validation_option', [
+            'id' => $this->primaryKey(),
+            'attribute_validation_id' => $this->integer(),
+            'validation_option_id' => $this->integer(),
+            'value' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-avo-avi', 'attribute_validation_option', 'attribute_validation_id', 'validation_option', 'id');
+        $this->addForeignKey('fk-avo-vo', 'attribute_validation_option', 'validation_option_id', 'validation_option', 'id');
+
         $this->createTable('attribute_option', [
             'id' => $this->primaryKey(),
             'name' => $this->string(),
@@ -160,6 +178,8 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-a-ait', 'attribute');
         $this->dropForeignKey('fk-av-a', 'attribute_validation');
         $this->dropForeignKey('fk-av-v', 'attribute_validation');
+        $this->dropForeignKey('fk-avo-avi', 'attribute_validation_option');
+        $this->dropForeignKey('fk-avo-vo', 'attribute_validation_option');
 
 
         $this->dropTable('provided_service_attribute_option');
@@ -170,22 +190,9 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('attribute_type');
         $this->dropTable('attribute_input_type');
         $this->dropTable('attribute_validation');
+        $this->dropTable('attribute_validation_option');
+        $this->dropTable('validation_option');
         $this->dropTable('validation');
         $this->dropTable('attribute');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m180411_112456_add_attribute_table cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

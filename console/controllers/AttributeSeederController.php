@@ -11,6 +11,8 @@ namespace console\controllers;
 
 use common\models\AttributeInputType;
 use common\models\AttributeType;
+use common\models\Validation;
+use common\models\ValidationOption;
 use yii\console\Controller;
 
 class AttributeSeederController extends Controller
@@ -19,7 +21,8 @@ class AttributeSeederController extends Controller
     {
         $this->seedAttributeType();
         $this->seedAttributeInputType();
-        $this->seedAttributeValidation();
+        $this->seedValidationOption();
+        $this->seedValidation();
     }
 
     protected function seedAttributeType()
@@ -50,8 +53,31 @@ class AttributeSeederController extends Controller
         }
     }
 
-    protected function seedAttributeValidation()
+    protected function seedValidationOption()
     {
+        if (ValidationOption::find()->count() > 0) {
+            ValidationOption::deleteAll();
+        }
 
+        $options = ['Min', 'Max'];
+        foreach ($options as $option) {
+            $validationOption = new ValidationOption();
+            $validationOption->name = $option;
+            $validationOption->save();
+        }
+    }
+
+    protected function seedValidation()
+    {
+        if (Validation::find()->count() > 0) {
+            Validation::deleteAll();
+        }
+
+        $options = ['required', 'single', 'multiple', 'image', 'doc', 'coordinates', 'phone'];
+        foreach ($options as $option) {
+            $validation = new Validation();
+            $validation->type = $option;
+            $validation->save();
+        }
     }
 }
