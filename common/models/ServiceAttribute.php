@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "service_attribute".
@@ -47,6 +49,18 @@ class ServiceAttribute extends \yii\db\ActiveRecord
             'id' => 'ID',
             'service_id' => 'Service ID',
             'attribute_id' => 'Attribute ID',
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()')
+            ]
         ];
     }
 

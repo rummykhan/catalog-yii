@@ -40,7 +40,9 @@ AppAsset::register($this);
         ['label' => 'Category', 'url' => ['/category/index']],
         ['label' => 'Service', 'url' => ['/service/index']],
         ['label' => 'Provider', 'url' => ['/provider/index']],
-        ['label' => 'Attribute', 'url' => ['/attribute/index']],
+        ['label' => 'Attribute Type', 'url' => ['/attribute-type/index']],
+        ['label' => 'Attribute Input Type', 'url' => ['/attribute-input-type/index']],
+        ['label' => 'Validation', 'url' => ['/validation/index']],
     ];
 
     echo Nav::widget([

@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "provided_service_attribute_option".
@@ -33,6 +35,18 @@ class ProvidedServiceAttributeOption extends \yii\db\ActiveRecord
             [['provided_service_attribute_id', 'service_attribute_option_id'], 'integer'],
             [['provided_service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceAttribute::className(), 'targetAttribute' => ['provided_service_attribute_id' => 'id']],
             [['service_attribute_option_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttributeOption::className(), 'targetAttribute' => ['service_attribute_option_id' => 'id']],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()')
+            ]
         ];
     }
 

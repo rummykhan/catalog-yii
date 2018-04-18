@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "attribute".
@@ -14,7 +16,10 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  *
+ * @property AttributeInputType $inputType
+ * @property AttributeType $type0
  * @property AttributeOption[] $attributeOptions
+ * @property AttributeValidation[] $attributeValidations
  * @property ServiceAttribute[] $serviceAttributes
  */
 class Attribute extends \yii\db\ActiveRecord
@@ -36,6 +41,8 @@ class Attribute extends \yii\db\ActiveRecord
             [['type', 'input_type'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 255],
+            [['input_type'], 'exist', 'skipOnError' => true, 'targetClass' => AttributeInputType::className(), 'targetAttribute' => ['input_type' => 'id']],
+            [['type'], 'exist', 'skipOnError' => true, 'targetClass' => AttributeType::className(), 'targetAttribute' => ['type' => 'id']],
         ];
     }
 
@@ -54,12 +61,48 @@ class Attribute extends \yii\db\ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()')
+            ]
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInputType()
+    {
+        return $this->hasOne(AttributeInputType::className(), ['id' => 'input_type']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getType0()
+    {
+        return $this->hasOne(AttributeType::className(), ['id' => 'type']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getAttributeOptions()
     {
         return $this->hasMany(AttributeOption::className(), ['attribute_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAttributeValidations()
+    {
+        return $this->hasMany(AttributeValidation::className(), ['attribute_id' => 'id']);
     }
 
     /**
