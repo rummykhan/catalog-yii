@@ -40,9 +40,22 @@ AppAsset::register($this);
         ['label' => 'Category', 'url' => ['/category/index']],
         ['label' => 'Service', 'url' => ['/service/index']],
         ['label' => 'Provider', 'url' => ['/provider/index']],
-        ['label' => 'Attribute Type', 'url' => ['/attribute-type/index']],
-        ['label' => 'Attribute Input Type', 'url' => ['/attribute-input-type/index']],
-        ['label' => 'Validation', 'url' => ['/validation/index']],
+        [
+            'label' => 'Attributes',
+            'items' => [
+                ['label' => 'Attribute', 'url' => ['/attribute/index']],
+                ['label' => 'Option', 'url' => ['/attribute-option/index']],
+            ]
+        ],
+        [
+            'label' => 'Catalog Setting',
+            'items' => [
+                ['label' => 'Attribute Type', 'url' => ['/attribute-type/index']],
+                ['label' => 'Attribute Input Type', 'url' => ['/attribute-input-type/index']],
+                ['label' => 'Validation', 'url' => ['/validation/index']],
+                ['label' => 'Price Type', 'url' => ['/price-type/index']],
+            ]
+        ]
     ];
 
     echo Nav::widget([

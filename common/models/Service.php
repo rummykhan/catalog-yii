@@ -18,6 +18,7 @@ use yii\db\Expression;
  *
  * @property Category $category
  * @property Attribute[] $serviceAttributes
+ * @property ServiceAttribute[] $serviceLevelAttributes
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -86,13 +87,10 @@ class Service extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $attribute Attribute
+     * @return ActiveQuery
      */
-    public function attachAttribute($attribute)
+    public function getServiceLevelAttributes()
     {
-        $serviceAttribute = new ServiceAttribute();
-        $serviceAttribute->service_id = $this->id;
-        $serviceAttribute->attribute_id = $attribute->id;
-        $serviceAttribute->save();
+        return $this->hasMany(ServiceAttribute::className(), ['service_id' => 'id']);
     }
 }

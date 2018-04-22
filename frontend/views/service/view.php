@@ -16,8 +16,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Add Attribute', ['/attribute/create', 'service_id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Set Pricing', ['/service/pricing', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Attach Attribute', ['/service/attach-attribute', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('View / Set Pricing Attributes', ['/service/add-pricing', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
@@ -48,29 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
-    <br>
-
-    <table class="table table-striped table-responsive">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php /** @var \common\models\Attribute $attribute */
-        foreach ($model->serviceAttributes as $attribute) { ?>
-            <tr>
-                <td><?= $attribute->id ?></td>
-                <td>
-                    <a href="<?= \yii\helpers\Url::to(['/attribute/view', 'id' => $attribute->id, 'service_id' => $model->id]) ?>">
-                        <?= $attribute->name ?>
-                    </a>
-                </td>
-            </tr>
-        <?php } ?>
-        </tbody>
-    </table>
+    <?= $this->render('../common/service-attributes', ['model' => $model]) ?>
 
 
 </div>

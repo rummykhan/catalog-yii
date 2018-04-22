@@ -11,7 +11,6 @@ use yii\db\Expression;
  *
  * @property int $id
  * @property string $name
- * @property int $attribute_id
  * @property string $created_at
  * @property string $updated_at
  *
@@ -33,10 +32,8 @@ class AttributeOption extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['attribute_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 255],
-            [['attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => Attribute::className(), 'targetAttribute' => ['attribute_id' => 'id']],
         ];
     }
 
@@ -72,5 +69,10 @@ class AttributeOption extends \yii\db\ActiveRecord
     public function getServiceAttributeOptions()
     {
         return $this->hasMany(ServiceAttributeOption::className(), ['attribute_option_id' => 'id']);
+    }
+
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('name', 'id');
     }
 }

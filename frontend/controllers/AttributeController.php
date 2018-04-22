@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\forms\AttachOption;
 use common\models\Service;
 use Yii;
 use common\models\Attribute;
@@ -48,45 +49,39 @@ class AttributeController extends Controller
     /**
      * Displays a single Attribute model.
      * @param integer $id
-     * @param integer $service_id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id, $service_id=null)
+    public function actionView($id)
     {
         $model = $this->findModel($id);
-        $service = Service::findOne($service_id);
 
         return $this->render('view', [
-            'model' => $model,
-            'service' => $service
+            'model' => $model
         ]);
     }
 
     /**
      * Creates a new Attribute model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @param $service_id mixed
+     * @param $returnTo string
      * @return mixed
      */
-    public function actionCreate($service_id = null)
+    public function actionCreate($returnTo = null)
     {
-        $service = Service::findOne($service_id);
-
         $model = new Attribute();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
-            if ($service) {
-                $service->attachAttribute($model);
+            if ($returnTo) {
+                return $this->redirect($returnTo);
             }
 
-            return $this->redirect(['/service/view', 'id' => $service_id]);
+            return $this->redirect(['/attribute/view', 'id' => $model->id]);
         }
 
         return $this->render('create', [
             'model' => $model,
-            'service' => $service
         ]);
     }
 
@@ -138,5 +133,51 @@ class AttributeController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Attach options to attribute
+     *
+     * @param $attribute_id integer
+     * @param $service_id integer
+     * @throws NotFoundHttpException
+     * @return mixed
+     */
+    public function actionAttachOptions($attribute_id, $service_id)
+    {
+        $attribute = Attribute::findOne($attribute_id);
+        $service = Service::findOne($service_id);
+
+        if (!$attribute || !$service) {
+            throw new NotFoundHttpException();
+        }
+
+        $model = new AttachOption();
+        $model->attribute_id = $attribute_id;
+        $model->service_id = $service_id;
+
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
+            return $this->redirect(['/service/view', 'id' => $service_id]);
+        }
+
+        return $this->render('attach', [
+            'model' => $model,
+            'service' => $service,
+            'attribute' => $attribute
+        ]);
+    }
+
+    /**
+     * Detach options from attribute
+     *
+     * @param $service_attribute_id
+     * @param $option_id
+     * @throws NotFoundHttpException
+     * @return mixed
+     */
+    public function actionDetachOptions($service_attribute_id, $option_id)
+    {
+
     }
 }

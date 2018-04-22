@@ -62,36 +62,26 @@ class AttributeOptionController extends Controller
     /**
      * Creates a new AttributeOption model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @param $attribute_id integer
-     * @param $service_id integer
+     * @param $returnTo string
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function actionCreate($attribute_id, $service_id = null)
+    public function actionCreate($returnTo = null)
     {
-        $attribute = Attribute::findOne($attribute_id);
-        $service = Service::findOne($service_id);
-
-        if (!$attribute) {
-            throw new NotFoundHttpException();
-        }
-
         $model = new AttributeOption();
-        $model->attribute_id = $attribute_id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
-            if ($service) {
-                return $this->redirect(['/attribute/view', 'id' => $attribute->id, 'service_id' => $service_id]);
-            } else {
-                return $this->redirect(['/attribute/view', 'id' => $attribute->id]);
+            if ($returnTo) {
+                return $this->redirect($returnTo);
             }
+
+            return $this->redirect(['/attribute-option/view', 'id' => $model->id]);
         }
 
         return $this->render('create', [
             'model' => $model,
-            'attribute' => $attribute,
-            'service' => $service
+            'returnTo' => $returnTo
         ]);
     }
 

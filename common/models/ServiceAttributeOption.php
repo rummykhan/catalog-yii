@@ -13,7 +13,6 @@ use yii\db\Expression;
  * @property int $service_attribute_id
  * @property int $attribute_option_id
  *
- * @property ProvidedServiceAttributeOption[] $providedServiceAttributeOptions
  * @property AttributeOption $attributeOption
  * @property ServiceAttribute $serviceAttribute
  */
@@ -39,18 +38,6 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'created_at',
-                'updatedAtAttribute' => 'updated_at',
-                'value' => new Expression('NOW()')
-            ]
-        ];
-    }
-
     /**
      * @inheritdoc
      */
@@ -61,14 +48,6 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
             'service_attribute_id' => 'Service Attribute ID',
             'attribute_option_id' => 'Attribute Option ID',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProvidedServiceAttributeOptions()
-    {
-        return $this->hasMany(ProvidedServiceAttributeOption::className(), ['service_attribute_option_id' => 'id']);
     }
 
     /**

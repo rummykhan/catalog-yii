@@ -103,4 +103,9 @@ class Attribute extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ServiceAttribute::className(), ['attribute_id' => 'id']);
     }
+
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('name', 'id');
+    }
 }

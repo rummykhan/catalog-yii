@@ -110,51 +110,59 @@ class m180411_112456_add_attribute_table extends Migration
         );
 
 
-        $this->createTable('provided_service_attribute', [
+        $this->createTable('price_type', [
+            'id' => $this->primaryKey(),
+            'type' => $this->string()
+        ]);
+
+        $this->createTable('pricing_attribute', [
+            'id' => $this->primaryKey(),
+            'service_attribute_id' => $this->integer(),
+            'price_type_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-pa-sa', 'pricing_attribute', 'service_attribute_id', 'service_attribute', 'id');
+        $this->addForeignKey('fk-pa-pt', 'pricing_attribute', 'price_type_id', 'price_type', 'id');
+
+        $this->createTable('pricing_attribute_parent', [
+            'id' => $this->primaryKey(),
+            'service_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-pap-s', 'pricing_attribute_parent', 'service_id', 'service', 'id');
+
+        $this->createTable('pricing_attribute_matrix', [
+            'id' => $this->primaryKey(),
+            'pricing_attribute_parent_id' => $this->integer(),
+            'service_attribute_option_id' => $this->integer(),
+        ]);
+
+        $this->addForeignKey('fk-pam-pap', 'pricing_attribute_matrix', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
+        $this->addForeignKey('fk-pam-sao', 'pricing_attribute_matrix', 'service_attribute_option_id', 'service_attribute_option', 'id');
+
+        $this->createTable('provided_service_matrix_pricing', [
             'id' => $this->primaryKey(),
             'provided_service_id' => $this->integer(),
-            'service_attribute_id' => $this->integer(),
+            'pricing_attribute_parent_id' => $this->integer(),
+            'price' => $this->double(),
+            'created_at' => $this->dateTime(),
+            'updated_at' => $this->dateTime(),
         ]);
 
+        $this->addForeignKey('fk-psmp-ps', 'provided_service_matrix_pricing', 'provided_service_id', 'provided_service', 'id');
+        $this->addForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
 
-        $this->addForeignKey(
-            'fk-psa-ps',
-            'provided_service_attribute',
-            'provided_service_id',
-            'provided_service',
-            'id'
-        );
-        $this->addForeignKey(
-            'fk-psa-sa',
-            'provided_service_attribute',
-            'service_attribute_id',
-            'service_attribute',
-            'id'
-        );
-
-
-        $this->createTable('provided_service_attribute_option', [
+        $this->createTable('provided_service_base_pricing', [
             'id' => $this->primaryKey(),
-            'provided_service_attribute_id' => $this->integer(),
-            'service_attribute_option_id' => $this->integer()
+            'provided_service_id' => $this->integer(),
+            'pricing_attribute_id' => $this->integer(),
+            'base_price' => $this->double(),
+            'created_at' => $this->dateTime(),
+            'updated_at' => $this->dateTime(),
         ]);
 
-
-        $this->addForeignKey(
-            'fk-psao-psa',
-            'provided_service_attribute_option',
-            'provided_service_attribute_id',
-            'provided_service_attribute',
-            'id'
-        );
-
-        $this->addForeignKey(
-            'fk-psao-pso',
-            'provided_service_attribute_option',
-            'service_attribute_option_id',
-            'service_attribute_option',
-            'id'
-        );
+        $this->addForeignKey('fk-psbp-ps', 'provided_service_base_pricing', 'provided_service_id', 'provided_service', 'id');
+        $this->addForeignKey('fk-psbp-pa', 'provided_service_base_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
     }
 
     /**
@@ -162,10 +170,7 @@ class m180411_112456_add_attribute_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropForeignKey('fk-psao-pso', 'provided_service_attribute_option');
-        $this->dropForeignKey('fk-psao-psa', 'provided_service_attribute_option');
-        $this->dropForeignKey('fk-psa-sa', 'provided_service_attribute');
-        $this->dropForeignKey('fk-psa-ps', 'provided_service_attribute');
+
         $this->dropForeignKey('fk-sao-ao', 'service_attribute_option');
         $this->dropForeignKey('fk-sao-sa', 'service_attribute_option');
         $this->dropForeignKey('fk-sa-a', 'service_attribute');
@@ -176,10 +181,17 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-av-v', 'attribute_validation');
         $this->dropForeignKey('fk-avo-avi', 'attribute_validation_option');
         $this->dropForeignKey('fk-avo-vo', 'attribute_validation_option');
+        $this->dropForeignKey('fk-pa-sa', 'pricing_attribute');
+        $this->dropForeignKey('fk-pa-pt', 'pricing_attribute');
+        $this->dropForeignKey('fk-pap-s', 'pricing_attribute_parent');
+        $this->dropForeignKey('fk-pam-pap', 'pricing_attribute_matrix');
+        $this->dropForeignKey('fk-pam-sao', 'pricing_attribute_matrix');
+        $this->dropForeignKey('fk-psmp-ps', 'provided_service_matrix_pricing');
+        $this->dropForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing');
+        $this->dropForeignKey('fk-psbp-ps', 'provided_service_base_pricing');
+        $this->dropForeignKey('fk-psbp-pa', 'provided_service_base_pricing');
 
 
-        $this->dropTable('provided_service_attribute_option');
-        $this->dropTable('provided_service_attribute');
         $this->dropTable('service_attribute_option');
         $this->dropTable('service_attribute');
         $this->dropTable('attribute_option');
@@ -190,5 +202,11 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('validation_option');
         $this->dropTable('validation');
         $this->dropTable('attribute');
+        $this->dropTable('price_type');
+        $this->dropTable('pricing_attribute');
+        $this->dropTable('pricing_attribute_parent');
+        $this->dropTable('pricing_attribute_matrix');
+        $this->dropTable('provided_service_matrix_pricing');
+        $this->dropTable('provided_service_base_pricing');
     }
 }

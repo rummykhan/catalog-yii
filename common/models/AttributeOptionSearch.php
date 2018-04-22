@@ -18,7 +18,7 @@ class AttributeOptionSearch extends AttributeOption
     public function rules()
     {
         return [
-            [['id', 'attribute_id'], 'integer'],
+            [['id'], 'integer'],
             [['name', 'created_at', 'updated_at'], 'safe'],
         ];
     }
@@ -60,7 +60,6 @@ class AttributeOptionSearch extends AttributeOption
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'attribute_id' => $this->attribute_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ]);

@@ -2,12 +2,16 @@
 
 namespace frontend\controllers;
 
+use common\forms\AttachAttribute;
+use common\models\PricingAttribute;
 use Yii;
 use common\models\Service;
 use common\models\ServiceSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\View;
+use yii\web\ViewAction;
 
 /**
  * ServiceController implements the CRUD actions for Service model.
@@ -128,13 +132,55 @@ class ServiceController extends Controller
     }
 
     /**
-     * Set pricing for a service attributes
+     * Attach Attributes to service
      * @param $id
+     * @return mixed
      */
-    public function actionPricing($id)
+    public function actionAttachAttribute($id)
+    {
+        $service = $this->findModel($id);
+        $model = new AttachAttribute();
+        $model->service_id = $service->id;
+
+        if($model->load(Yii::$app->getRequest()->post()) && $model->attach()){
+            return $this->redirect(['/service/view', 'id' => $service->id]);
+        }
+
+        return $this->render('attach', [
+            'service' => $service,
+            'model' => $model
+        ]);
+    }
+
+    /**
+     * Set pricing attributes for a service
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function actionAddPricing($id)
     {
         $model = $this->findModel($id);
 
-        dd($model, $model->serviceAttributes);
+        // if this service already has all attribute marked in the pricing_attribute table
+
+        // Show user the page where he can mark attributes as composite or individual
+        // else
+        // Show user the page where he can see the pricing matrix
+
+        foreach ($model->serviceLevelAttributes as $serviceLevelAttribute){
+
+            $pricingAttribute = PricingAttribute::find()
+                ->where(['service_attribute_id' => $serviceLevelAttribute->id])
+                ->one();
+
+            if(!$pricingAttribute){
+                return $this->render('set-pricing-attributes', ['model' => $model]);
+            }
+
+        }
+
+
+        dd('all exists',$model);
     }
 }

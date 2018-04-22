@@ -13,7 +13,6 @@ use yii\db\Expression;
  * @property int $service_id
  * @property int $attribute_id
  *
- * @property ProvidedServiceAttribute[] $providedServiceAttributes
  * @property Attribute $attribute0
  * @property Service $service
  * @property ServiceAttributeOption[] $serviceAttributeOptions
@@ -50,14 +49,6 @@ class ServiceAttribute extends \yii\db\ActiveRecord
             'service_id' => 'Service ID',
             'attribute_id' => 'Attribute ID',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProvidedServiceAttributes()
-    {
-        return $this->hasMany(ProvidedServiceAttribute::className(), ['service_attribute_id' => 'id']);
     }
 
     /**
