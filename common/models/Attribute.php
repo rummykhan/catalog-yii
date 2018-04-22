@@ -18,7 +18,6 @@ use yii\db\Expression;
  *
  * @property AttributeInputType $inputType
  * @property AttributeType $type0
- * @property AttributeOption[] $attributeOptions
  * @property AttributeValidation[] $attributeValidations
  * @property ServiceAttribute[] $serviceAttributes
  */
@@ -87,14 +86,6 @@ class Attribute extends \yii\db\ActiveRecord
     public function getType0()
     {
         return $this->hasOne(AttributeType::className(), ['id' => 'type']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAttributeOptions()
-    {
-        return $this->hasMany(AttributeOption::className(), ['attribute_id' => 'id']);
     }
 
     /**

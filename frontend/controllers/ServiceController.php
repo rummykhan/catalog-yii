@@ -52,8 +52,10 @@ class ServiceController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
         ]);
     }
 
@@ -125,8 +127,14 @@ class ServiceController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionAddAttribute($id)
+    /**
+     * Set pricing for a service attributes
+     * @param $id
+     */
+    public function actionPricing($id)
     {
-        dd($id);
+        $model = $this->findModel($id);
+
+        dd($model, $model->serviceAttributes);
     }
 }

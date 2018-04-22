@@ -15,7 +15,6 @@ use yii\db\Expression;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property Attribute $attribute0
  * @property ServiceAttributeOption[] $serviceAttributeOptions
  */
 class AttributeOption extends \yii\db\ActiveRecord
@@ -65,14 +64,6 @@ class AttributeOption extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAttribute0()
-    {
-        return $this->hasOne(Attribute::className(), ['id' => 'attribute_id']);
     }
 
     /**

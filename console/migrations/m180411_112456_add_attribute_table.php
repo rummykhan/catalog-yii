@@ -76,12 +76,9 @@ class m180411_112456_add_attribute_table extends Migration
         $this->createTable('attribute_option', [
             'id' => $this->primaryKey(),
             'name' => $this->string(),
-            'attribute_id' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime()
         ]);
-
-        $this->addForeignKey('fk-ao-a', 'attribute_option', 'attribute_id', 'attribute', 'id');
 
         $this->createTable('service_attribute', [
             'id' => $this->primaryKey(),
@@ -173,7 +170,6 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-sao-sa', 'service_attribute_option');
         $this->dropForeignKey('fk-sa-a', 'service_attribute');
         $this->dropForeignKey('fk-sa-s', 'service_attribute');
-        $this->dropForeignKey('fk-ao-a', 'attribute_option');
         $this->dropForeignKey('fk-a-at', 'attribute');
         $this->dropForeignKey('fk-a-ait', 'attribute');
         $this->dropForeignKey('fk-av-a', 'attribute_validation');

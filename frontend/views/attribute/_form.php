@@ -1,5 +1,6 @@
 <?php
 
+use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -14,13 +15,27 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->textInput() ?>
+    <div class="form-group">
+        <label for="">Select Type of attribute</label>
+        <?= Select2::widget([
+            'model' => $model,
+            'attribute' => 'type',
+            'data' => collect(\common\models\AttributeType::find()->all())->pluck('name', 'id')->toArray(),
+            'value' => $model->type,
+            'options' => ['placeholder' => 'Select attribute type']
+        ]) ?>
+    </div>
 
-    <?= $form->field($model, 'input_type')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
-
-    <?= $form->field($model, 'updated_at')->textInput() ?>
+    <div class="form-group">
+        <label for="">Select Type of input attribute</label>
+        <?= Select2::widget([
+            'model' => $model,
+            'attribute' => 'input_type',
+            'data' => collect(\common\models\AttributeInputType::find()->all())->pluck('name', 'id')->toArray(),
+            'value' => $model->input_type,
+            'options' => ['placeholder' => 'Select attribute input type']
+        ]) ?>
+    </div>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

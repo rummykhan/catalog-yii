@@ -4,6 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
@@ -16,6 +17,7 @@ use yii\db\Expression;
  * @property string $updated_at
  *
  * @property Category $category
+ * @property Attribute[] $serviceAttributes
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -72,5 +74,25 @@ class Service extends \yii\db\ActiveRecord
     public function getCategory()
     {
         return $this->hasOne(Category::className(), ['id' => 'category_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceAttributes()
+    {
+        return $this->hasMany(Attribute::className(), ['id' => 'attribute_id'])
+            ->viaTable('service_attribute', ['service_id' => 'id']);
+    }
+
+    /**
+     * @param $attribute Attribute
+     */
+    public function attachAttribute($attribute)
+    {
+        $serviceAttribute = new ServiceAttribute();
+        $serviceAttribute->service_id = $this->id;
+        $serviceAttribute->attribute_id = $attribute->id;
+        $serviceAttribute->save();
     }
 }
