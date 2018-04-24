@@ -171,6 +171,28 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-sad-sa', 'service_attribute_depends', 'service_attribute_id', 'service_attribute', 'id');
         $this->addForeignKey('fk-sad-sado', 'service_attribute_depends', 'depends_on_id', 'service_attribute', 'id');
         $this->addForeignKey('fk-sad-sao', 'service_attribute_depends', 'service_attribute_option_id', 'service_attribute_option', 'id');
+
+        $this->createTable('country', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()
+        ]);
+
+        $this->createTable('city', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(),
+            'country_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-c-c', 'city', 'country_id', 'country', 'id');
+
+        $this->createTable('service_city', [
+            'id' => $this->primaryKey(),
+            'city_id' => $this->integer(),
+            'service_id' => $this->integer(),
+        ]);
+
+        $this->addForeignKey('fk-sc-c', 'service_city', 'city_id', 'city', 'id');
+        $this->addForeignKey('fk-sc-a', 'service_city', 'service_id', 'service', 'id');
     }
 
     /**
@@ -221,5 +243,6 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('provided_service_matrix_pricing');
         $this->dropTable('provided_service_base_pricing');
         $this->dropTable('service_attribute_depends');
+        $this->dropTable('country');
     }
 }

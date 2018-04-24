@@ -13,10 +13,9 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Provided Service', ['create'], ['class' => 'btn btn-success']) ?>
+        <a href="<?= \yii\helpers\Url::to(['/provided-service/create', 'provider_id' => $searchModel->provider_id]) ?>" class="btn btn-success">Provide New Service</a>
     </p>
 
     <?= GridView::widget([

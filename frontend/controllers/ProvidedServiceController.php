@@ -31,11 +31,13 @@ class ProvidedServiceController extends Controller
 
     /**
      * Lists all ProvidedService models.
+     * @param $provider_id
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($provider_id)
     {
         $searchModel = new ProvidedServiceSearch();
+        $searchModel->provider_id = $provider_id;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -60,11 +62,13 @@ class ProvidedServiceController extends Controller
     /**
      * Creates a new ProvidedService model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param $provider_id
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($provider_id)
     {
         $model = new ProvidedService();
+        $model->provider_id = $provider_id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
