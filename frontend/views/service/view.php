@@ -16,8 +16,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Attach Attribute', ['/service/attach-attribute', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('View / Set Attribute', ['/service/attach-attribute', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('View / Set Pricing Attributes', ['/service/add-pricing', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('View / Set Attribute Dependency', ['/service/add-attribute-dependency', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [

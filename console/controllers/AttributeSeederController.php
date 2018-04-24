@@ -9,9 +9,12 @@
 namespace console\controllers;
 
 
-use common\models\AttributeInputType;
+use common\models\Attribute;
+use common\models\AttributeOption;
+use common\models\InputType;
 use common\models\AttributeType;
 use common\models\PriceType;
+use common\models\UserInputType;
 use common\models\Validation;
 use common\models\ValidationOption;
 use yii\console\Application;
@@ -38,44 +41,30 @@ class AttributeSeederController extends Controller
         $this->stdout("\n");
         $this->stdout("\n");
 
-        $this->seedAttributeType();
         $this->seedAttributeInputType();
         $this->seedValidationOption();
         $this->seedValidation();
         $this->seedPriceTypes();
+        $this->seedUserInputType();
+        $this->seedAttributeOptions();
+        $this->seedAttributes();
 
         $this->stdout("\n");
         $this->stdout('Running seeders complete..', Console::FG_GREEN);
         $this->stdout("\n");
     }
 
-    protected function seedAttributeType()
-    {
-        $this->stdout('Seeding attribute type..', Console::FG_GREEN);
-        $this->stdout("\n");
-        if (AttributeType::find()->count() > 0) {
-            AttributeType::deleteAll();
-        }
-
-        $types = ['string', 'integer', 'date', 'file', 'location'];
-        foreach ($types as $type) {
-            $attributeType = new AttributeType();
-            $attributeType->name = $type;
-            $attributeType->save();
-        }
-    }
-
     protected function seedAttributeInputType()
     {
         $this->stdout('Seeding attribute input type..', Console::FG_GREEN);
         $this->stdout("\n");
-        if (AttributeInputType::find()->count() > 0) {
-            AttributeInputType::deleteAll();
+        if (InputType::find()->count() > 0) {
+            InputType::deleteAll();
         }
 
         $types = ['TextBox', 'Numeric', 'DatePicker', 'DateRange', 'TextArea', 'File', 'GoogleMap', 'DropDown', 'Checkbox', 'Radio'];
         foreach ($types as $type) {
-            $attributeType = new AttributeInputType();
+            $attributeType = new InputType();
             $attributeType->name = $type;
             $attributeType->save();
         }
@@ -105,7 +94,7 @@ class AttributeSeederController extends Controller
             Validation::deleteAll();
         }
 
-        $options = ['required', 'single', 'multiple', 'image', 'doc', 'coordinates', 'phone'];
+        $options = ['required', 'image', 'doc', 'coordinates', 'phone', 'integer', 'string'];
         foreach ($options as $option) {
             $validation = new Validation();
             $validation->type = $option;
@@ -121,11 +110,68 @@ class AttributeSeederController extends Controller
             PriceType::deleteAll();
         }
 
-        $options = ['composite', 'incremental'];
+        $options = [PriceType::TYPE_COMPOSITE, PriceType::TYPE_INCREMENTAL, PriceType::TYPE_NO_IMPACT];
         foreach ($options as $option) {
             $priceType = new PriceType();
             $priceType->type = $option;
             $priceType->save();
+        }
+    }
+
+    protected function seedUserInputType()
+    {
+        $this->stdout('Seeding user input type', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (UserInputType::find()->count() > 0) {
+            UserInputType::deleteAll();
+        }
+
+        $options = [UserInputType::TYPE_SINGLE, UserInputType::TYPE_MULTI, UserInputType::TYPE_TEXT];
+        foreach ($options as $option) {
+            $priceType = new UserInputType();
+            $priceType->name = $option;
+            $priceType->save();
+        }
+    }
+
+    protected function seedAttributeOptions()
+    {
+        $this->stdout('Seeding attribute options', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (AttributeOption::find()->count() > 0) {
+            AttributeOption::deleteAll();
+        }
+
+        $options = [
+            1, 2, 3, 4, 'Yes', 'No', 'Male', 'Female', 'Any',
+            'Broken Screen', 'Broken Cover', 'Mic not working', 'Headphone not working', 'Not charging',
+            'Dubai', 'Sharjah', 'Abu Dhabi', 'Ajman', 'Fujairah',
+            'Gold', 'Silver', 'Black', 'Rose Gold', 'White',
+            'Protector', 'Mic', 'Headphone', 'Charger', '1BHK', '2BHK', 'Studio', 'Villa'
+        ];
+        foreach ($options as $option) {
+            $attributeOption = new AttributeOption();
+            $attributeOption->name = $option;
+            $attributeOption->save();
+        }
+    }
+
+    protected function seedAttributes()
+    {
+        $this->stdout('Seeding attributes', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (Attribute::find()->count() > 0) {
+            Attribute::deleteAll();
+        }
+
+        $options = [
+            'Hours', 'No of cleaners', 'Gender Preference', 'From', 'To', 'Issues', 'Color',
+            'Accessories', 'Type of House', 'Cleaning Material'
+        ];
+        foreach ($options as $option) {
+            $attributeOption = new Attribute();
+            $attributeOption->name = $option;
+            $attributeOption->save();
         }
     }
 }

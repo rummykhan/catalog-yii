@@ -4,13 +4,13 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $model common\models\AttributeInputType */
+/* @var $model common\models\UserInputType */
 
-$this->title = 'Create Attribute Input Type';
-$this->params['breadcrumbs'][] = ['label' => 'Attribute Input Types', 'url' => ['index']];
+$this->title = 'Create User Input Type';
+$this->params['breadcrumbs'][] = ['label' => 'User Input Types', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="attribute-input-type-create">
+<div class="user-input-type-create">
 
     <h1><?= Html::encode($this->title) ?></h1>
 

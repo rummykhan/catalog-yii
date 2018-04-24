@@ -7,25 +7,38 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
 /**
- * This is the model class for table "attribute".
+ * This is the model class for table "user_input_type".
  *
  * @property int $id
  * @property string $name
  * @property string $created_at
  * @property string $updated_at
  *
- * @property InputType $inputType
- * @property ServiceAttributeValidation[] $attributeValidations
  * @property ServiceAttribute[] $serviceAttributes
  */
-class Attribute extends \yii\db\ActiveRecord
+class UserInputType extends \yii\db\ActiveRecord
 {
+    const TYPE_SINGLE = 'Single';
+    const TYPE_MULTI = 'Multiple';
+    const TYPE_TEXT = 'Text';
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'attribute';
+        return 'user_input_type';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()')
+            ]
+        ];
     }
 
     /**
@@ -52,24 +65,12 @@ class Attribute extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::class,
-                'createdAtAttribute' => 'created_at',
-                'updatedAtAttribute' => 'updated_at',
-                'value' => new Expression('NOW()')
-            ]
-        ];
-    }
-
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getServiceAttributes()
     {
-        return $this->hasMany(ServiceAttribute::className(), ['attribute_id' => 'id']);
+        return $this->hasMany(ServiceAttribute::className(), ['user_input_type_id' => 'id']);
     }
 
     public static function toList()

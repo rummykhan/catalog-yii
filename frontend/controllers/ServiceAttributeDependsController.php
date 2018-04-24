@@ -3,16 +3,16 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Validation;
-use common\models\ValidationSearch;
+use common\models\ServiceAttributeDepends;
+use common\models\ServiceAttributeDependsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ValidationController implements the CRUD actions for Validation model.
+ * ServiceAttributeDependsController implements the CRUD actions for ServiceAttributeDepends model.
  */
-class ValidationController extends Controller
+class ServiceAttributeDependsController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,12 +30,12 @@ class ValidationController extends Controller
     }
 
     /**
-     * Lists all Validation models.
+     * Lists all ServiceAttributeDepends models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new ValidationSearch();
+        $searchModel = new ServiceAttributeDependsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +45,7 @@ class ValidationController extends Controller
     }
 
     /**
-     * Displays a single Validation model.
+     * Displays a single ServiceAttributeDepends model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,21 +58,15 @@ class ValidationController extends Controller
     }
 
     /**
-     * Creates a new Validation model.
+     * Creates a new ServiceAttributeDepends model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @param $returnTo
      * @return mixed
      */
-    public function actionCreate($returnTo = null)
+    public function actionCreate()
     {
-        $model = new Validation();
+        $model = new ServiceAttributeDepends();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
-            if ($returnTo) {
-                return $this->redirect($returnTo);
-            }
-
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -82,7 +76,7 @@ class ValidationController extends Controller
     }
 
     /**
-     * Updates an existing Validation model.
+     * Updates an existing ServiceAttributeDepends model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -102,7 +96,7 @@ class ValidationController extends Controller
     }
 
     /**
-     * Deletes an existing Validation model.
+     * Deletes an existing ServiceAttributeDepends model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -116,15 +110,15 @@ class ValidationController extends Controller
     }
 
     /**
-     * Finds the Validation model based on its primary key value.
+     * Finds the ServiceAttributeDepends model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Validation the loaded model
+     * @return ServiceAttributeDepends the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Validation::findOne($id)) !== null) {
+        if (($model = ServiceAttributeDepends::findOne($id)) !== null) {
             return $model;
         }
 

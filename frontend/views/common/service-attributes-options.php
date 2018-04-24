@@ -23,7 +23,22 @@ $serviceAttribute = \common\models\ServiceAttribute::find()
 
 <br>
 
-<p>Options for <b><?= $service->name ?></b> attribute <b><?= $attribute->name ?></b></p>
+<div class="row">
+    <div class="col-md-6">
+        <p>Options for <b>Service: <?= $service->name ?></b> & <b><?= $attribute->name ?></b></p>
+
+        <ul class="list-group">
+            <?php foreach ($serviceAttribute->serviceAttributeOptions as $option) { ?>
+                <li class="list-group-item"><?= $option->attributeOption->name ?></li>
+            <?php } ?>
+        </ul>
+    </div>
+</div>
+
+
+<br>
+
+<p>Validations for <b>Service: <?= $service->name ?></b> & <b><?= $attribute->name ?></b></p>
 
 <table class="table table-striped table-responsive">
     <thead>
@@ -33,11 +48,12 @@ $serviceAttribute = \common\models\ServiceAttribute::find()
     </tr>
     </thead>
     <tbody>
-    <?php foreach($serviceAttribute->serviceAttributeOptions as $option) { ?>
+    <?php foreach ($serviceAttribute->validations as $validation) { ?>
         <tr>
-            <td><?= $option->attributeOption->name ?></td>
+            <td><?= $validation->type ?></td>
             <td>
-                <a href="<?= \yii\helpers\Url::to(['/attribute/detach-options', 'option_id' => $option->id, 'service_attribute_id' => $option->service_attribute_id ]) ?>" class="btn btn-danger btn-sm">
+                <a href="<?= \yii\helpers\Url::to(['/attribute/detach-validation', 'validation_id' => $validation->id, 'service_attribute_id' => $serviceAttribute->id]) ?>"
+                   class="btn btn-danger btn-sm">
                     Delete
                 </a>
             </td>
@@ -45,5 +61,4 @@ $serviceAttribute = \common\models\ServiceAttribute::find()
     <?php } ?>
     </tbody>
 </table>
-
 

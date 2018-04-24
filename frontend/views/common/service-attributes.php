@@ -23,7 +23,8 @@ use common\models\Service;
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>Options</th>
+        <th>No of Options</th>
+        <th>Validations</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -43,9 +44,16 @@ use common\models\Service;
                 ?>
             </td>
             <td>
+                <?= \common\models\ServiceAttribute::getValidationsString($model->id, $attribute->id) ?>
+            </td>
+            <td>
                 <a href="<?= \yii\helpers\Url::to(['/attribute/attach-options', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
                    class="btn btn-primary btn-sm">
                     View / Attach Options
+                </a>
+                <a href="<?= \yii\helpers\Url::to(['/attribute/attach-validation', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                   class="btn btn-primary btn-sm">
+                    View / Attach Validation
                 </a>
             </td>
         </tr>

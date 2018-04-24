@@ -1,15 +1,14 @@
 <?php
 
-use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\Attribute */
+/* @var $model common\models\InputType */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="attribute-form">
+<div class="attribute-input-type-form">
 
     <?php $form = ActiveForm::begin(); ?>
 

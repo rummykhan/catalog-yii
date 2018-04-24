@@ -10,6 +10,7 @@ use Yii;
  * @property int $id
  * @property int $service_attribute_id
  * @property int $price_type_id
+ * @property int $pricing_attribute_group_id
  *
  * @property PriceType $priceType
  * @property ServiceAttribute $serviceAttribute
@@ -34,6 +35,8 @@ class PricingAttribute extends \yii\db\ActiveRecord
             [['service_attribute_id', 'price_type_id'], 'integer'],
             [['price_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => PriceType::className(), 'targetAttribute' => ['price_type_id' => 'id']],
             [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
+            [['pricing_attribute_group_id'], 'integer'],
+            [['pricing_attribute_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttributeGroup::className(), 'targetAttribute' => ['pricing_attribute_group_id' => 'id']],
         ];
     }
 

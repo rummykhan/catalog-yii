@@ -14,16 +14,16 @@ use yii\db\Expression;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property Attribute[] $attributes0
+ * @property ServiceAttribute[] $serviceAttributes
  */
-class AttributeInputType extends \yii\db\ActiveRecord
+class InputType extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'attribute_input_type';
+        return 'input_type';
     }
 
     /**
@@ -65,8 +65,13 @@ class AttributeInputType extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAttributes0()
+    public function getServiceAttributes()
     {
-        return $this->hasMany(Attribute::className(), ['input_type' => 'id']);
+        return $this->hasMany(ServiceAttribute::className(), ['input_type' => 'id']);
+    }
+
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('name', 'id');
     }
 }

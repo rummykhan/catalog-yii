@@ -14,7 +14,7 @@ use yii\db\Expression;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property AttributeValidation[] $attributeValidations
+ * @property ServiceAttributeValidation[] $attributeValidations
  */
 class Validation extends \yii\db\ActiveRecord
 {
@@ -67,6 +67,11 @@ class Validation extends \yii\db\ActiveRecord
      */
     public function getAttributeValidations()
     {
-        return $this->hasMany(AttributeValidation::className(), ['validation_id' => 'id']);
+        return $this->hasMany(ServiceAttributeValidation::className(), ['validation_id' => 'id']);
+    }
+
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('type', 'id');
     }
 }

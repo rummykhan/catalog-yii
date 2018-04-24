@@ -2,8 +2,15 @@
 
 namespace frontend\controllers;
 
+use common\forms\AddPricingAttribute;
 use common\forms\AttachAttribute;
+use common\helpers\MatrixHelper;
+use common\models\PriceType;
 use common\models\PricingAttribute;
+use common\models\PricingAttributeMatrix;
+use common\models\ServiceAttribute;
+use common\models\ServiceAttributeDepends;
+use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\Service;
 use common\models\ServiceSearch;
@@ -142,7 +149,7 @@ class ServiceController extends Controller
         $model = new AttachAttribute();
         $model->service_id = $service->id;
 
-        if($model->load(Yii::$app->getRequest()->post()) && $model->attach()){
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
             return $this->redirect(['/service/view', 'id' => $service->id]);
         }
 
@@ -161,26 +168,115 @@ class ServiceController extends Controller
     public function actionAddPricing($id)
     {
         $model = $this->findModel($id);
+        $formModel = new AddPricingAttribute();
+        $formModel->service_id = $model->id;
 
-        // if this service already has all attribute marked in the pricing_attribute table
-
-        // Show user the page where he can mark attributes as composite or individual
-        // else
-        // Show user the page where he can see the pricing matrix
-
-        foreach ($model->serviceLevelAttributes as $serviceLevelAttribute){
+        foreach ($model->serviceLevelAttributes as $serviceLevelAttribute) {
 
             $pricingAttribute = PricingAttribute::find()
                 ->where(['service_attribute_id' => $serviceLevelAttribute->id])
                 ->one();
 
-            if(!$pricingAttribute){
-                return $this->render('set-pricing-attributes', ['model' => $model]);
+            if (!$pricingAttribute) {
+                return $this->render('set-pricing-attributes', ['model' => $model, 'formModel' => $formModel]);
             }
+        }
 
+        $matrix = new MatrixHelper($model);
+
+        return $this->render('view-price-matrix', [
+            'model' => $model,
+            'matrixHeaders' => $matrix->getMatrixHeaders(),
+            'matrixRows' => $matrix->getMatrixRows(),
+            'noImpactRows' => $matrix->getNoImpactRows()
+        ]);
+    }
+
+    public function actionSetPricing($id)
+    {
+        $model = $this->findModel($id);
+
+        $formModel = new AddPricingAttribute();
+        $formModel->service_id = $model->id;
+
+        return $this->render('set-pricing-attributes', ['model' => $model, 'formModel' => $formModel]);
+    }
+
+    public function actionViewPriceMatrix($id)
+    {
+        $model = $this->findModel($id);
+
+        $matrix = new MatrixHelper($model);
+
+        return $this->render('view-price-matrix', [
+            'model' => $model,
+            'matrixHeaders' => $matrix->getMatrixHeaders(),
+            'matrixRows' => $matrix->getMatrixRows(),
+            'noImpactRows' => $matrix->getNoImpactRows()
+        ]);
+    }
+
+    public function actionAddPricingAttribute($id)
+    {
+        $model = $this->findModel($id);
+
+        $formModel = new AddPricingAttribute();
+        $formModel->service_id = $id;
+
+
+        if ($formModel->load(Yii::$app->getRequest()->post()) && $formModel->addAttribute()) {
+            Yii::$app->getSession()->addFlash('success', 'Added');
+        } else {
+            Yii::$app->getSession()->addFlash('error', 'Unable to add');
+        }
+
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
+    }
+
+    public function actionAddAttributeDependency($id, $attribute_id = null, $depends_on_id = null)
+    {
+        $model = $this->findModel($id);
+
+        $depends_on = ServiceAttribute::findOne($depends_on_id);
+
+        if ($depends_on) {
+            $options = $depends_on->getOptionsList();
+        } else {
+            $options = [];
         }
 
 
-        dd('all exists',$model);
+        return $this->render('add-attribute-depenedency', [
+            'model' => $model,
+            'options' => $options,
+            'attribute_id' => $attribute_id,
+            'depends_on_id' => $depends_on_id
+        ]);
+    }
+
+    public function actionAttachAttributeDependency($id)
+    {
+        $model = $this->findModel($id);
+
+        $data = Yii::$app->getRequest()->post();
+
+        $attribute_id = Arr::get($data, 'attribute_id');
+        $depends_on = Arr::get($data, 'depends_on_id');
+        $service_attribute_options = Arr::get($data, 'service_attribute_option_id');
+
+        if (empty($service_attribute_options)) {
+            Yii::$app->getSession()->addFlash('error', 'Please select attribute option');
+            return $this->redirect(Yii::$app->getRequest()->getReferrer());
+        }
+
+        foreach ($service_attribute_options as $service_attribute_option) {
+            $dependency = new ServiceAttributeDepends();
+            $dependency->service_attribute_id = $attribute_id;
+            $dependency->depends_on_id = $depends_on;
+            $dependency->service_attribute_option_id = $service_attribute_option;
+            $dependency->save();
+        }
+
+        return $this->redirect(['/service/add-attribute-dependency', 'id' => $model->id]);
     }
 }

@@ -1,19 +1,20 @@
 <?php
 
-use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\Attribute */
+/* @var $model common\models\PricingAttributeGroup */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="attribute-form">
+<div class="pricing-attribute-group-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'service_id')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

@@ -3,16 +3,16 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\AttributeType;
-use common\models\AttributeTypeSearch;
+use common\models\UserInputType;
+use common\models\UserInputTypeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * AttributeTypeController implements the CRUD actions for AttributeType model.
+ * UserInputTypeController implements the CRUD actions for UserInputType model.
  */
-class AttributeTypeController extends Controller
+class UserInputTypeController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,12 +30,12 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Lists all AttributeType models.
+     * Lists all UserInputType models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new AttributeTypeSearch();
+        $searchModel = new UserInputTypeSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +45,7 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Displays a single AttributeType model.
+     * Displays a single UserInputType model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,13 +58,13 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Creates a new AttributeType model.
+     * Creates a new UserInputType model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new AttributeType();
+        $model = new UserInputType();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -76,7 +76,7 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Updates an existing AttributeType model.
+     * Updates an existing UserInputType model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -96,7 +96,7 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Deletes an existing AttributeType model.
+     * Deletes an existing UserInputType model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -110,15 +110,15 @@ class AttributeTypeController extends Controller
     }
 
     /**
-     * Finds the AttributeType model based on its primary key value.
+     * Finds the UserInputType model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return AttributeType the loaded model
+     * @return UserInputType the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = AttributeType::findOne($id)) !== null) {
+        if (($model = UserInputType::findOne($id)) !== null) {
             return $model;
         }
 

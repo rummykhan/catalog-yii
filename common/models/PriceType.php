@@ -14,6 +14,10 @@ use Yii;
  */
 class PriceType extends \yii\db\ActiveRecord
 {
+    const TYPE_COMPOSITE = 'composite';
+    const TYPE_INCREMENTAL = 'incremental';
+    const TYPE_NO_IMPACT = 'no impact';
+
     /**
      * @inheritdoc
      */
@@ -49,5 +53,22 @@ class PriceType extends \yii\db\ActiveRecord
     public function getPricingAttributes()
     {
         return $this->hasMany(PricingAttribute::className(), ['price_type_id' => 'id']);
+    }
+
+    /**
+     * @param $priceType PriceType
+     * @return mixed
+     */
+    public static function getName($priceType)
+    {
+        return base64_encode($priceType->type . $priceType->id);
+    }
+
+    /**
+     *
+     */
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('type', 'id');
     }
 }

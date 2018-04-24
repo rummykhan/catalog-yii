@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use yii\db\Query;
 
 /**
  * This is the model class for table "service".
@@ -19,6 +20,7 @@ use yii\db\Expression;
  * @property Category $category
  * @property Attribute[] $serviceAttributes
  * @property ServiceAttribute[] $serviceLevelAttributes
+ * @property PricingAttributeGroup[] $pricingAttributeGroups
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -92,5 +94,91 @@ class Service extends \yii\db\ActiveRecord
     public function getServiceLevelAttributes()
     {
         return $this->hasMany(ServiceAttribute::className(), ['service_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPricingAttributeGroups()
+    {
+        return $this->hasMany(PricingAttributeGroup::className(), ['service_id' => 'id']);
+    }
+
+    public function getServiceAttributesListNotInPriceGroup()
+    {
+        $query = (new Query())
+            ->select(['service_attribute.id', 'attribute.name'])
+            ->from('service_attribute')
+            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
+            ->join('inner join', 'pricing_attribute', 'service_attribute.id=pricing_attribute.service_attribute_id')
+            ->join('inner join', 'pricing_attribute_group', 'pricing_attribute.pricing_attribute_group_id=pricing_attribute_group.id')
+            ->andWhere(['service_attribute.service_id' => $this->id]);
+
+        $attributes = collect($query->all())->pluck('id')->toArray();
+
+        $query = (new Query())
+            ->select(['service_attribute.id', 'attribute.name'])
+            ->from('service_attribute')
+            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
+            ->andWhere(['service_attribute.service_id' => $this->id])
+            ->andWhere(['NOT IN', 'service_attribute.id', $attributes]);
+
+        return collect($query->all())->pluck('name', 'id');
+    }
+
+    public function getServiceAttributesList()
+    {
+        $query = (new Query())
+            ->select(['service_attribute.id', 'attribute.name'])
+            ->from('service_attribute')
+            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
+            ->andWhere(['service_attribute.service_id' => $this->id]);
+
+        return collect($query->all())->pluck('name', 'id');
+    }
+
+    /**
+     * @param $priceType PriceType
+     * @return array
+     */
+    public function getSelectedPricingAttributesArray($priceType)
+    {
+        $query = (new Query())
+            ->select(['service_attribute.id'])
+            ->from('pricing_attribute')
+            ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+            ->join('inner join', 'price_type', 'pricing_attribute.price_type_id=price_type.id')
+            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
+            ->andWhere(['price_type.type' => $priceType->type])
+            ->andWhere(['service_attribute.service_id' => $this->id]);
+
+
+        return collect($query->all())->pluck('id')->toArray();
+    }
+
+    /**
+     * @param $priceType PriceType
+     * @return array
+     */
+    public function getPricingAttributes($priceType)
+    {
+        $query = (new Query())
+            ->select([
+                new Expression('service_attribute.id as service_attribute_id'),
+                new Expression('attribute.name attribute_name'),
+                new Expression('service_attribute_option.id service_attribute_option_id'),
+                new Expression('attribute_option.name attribute_option_name')
+            ])
+            ->from('pricing_attribute')
+            ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+            ->join('inner join', 'price_type', 'pricing_attribute.price_type_id=price_type.id')
+            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
+            ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+            ->join('inner join', 'attribute_option', 'service_attribute_option.attribute_option_id=attribute_option.id')
+            ->andWhere(['price_type.type' => $priceType->type])
+            ->andWhere(['service_attribute.service_id' => $this->id]);
+
+
+        return $query->all();
     }
 }

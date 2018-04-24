@@ -18,13 +18,14 @@ use yii\web\NotFoundHttpException;
 class AttachAttribute extends Model
 {
     public $service_id;
-    public $attribute_ids;
+    public $attribute_id;
+    public $input_type;
+    public $user_input_type;
 
     public function rules()
     {
         return [
-            [['service_id'], 'integer'],
-            ['attribute_ids', 'each', 'rule' => ['integer']]
+            [['service_id', 'input_type', 'user_input_type', 'attribute_id'], 'integer']
         ];
     }
 
@@ -35,28 +36,18 @@ class AttachAttribute extends Model
             throw new NotFoundHttpException();
         }
 
-        foreach ($this->attribute_ids as $attribute_id) {
-            $this->attachAttribute($service, $attribute_id);
-        }
-    }
-
-    /**
-     * @param $service Service
-     * @param $attribute_id integer
-     * @return Attribute
-     */
-    protected function attachAttribute($service, $attribute_id)
-    {
         /** @var Attribute $attribute */
-        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+        $attribute = $service->getServiceAttributes()->where(['id' => $this->attribute_id])->one();
 
         if ($attribute) {
             return $attribute;
         }
 
         $serviceAttribute = new ServiceAttribute();
-        $serviceAttribute->attribute_id = $attribute_id;
+        $serviceAttribute->attribute_id = $this->attribute_id;
         $serviceAttribute->service_id = $service->id;
+        $serviceAttribute->user_input_type_id = $this->user_input_type;
+        $serviceAttribute->input_type_id = $this->input_type;
         $serviceAttribute->save();
 
         return $serviceAttribute->attribute0;

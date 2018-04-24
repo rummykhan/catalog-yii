@@ -92,7 +92,7 @@ class AttributeOptionController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate($id, $returnTo = null)
     {
         $model = $this->findModel($id);
 
@@ -102,6 +102,7 @@ class AttributeOptionController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'returnTo' => $returnTo
         ]);
     }
 

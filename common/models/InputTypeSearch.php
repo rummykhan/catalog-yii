@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\AttributeInputType;
+use common\models\InputType;
 
 /**
- * AttributeInputTypeSearch represents the model behind the search form of `common\models\AttributeInputType`.
+ * InputTypeSearch represents the model behind the search form of `common\models\InputType`.
  */
-class AttributeInputTypeSearch extends AttributeInputType
+class InputTypeSearch extends InputType
 {
     /**
      * @inheritdoc
@@ -41,7 +41,7 @@ class AttributeInputTypeSearch extends AttributeInputType
      */
     public function search($params)
     {
-        $query = AttributeInputType::find();
+        $query = InputType::find();
 
         // add conditions that should always apply here
 

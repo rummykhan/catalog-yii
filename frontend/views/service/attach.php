@@ -18,27 +18,55 @@ $this->params['breadcrumbs'][] = 'Attach Attribute';
     'action' => ['/service/attach-attribute', 'id' => $service->id]
 ]) ?>
 
-    <div class="form-group">
-        <label for="">
-            Select Attributes <a href="<?= \yii\helpers\Url::to([
-                '/attribute/create', 'returnTo' => \yii\helpers\Url::to(['/service/attach-attribute', 'id' => $service->id])
-            ]) ?>">or Create Attributes</a>
-        </label>
-        <?= Select2::widget([
-            'model' => $model,
-            'attribute' => 'attribute_ids',
-            'data' => \common\models\Attribute::toList(),
-            'options' => ['placeholder' => 'Select attributes to attach'],
-            'pluginOptions' => [
-                'multiple' => true,
-                'allowClear' => true
-            ]
-        ]) ?>
-    </div>
+<div class="form-group">
+    <label for="">
+        Select Attributes <a href="<?= \yii\helpers\Url::to([
+            '/attribute/create', 'returnTo' => \yii\helpers\Url::to(['/service/attach-attribute', 'id' => $service->id])
+        ]) ?>">or Create Attributes</a>
+    </label>
+    <?= Select2::widget([
+        'model' => $model,
+        'attribute' => 'attribute_id',
+        'data' => \common\models\Attribute::toList(),
+        'options' => ['placeholder' => 'Select attributes to attach'],
+        'pluginOptions' => [
+            'multiple' => false,
+            'allowClear' => true
+        ]
+    ]) ?>
+</div>
 
-    <div class="form-group">
-        <?= Html::submitButton('Attach', ['class' => 'btn btn-primary']) ?>
-    </div>
+<div class="form-group">
+    <label for="">Input type to be rendered</label>
+    <?= Select2::widget([
+        'model' => $model,
+        'attribute' => 'input_type',
+        'data' => \common\models\InputType::toList(),
+        'options' => ['placeholder' => 'Select type of input'],
+        'pluginOptions' => [
+            'multiple' => false,
+            'allowClear' => true
+        ]
+    ]) ?>
+</div>
+
+<div class="form-group">
+    <label for="">User input</label>
+    <?= Select2::widget([
+        'model' => $model,
+        'attribute' => 'user_input_type',
+        'data' => \common\models\UserInputType::toList(),
+        'options' => ['placeholder' => 'Select attributes to attach'],
+        'pluginOptions' => [
+            'multiple' => false,
+            'allowClear' => true
+        ]
+    ]) ?>
+</div>
+
+<div class="form-group">
+    <?= Html::submitButton('Attach', ['class' => 'btn btn-primary']) ?>
+</div>
 
 
 <?php ActiveForm::end() ?>

@@ -8,20 +8,20 @@ use Yii;
  * This is the model class for table "attribute_validation".
  *
  * @property int $id
- * @property int $attribute_id
+ * @property int $service_attribute_id
  * @property int $validation_id
  *
  * @property Attribute $attribute0
  * @property Validation $validation
  */
-class AttributeValidation extends \yii\db\ActiveRecord
+class ServiceAttributeValidation extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'attribute_validation';
+        return 'service_attribute_validation';
     }
 
     /**
@@ -30,8 +30,8 @@ class AttributeValidation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['attribute_id', 'validation_id'], 'integer'],
-            [['attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => Attribute::className(), 'targetAttribute' => ['attribute_id' => 'id']],
+            [['service_attribute_id', 'validation_id'], 'integer'],
+            [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
             [['validation_id'], 'exist', 'skipOnError' => true, 'targetClass' => Validation::className(), 'targetAttribute' => ['validation_id' => 'id']],
         ];
     }
@@ -43,7 +43,7 @@ class AttributeValidation extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'attribute_id' => 'Attribute ID',
+            'service_attribute_id' => 'Service Attribute ID',
             'validation_id' => 'Validation ID',
         ];
     }
@@ -51,9 +51,9 @@ class AttributeValidation extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAttribute0()
+    public function getServiceAttribute()
     {
-        return $this->hasOne(Attribute::className(), ['id' => 'attribute_id']);
+        return $this->hasOne(ServiceAttribute::className(), ['id' => 'service_attribute_id']);
     }
 
     /**

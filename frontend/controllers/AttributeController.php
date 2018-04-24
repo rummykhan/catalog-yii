@@ -3,7 +3,10 @@
 namespace frontend\controllers;
 
 use common\forms\AttachOption;
+use common\forms\AttachValidation;
 use common\models\Service;
+use common\models\ServiceAttribute;
+use common\models\ServiceAttributeValidation;
 use Yii;
 use common\models\Attribute;
 use common\models\AttributeSearch;
@@ -168,16 +171,73 @@ class AttributeController extends Controller
         ]);
     }
 
-    /**
-     * Detach options from attribute
-     *
-     * @param $service_attribute_id
-     * @param $option_id
-     * @throws NotFoundHttpException
-     * @return mixed
-     */
     public function actionDetachOptions($service_attribute_id, $option_id)
     {
+        $attribute = ServiceAttribute::findOne($service_attribute_id);
 
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $option = $attribute->getServiceAttributeOptions()->where(['id' => $option_id])->one();
+
+        if (!$option) {
+            throw new NotFoundHttpException();
+        }
+
+        dd($option);
+    }
+
+    public function actionDetachValidation($service_attribute_id, $validation_id)
+    {
+        $serviceAttribute = ServiceAttribute::findOne($service_attribute_id);
+
+        if (!$serviceAttribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $validation = $serviceAttribute->getValidations()->where(['id' => $validation_id])->one();
+
+        if (!$validation) {
+            throw new NotFoundHttpException();
+        }
+
+        $serviceAttributeValidation = ServiceAttributeValidation::find()
+            ->where(['service_attribute_id' => $service_attribute_id])
+            ->andWhere(['validation_id' => $validation_id])
+            ->one();
+
+        $serviceAttributeValidation->delete();
+
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
+    }
+
+    public function actionAttachValidation($attribute_id, $service_id)
+    {
+        $service = Service::findOne($service_id);
+        if (!$service) {
+            throw new NotFoundHttpException();
+        }
+
+        $attribute = Attribute::findOne($attribute_id);
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $model = new AttachValidation();
+        $model->service_id = $service_id;
+        $model->attribute_id = $attribute_id;
+
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
+
+        }
+
+        return $this->render('attach-validation', [
+            'service' => $service,
+            'attribute' => $attribute,
+            'model' => $model
+        ]);
     }
 }

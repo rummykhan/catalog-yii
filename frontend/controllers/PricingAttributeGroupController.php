@@ -3,16 +3,16 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\AttributeInputType;
-use common\models\AttributeInputTypeSearch;
+use common\models\PricingAttributeGroup;
+use common\models\PricingAttributeGroupSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * AttributeInputTypeController implements the CRUD actions for AttributeInputType model.
+ * PricingAttributeGroupController implements the CRUD actions for PricingAttributeGroup model.
  */
-class AttributeInputTypeController extends Controller
+class PricingAttributeGroupController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,12 +30,12 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Lists all AttributeInputType models.
+     * Lists all PricingAttributeGroup models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new AttributeInputTypeSearch();
+        $searchModel = new PricingAttributeGroupSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +45,7 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Displays a single AttributeInputType model.
+     * Displays a single PricingAttributeGroup model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,13 +58,13 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Creates a new AttributeInputType model.
+     * Creates a new PricingAttributeGroup model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new AttributeInputType();
+        $model = new PricingAttributeGroup();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -76,7 +76,7 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Updates an existing AttributeInputType model.
+     * Updates an existing PricingAttributeGroup model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -96,7 +96,7 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Deletes an existing AttributeInputType model.
+     * Deletes an existing PricingAttributeGroup model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -110,15 +110,15 @@ class AttributeInputTypeController extends Controller
     }
 
     /**
-     * Finds the AttributeInputType model based on its primary key value.
+     * Finds the PricingAttributeGroup model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return AttributeInputType the loaded model
+     * @return PricingAttributeGroup the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = AttributeInputType::findOne($id)) !== null) {
+        if (($model = PricingAttributeGroup::findOne($id)) !== null) {
             return $model;
         }
 

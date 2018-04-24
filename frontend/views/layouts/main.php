@@ -50,9 +50,10 @@ AppAsset::register($this);
         [
             'label' => 'Catalog Setting',
             'items' => [
-                ['label' => 'Attribute Type', 'url' => ['/attribute-type/index']],
-                ['label' => 'Attribute Input Type', 'url' => ['/attribute-input-type/index']],
+                ['label' => 'Input Type', 'url' => ['/input-type/index']],
+                ['label' => 'User Input Type', 'url' => ['/user-input-type/index']],
                 ['label' => 'Validation', 'url' => ['/validation/index']],
+                ['label' => 'Price Type', 'url' => ['/price-type/index']],
                 ['label' => 'Price Type', 'url' => ['/price-type/index']],
             ]
         ]

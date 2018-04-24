@@ -4,19 +4,19 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel common\models\AttributeSearch */
+/* @var $searchModel common\models\InputTypeSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Attributes';
+$this->title = 'Attribute Input Types';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="attribute-index">
+<div class="attribute-input-type-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Attribute', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Attribute Input Type', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'name',
             'created_at',
-            //'updated_at',
+            'updated_at',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

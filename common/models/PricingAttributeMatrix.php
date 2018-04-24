@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\helpers\MatrixHelper;
 use Yii;
 
 /**
