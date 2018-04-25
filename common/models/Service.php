@@ -21,6 +21,7 @@ use yii\db\Query;
  * @property Attribute[] $serviceAttributes
  * @property ServiceAttribute[] $serviceLevelAttributes
  * @property PricingAttributeGroup[] $pricingAttributeGroups
+ * @property City[] $cities
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -104,6 +105,15 @@ class Service extends \yii\db\ActiveRecord
         return $this->hasMany(PricingAttributeGroup::className(), ['service_id' => 'id']);
     }
 
+    /**
+     * @return ActiveQuery
+     */
+    public function getCities()
+    {
+        return $this->hasMany(City::className(), ['id' => 'city_id'])
+            ->viaTable('service_city', ['service_id' => 'id']);
+    }
+
     public function getServiceAttributesListNotInPriceGroup()
     {
         $query = (new Query())
@@ -180,5 +190,30 @@ class Service extends \yii\db\ActiveRecord
 
 
         return $query->all();
+    }
+
+    /**
+     * @param $cities array
+     * @return mixed
+     */
+    public function attachCities($cities)
+    {
+        if (empty($cities)) {
+            return null;
+        }
+
+        foreach ($cities as $city) {
+
+            $attachedCity = $this->getCities()->where(['id' => $city])->one();
+
+            if ($attachedCity) {
+                continue;
+            }
+
+            $serviceCity = new ServiceCity();
+            $serviceCity->service_id = $this->id;
+            $serviceCity->city_id = $city;
+            $serviceCity->save(true);
+        }
     }
 }

@@ -11,12 +11,15 @@ namespace console\controllers;
 
 use common\models\Attribute;
 use common\models\AttributeOption;
+use common\models\City;
+use common\models\Country;
 use common\models\InputType;
 use common\models\AttributeType;
 use common\models\PriceType;
 use common\models\UserInputType;
 use common\models\Validation;
 use common\models\ValidationOption;
+use PHPUnit\Framework\Constraint\Count;
 use yii\console\Application;
 use yii\console\Controller;
 use yii\helpers\Console;
@@ -48,6 +51,8 @@ class AttributeSeederController extends Controller
         $this->seedUserInputType();
         $this->seedAttributeOptions();
         $this->seedAttributes();
+        $this->seedCountries();
+        $this->seedCities();
 
         $this->stdout("\n");
         $this->stdout('Running seeders complete..', Console::FG_GREEN);
@@ -172,6 +177,58 @@ class AttributeSeederController extends Controller
             $attributeOption = new Attribute();
             $attributeOption->name = $option;
             $attributeOption->save();
+        }
+    }
+
+    protected function seedCountries()
+    {
+        $this->stdout('Seeding countries', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (Country::find()->count() > 0) {
+            Country::deleteAll();
+        }
+
+        $options = [
+            'United Arab Emirates', 'Saudi Arabia'
+        ];
+        foreach ($options as $option) {
+            $attributeOption = new Country();
+            $attributeOption->name = $option;
+            $attributeOption->save();
+        }
+    }
+
+    protected function seedCities()
+    {
+        $this->stdout('Seeding cities', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (City::find()->count() > 0) {
+            City::deleteAll();
+        }
+
+        $countries = [
+            'United Arab Emirates' => [
+                'Dubai', 'Sharjah', 'Ajman', 'Fujairah', 'Abu Dhabi', 'Al ain', 'Ras Al Khaimah'
+            ],
+            'Saudi Arabia' => [
+                'Riyadh', 'Mecca', 'Medina'
+            ]
+        ];
+        foreach ($countries as $country => $cities) {
+            $country = Country::find()
+                ->where(['name' => $country])
+                ->one();
+
+            if (!$country) {
+                continue;
+            }
+
+            foreach ($cities as $city) {
+                $attributeOption = new City();
+                $attributeOption->name = $city;
+                $attributeOption->country_id = $country->id;
+                $attributeOption->save();
+            }
         }
     }
 }

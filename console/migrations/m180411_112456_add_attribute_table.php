@@ -224,6 +224,10 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-sad-sado', 'service_attribute_depends');
         $this->dropForeignKey('fk-sad-sao', 'service_attribute_depends');
 
+        $this->dropForeignKey('fk-c-c', 'city');
+        $this->dropForeignKey('fk-sc-c', 'service_city');
+        $this->dropForeignKey('fk-sc-a', 'service_city');
+
 
         $this->dropTable('service_attribute_option');
         $this->dropTable('service_attribute');
@@ -243,6 +247,9 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('provided_service_matrix_pricing');
         $this->dropTable('provided_service_base_pricing');
         $this->dropTable('service_attribute_depends');
+
         $this->dropTable('country');
+        $this->dropTable('city');
+        $this->dropTable('service_city');
     }
 }

@@ -44,6 +44,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->category->name;
                 }
             ],
+            [
+                'label' => 'Cities',
+                'value' => function($model){
+                    /** @var $model \common\models\Service */
+                    return implode(',', collect($model->getCities()->asArray()->all())->pluck('name')->toArray());
+                }
+            ],
             'created_at',
             'updated_at',
         ],

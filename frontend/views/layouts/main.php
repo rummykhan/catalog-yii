@@ -54,7 +54,8 @@ AppAsset::register($this);
                 ['label' => 'User Input Type', 'url' => ['/user-input-type/index']],
                 ['label' => 'Validation', 'url' => ['/validation/index']],
                 ['label' => 'Price Type', 'url' => ['/price-type/index']],
-                ['label' => 'Price Type', 'url' => ['/price-type/index']],
+                ['label' => 'Country', 'url' => ['/country/index']],
+                ['label' => 'City', 'url' => ['/city/index']],
             ]
         ]
     ];

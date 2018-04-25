@@ -27,6 +27,20 @@ use yii\widgets\ActiveForm;
     </div>
 
     <div class="form-group">
+        <label for="">Select Cities</label>
+        <?= Select2::widget([
+            'name' => 'cities',
+            'data' => \common\models\City::toList(),
+            'value' => collect($model->getCities()->asArray()->all())->pluck('id', 'id')->toArray(),
+            'options' => ['placeholder' => 'Select city'],
+            'pluginOptions' => [
+                'multiple' => true,
+                'allowClear' => true
+            ]
+        ]) ?>
+    </div>
+
+    <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
     </div>
 

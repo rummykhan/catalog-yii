@@ -10,6 +10,7 @@ use common\models\PricingAttribute;
 use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeDepends;
+use common\models\ServiceCity;
 use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\Service;
@@ -80,6 +81,11 @@ class ServiceController extends Controller
         $model = new Service();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            $cities = Yii::$app->getRequest()->post('cities');
+
+            $model->attachCities($cities);
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -100,6 +106,14 @@ class ServiceController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            $cities = Yii::$app->getRequest()->post('cities');
+
+            // delete all cities from service
+            ServiceCity::deleteAll(['service_id' => $model->id]);
+
+            $model->attachCities($cities);
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
