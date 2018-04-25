@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\Provider;
 use Yii;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceSearch;
@@ -76,6 +77,7 @@ class ProvidedServiceController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+            'provider' => Provider::findOne($provider_id)
         ]);
     }
 

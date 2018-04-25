@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\db\Query;
 
 /**
  * This is the model class for table "provided_service".
@@ -81,5 +82,20 @@ class ProvidedService extends \yii\db\ActiveRecord
     public function getService()
     {
         return $this->hasOne(Service::className(), ['id' => 'service_id']);
+    }
+
+    public function getUnProvidedServicesList()
+    {
+        $providedServices = collect(
+            static::find()
+                ->select([new Expression('service_id as id')])
+                ->where(['provider_id' => $this->provider_id])
+                ->all()
+        )->pluck('id')->toArray();
+
+
+        return collect(
+            Service::find()->where(['NOT IN', 'id', $providedServices])->asArray()->all()
+        )->pluck('name', 'id');
     }
 }
