@@ -230,6 +230,26 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function actionConfirmPriceMatrix($id)
+    {
+        $model = $this->findModel($id);
+
+        $matrix = new MatrixHelper($model);
+
+        if (empty($matrix->getMatrixRows())) {
+            Yii::$app->getSession()->addFlash('error', 'Pricing attributes not set');
+            return $this->redirect(['/service/add-pricing', 'id' => $model->id]);
+        }
+
+        foreach ($matrix->getMatrixRows() as $matrixRow) {
+            $matrix->saveMatrixRow($matrixRow);
+        }
+
+        Yii::$app->getSession()->addFlash('success', 'Pricing attributes matrix saved');
+
+        return $this->redirect(['/service/add-pricing', 'id' => $model->id]);
+    }
+
     public function actionAddPricingAttribute($id)
     {
         $model = $this->findModel($id);

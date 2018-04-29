@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use RummyKhan\Collection\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -97,5 +98,123 @@ class ProvidedService extends \yii\db\ActiveRecord
         return collect(
             Service::find()->where(['NOT IN', 'id', $providedServices])->asArray()->all()
         )->pluck('name', 'id');
+    }
+
+    /**
+     * @param $services array
+     * @return mixed
+     */
+    public function provideServices($services)
+    {
+        if (empty($services)) {
+            return false;
+        }
+
+        foreach ($services as $service) {
+            $this->provideService($service);
+        }
+
+        return true;
+    }
+
+    public function provideService($service_id)
+    {
+        $providedService = ProvidedService::find()
+            ->where(['provider_id' => $this->provider_id])
+            ->andWhere(['service_id' => $service_id])
+            ->one();
+
+        if ($providedService) {
+            return false;
+        }
+
+        $providedService = new ProvidedService();
+        $providedService->service_id = $service_id;
+        $providedService->provider_id = $this->provider_id;
+        $providedService->save();
+
+        return true;
+    }
+
+    public function savePrices($prices, $city_id)
+    {
+        if (empty($prices)) {
+            return false;
+        }
+
+        foreach ($prices as $matrix => $price) {
+            $this->saveMatrixPrice(explode('_', $matrix), $price, $city_id);
+        }
+
+        return true;
+    }
+
+    public function saveMatrixPrice($matrix, $price, $city_id)
+    {
+        if (empty($price)) {
+            return false;
+        }
+
+        $parent = static::getParent($matrix, $this->service_id);
+
+        if (empty($parent)) {
+            return false;
+        }
+
+        $matrixPricing = new ProvidedServiceMatrixPricing();
+        $matrixPricing->provided_service_id = $this->id;
+        $matrixPricing->pricing_attribute_parent_id = $parent;
+        $matrixPricing->price = $price;
+        $matrixPricing->city_id = $city_id;
+        $matrixPricing->save();
+    }
+
+    public static function getParent($matrix, $service_id)
+    {
+        $parents = static::getServiceParentAttributePricingGroup($service_id);
+
+        if (empty($parents)) {
+            return null;
+        }
+
+        /** @var Collection $parent */
+        foreach ($parents as $id => $parent) {
+
+            $found = [];
+            foreach ($matrix as $item) {
+                $found[] = null !== $parent->where('service_attribute_option_id', $item)->first();
+            }
+
+            $found = array_unique($found);
+
+            if ($found) {
+                return $id;
+            }
+        }
+
+        return null;
+    }
+
+    public static function getServiceParentAttributePricingGroup($service_id)
+    {
+        $query = (new Query())
+            ->select([
+                new Expression('pricing_attribute_matrix.pricing_attribute_parent_id'),
+                new Expression('pricing_attribute_matrix.service_attribute_option_id')
+            ])->from('pricing_attribute_matrix')
+            ->join('inner join', 'pricing_attribute_parent', 'pricing_attribute_matrix.pricing_attribute_parent_id=pricing_attribute_parent.id')
+            ->where(['pricing_attribute_parent.service_id' => $service_id]);
+
+        return collect($query->all())->groupBy('pricing_attribute_parent_id');
+    }
+
+    /**
+     * @param $parents Collection
+     * @param $matrix array
+     * @return mixed
+     */
+    public static function findParent($parents, $matrix)
+    {
+
     }
 }

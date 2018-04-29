@@ -56,6 +56,7 @@ AppAsset::register($this);
                 ['label' => 'Price Type', 'url' => ['/price-type/index']],
                 ['label' => 'Country', 'url' => ['/country/index']],
                 ['label' => 'City', 'url' => ['/city/index']],
+                ['label' => 'Service Type', 'url' => ['/service-type/index']],
             ]
         ]
     ];

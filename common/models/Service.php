@@ -114,6 +114,18 @@ class Service extends \yii\db\ActiveRecord
             ->viaTable('service_city', ['service_id' => 'id']);
     }
 
+    public function getCitiesList()
+    {
+        $query = (new Query())
+            ->select(['city.id', 'city.name'])
+            ->from('city')
+            ->join('inner join', 'service_city', 'city.id=service_city.city_id')
+            ->join('inner join', 'service', 'service_city.service_id=service.id')
+            ->where(['service.id' => $this->id]);
+
+        return collect($query->all())->pluck('name', 'id');
+    }
+
     public function getServiceAttributesListNotInPriceGroup()
     {
         $query = (new Query())

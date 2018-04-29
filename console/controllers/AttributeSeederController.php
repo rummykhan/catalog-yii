@@ -16,6 +16,7 @@ use common\models\Country;
 use common\models\InputType;
 use common\models\AttributeType;
 use common\models\PriceType;
+use common\models\ServiceType;
 use common\models\UserInputType;
 use common\models\Validation;
 use common\models\ValidationOption;
@@ -53,6 +54,7 @@ class AttributeSeederController extends Controller
         $this->seedAttributes();
         $this->seedCountries();
         $this->seedCities();
+        $this->seedServiceType();
 
         $this->stdout("\n");
         $this->stdout('Running seeders complete..', Console::FG_GREEN);
@@ -148,7 +150,7 @@ class AttributeSeederController extends Controller
         }
 
         $options = [
-            1, 2, 3, 4, 'Yes', 'No', 'Male', 'Female', 'Any',
+            '1', '2', '3', '4', 'Yes', 'No', 'Male', 'Female', 'Any',
             'Broken Screen', 'Broken Cover', 'Mic not working', 'Headphone not working', 'Not charging',
             'Dubai', 'Sharjah', 'Abu Dhabi', 'Ajman', 'Fujairah',
             'Gold', 'Silver', 'Black', 'Rose Gold', 'White',
@@ -229,6 +231,24 @@ class AttributeSeederController extends Controller
                 $attributeOption->country_id = $country->id;
                 $attributeOption->save();
             }
+        }
+    }
+
+    protected function seedServiceType()
+    {
+        $this->stdout('Seeding service type', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (ServiceType::find()->count() > 0) {
+            ServiceType::deleteAll();
+        }
+
+        $options = [
+            ServiceType::TYPE_IN_HOUSE, ServiceType::TYPE_COLLECT_AND_RETURN
+        ];
+        foreach ($options as $option) {
+            $attributeOption = new ServiceType();
+            $attributeOption->type = $option;
+            $attributeOption->save();
         }
     }
 }

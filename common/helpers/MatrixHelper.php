@@ -11,6 +11,7 @@ namespace common\helpers;
 
 use common\models\PriceType;
 use common\models\PricingAttributeMatrix;
+use common\models\PricingAttributeParent;
 use common\models\Service;
 
 class MatrixHelper
@@ -218,5 +219,26 @@ class MatrixHelper
     public function getMatrixRows()
     {
         return $this->matrixRows;
+    }
+
+    public function saveMatrixRow($row)
+    {
+        if (empty($row)) {
+            return false;
+        }
+
+        $pricingAttributeParent = new PricingAttributeParent();
+        $pricingAttributeParent->service_id = $this->service->id;
+        $pricingAttributeParent->save();
+
+        foreach ($row as $item) {
+            $pricingAttributeMatrix = new PricingAttributeMatrix();
+            $pricingAttributeMatrix->pricing_attribute_parent_id = $pricingAttributeParent->id;
+            $pricingAttributeMatrix->service_attribute_option_id = $item['service_attribute_option_id'];
+            $pricingAttributeMatrix->save();
+        }
+
+        return true;
+
     }
 }

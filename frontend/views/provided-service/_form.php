@@ -13,11 +13,12 @@ use kartik\select2\Select2;
 
     <?php $form = ActiveForm::begin(); ?>
 
+    <input type="hidden" name="provider_id" value="<?= $model->provider_id ?>">
+
     <div class="form-group">
         <label for="">Select Services</label>
         <?= Select2::widget([
-            'model' => $model,
-            'attribute' => 'service_id',
+            'name' => 'services',
             'data' => $model->getUnProvidedServicesList(),
             'options' => ['placeholder' => 'Select Services'],
             'pluginOptions' => [

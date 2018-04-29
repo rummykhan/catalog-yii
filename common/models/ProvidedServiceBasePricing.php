@@ -11,11 +11,13 @@ use Yii;
  * @property int $provided_service_id
  * @property int $pricing_attribute_id
  * @property double $base_price
+ * @property int $city_id
  * @property string $created_at
  * @property string $updated_at
  *
  * @property PricingAttribute $pricingAttribute
  * @property ProvidedService $providedService
+ * @property City $city
  */
 class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
 {
@@ -70,5 +72,13 @@ class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
     public function getProvidedService()
     {
         return $this->hasOne(ProvidedService::className(), ['id' => 'provided_service_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCity()
+    {
+        return $this->hasOne(City::className(), ['id' => 'city_id']);
     }
 }

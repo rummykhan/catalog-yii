@@ -2,7 +2,9 @@
 
 namespace frontend\controllers;
 
+use common\helpers\MatrixHelper;
 use common\models\Provider;
+use common\models\ServiceType;
 use Yii;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceSearch;
@@ -44,6 +46,7 @@ class ProvidedServiceController extends Controller
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'provider' => Provider::findOne($provider_id)
         ]);
     }
 
@@ -71,8 +74,11 @@ class ProvidedServiceController extends Controller
         $model = new ProvidedService();
         $model->provider_id = $provider_id;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if (Yii::$app->request->isPost && !empty(Yii::$app->getRequest()->post('services'))) {
+
+            $model->provideServices(Yii::$app->getRequest()->post('services'));
+
+            return $this->redirect(['/provided-service/index', 'provider_id' => $provider_id]);
         }
 
         return $this->render('create', [
@@ -129,5 +135,52 @@ class ProvidedServiceController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionAddCoverage($id, $type = null)
+    {
+        if (empty($type)) {
+            $type = ServiceType::TYPE_IN_HOUSE;
+        }
+        $model = $this->findModel($id);
+
+        return $this->render('add-coverage', [
+            'model' => $model,
+            'coveredAreas' => [],
+            'type' => $type
+        ]);
+    }
+
+    public function actionAddPricing($id)
+    {
+        $model = $this->findModel($id);
+
+        $matrix = new MatrixHelper($model->service);
+
+        if (Yii::$app->getRequest()->isPost) {
+            $matrixPrices = Yii::$app->getRequest()->post('matrix_price');
+            $city = Yii::$app->getRequest()->post('city');
+
+            if (empty($city)) {
+                Yii::$app->getSession()->addFlash('error', 'City not selected');
+                return $this->redirect(Yii::$app->getRequest()->getReferrer());
+            }
+
+            if (empty($matrixPrices)) {
+                Yii::$app->getSession()->addFlash('error', 'Prices not set');
+                return $this->redirect(Yii::$app->getRequest()->getReferrer());
+            }
+
+            $model->savePrices($matrixPrices, $city);
+        }
+
+        return $this->render('add-pricing', [
+            'model' => $model,
+            'service' => $model->service,
+            'provider' => $model->provider,
+            'matrixHeaders' => $matrix->getMatrixHeaders(),
+            'matrixRows' => $matrix->getMatrixRows(),
+            'noImpactRows' => $matrix->getNoImpactRows()
+        ]);
     }
 }

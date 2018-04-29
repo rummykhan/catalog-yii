@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $column['attribute_option_name'] ?></td>
             <?php } ?>
             <td>
-                <input type="text">
+                <input type="text" disabled>
             </td>
         </tr>
     <?php } ?>
@@ -58,10 +58,20 @@ $this->params['breadcrumbs'][] = $this->title;
         <tr>
             <td>Pricing</td>
             <?php foreach ($noImpactSingleRow as $item => $column) { ?>
-                <td><input type="text"></td>
+                <td><input type="text" disabled></td>
             <?php } ?>
         </tr>
         </tbody>
     </table>
 <?php } ?>
+
+
+<?php ActiveForm::begin([
+    'action' => ['/service/confirm-price-matrix', 'id' => $model->id],
+    'method' => 'POST'
+]) ?>
+
+<button class="btn btn-primary pull-right">Confirm Price Matrix</button>
+
+<?php ActiveForm::end() ?>
 
