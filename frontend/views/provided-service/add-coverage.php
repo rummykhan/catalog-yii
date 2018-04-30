@@ -14,6 +14,7 @@ $this->title = 'Add Coverage';
 $this->params['breadcrumbs'][] = ['label' => $providedService->provider->username, 'url' => ['/provider/view', 'id' => $providedService->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $providedService->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $providedService->service->name, 'url' => ['/provided-service/view', 'id' => $providedService->id]];
+$this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $providedService->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
 $provider = $providedService->provider;
@@ -27,10 +28,26 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
     <?php $form = ActiveForm::begin(['action' => ['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $type]]) ?>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <?= $form->field($model, 'area_name')->textInput() ?>
         </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Select City</label>
+                <?= \kartik\select2\Select2::widget([
+                    'model' => $model,
+                    'attribute' => 'city_id',
+                    'data' => \common\models\City::toList(),
+                    'options' => ['placeholder' => 'Select City'],
+                    'pluginOptions' => [
+                        'allowClear' => true,
+                        'multiple' => false,
+                    ]
+                ]) ?>
+            </div>
+        </div>
         <div class="col-md-6">
+            <br>
             <div class="btn-group">
                 <?php foreach ($providedService->providedServiceTypes as $providedServiceType) { ?>
                     <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $providedServiceType->id]) ?>"
@@ -53,6 +70,7 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
         <?= $form->field($model, 'coverage_areas', ['template' => '{input}'])->hiddenInput() ?>
         <?= $form->field($model, 'service_type', ['template' => '{input}'])->hiddenInput() ?>
         <?= $form->field($model, 'provided_service_id', ['template' => '{input}'])->hiddenInput() ?>
+        <?= $form->field($model, 'area_id', ['template' => '{input}'])->hiddenInput() ?>
 
         <br><br>
         <?= Html::submitButton('Update Areas', ['class' => 'btn btn-primary']) ?>
@@ -81,7 +99,6 @@ $coverageAreaId = Html::getInputId($model, 'coverage_areas');
     ];
 
     $defaultCountry = 'AE';
-    $coveredAreas = [];
 
     $first_area = !empty($coveredAreas) ? $coveredAreas[0] : null;
     $first_area = empty($first_area) ? (isset($countries[$defaultCountry]) ? $countries[$defaultCountry] : $countries[$defaultCountry]) : $first_area->coordinates;
@@ -224,7 +241,7 @@ $coverageAreaId = Html::getInputId($model, 'coverage_areas');
         updateInputs();
     }
     function updateInputs() {
-        $("#" + coverageAreaId ).val('');
+        $("#" + coverageAreaId).val('');
         var val = [];
         $.each(circles, function (index, circle) {
             if (circle.valid) {

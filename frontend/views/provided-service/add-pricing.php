@@ -15,18 +15,26 @@ use kartik\select2\Select2;
 /* @var $matrixHeaders array */
 /* @var $matrixRows array */
 /* @var $noImpactRows array */
+/** @var $area \common\models\ProvidedServiceArea */
+/** @var $providedServiceType \common\models\ProvidedServiceType */
 
 
-$this->title = 'Add Pricing';
+$this->title = 'Add Pricing for ' . $area->name;
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
 <?php ActiveForm::begin([
-    'action' => ['/provided-service/add-pricing', 'id' => $model->id],
+    'action' => [
+        '/provided-service/add-pricing',
+        'id' => $model->id,
+        'area' => $area->id,
+        'type' => $providedServiceType->service_type_id
+    ],
     'method' => 'POST'
 ]) ?>
 
@@ -48,7 +56,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php $matrixItems[] = $column['service_attribute_option_id'] ?>
             <?php } ?>
             <td>
-                <input type="text" name="matrix_price[<?= implode('_', $matrixItems) ?>]" class="form-control">
+                <input type="text" name="matrix_price[<?= implode('_', $matrixItems) ?>]" value="<?= $model->getPriceOfMatrixRow($matrixItems) ?>" class="form-control">
             </td>
         </tr>
     <?php } ?>
@@ -69,7 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <tr>
             <td>Pricing</td>
             <?php foreach ($noImpactSingleRow as $item => $column) { ?>
-                <td><input type="text"></td>
+                <td><input type="text" name="no_impact_price[<?= $column['service_attribute_option_id'] ?>]"></td>
             <?php } ?>
         </tr>
         </tbody>

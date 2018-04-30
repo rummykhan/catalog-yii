@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use RummyKhan\Collection\Arr;
 use RummyKhan\Collection\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -154,37 +155,55 @@ class ProvidedService extends \yii\db\ActiveRecord
         return true;
     }
 
-    public function savePrices($prices, $city_id)
+    public function saveNoImpactPrices($prices, $area_id)
+    {
+
+        //dd($prices, $area_id);
+    }
+
+    public function saveMatrixPrices($prices, $area_id)
     {
         if (empty($prices)) {
             return false;
         }
 
         foreach ($prices as $matrix => $price) {
-            $this->saveMatrixPrice(explode('_', $matrix), $price, $city_id);
+            $this->saveMatrixPrice(explode('_', $matrix), $price, $area_id);
         }
 
         return true;
     }
 
-    public function saveMatrixPrice($matrix, $price, $city_id)
+    public function saveMatrixPrice($matrix, $price, $area_id)
     {
-        if (empty($price)) {
+        $parent_id = static::getParent($matrix, $this->service_id);
+
+        if (empty($parent_id)) {
             return false;
         }
 
-        $parent = static::getParent($matrix, $this->service_id);
-
-        if (empty($parent)) {
+        /** @var PricingAttributeParent $parent */
+        $parent = PricingAttributeParent::findOne($parent_id);
+        if (!$parent) {
             return false;
         }
 
-        $matrixPricing = new ProvidedServiceMatrixPricing();
+        if (!$parent->providedServiceMatrixPricing) {
+            $matrixPricing = new ProvidedServiceMatrixPricing();
+        } else {
+            $matrixPricing = $parent->providedServiceMatrixPricing;
+        }
+
         $matrixPricing->provided_service_id = $this->id;
-        $matrixPricing->pricing_attribute_parent_id = $parent;
+        $matrixPricing->pricing_attribute_parent_id = $parent_id;
         $matrixPricing->price = $price;
-        $matrixPricing->city_id = $city_id;
-        $matrixPricing->save();
+        $matrixPricing->provided_service_area_id = $area_id;
+
+        if (empty($price)) {
+            $matrixPricing->delete();
+        } else {
+            $matrixPricing->save();
+        }
     }
 
     public static function getParent($matrix, $service_id)
@@ -205,6 +224,12 @@ class ProvidedService extends \yii\db\ActiveRecord
 
             $found = array_unique($found);
 
+            if (count($found) > 1) {
+                continue;
+            }
+
+            $found = Arr::first($found);
+
             if ($found) {
                 return $id;
             }
@@ -224,5 +249,27 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->where(['pricing_attribute_parent.service_id' => $service_id]);
 
         return collect($query->all())->groupBy('pricing_attribute_parent_id');
+    }
+
+    public function getPriceOfMatrixRow($row)
+    {
+        $parent_id = static::getParent($row, $this->service_id);
+
+        if (empty($parent_id)) {
+            return null;
+        }
+
+        /** @var PricingAttributeParent $parent */
+        $parent = PricingAttributeParent::findOne($parent_id);
+        if (!$parent) {
+            return null;
+        }
+
+        if (!$parent->providedServiceMatrixPricing) {
+            return null;
+        }
+
+        return $parent->providedServiceMatrixPricing->price;
+
     }
 }

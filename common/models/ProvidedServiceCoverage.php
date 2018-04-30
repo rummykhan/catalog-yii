@@ -11,6 +11,7 @@ use Yii;
  * @property int $provided_service_area_id
  * @property string $lat
  * @property string $lng
+ * @property double $radius
  *
  * @property ProvidedServiceArea $providedServiceArea
  */
@@ -33,6 +34,7 @@ class ProvidedServiceCoverage extends \yii\db\ActiveRecord
             [['provided_service_area_id'], 'integer'],
             [['lat', 'lng'], 'string', 'max' => 255],
             [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
+            [['radius'], 'double']
         ];
     }
 
@@ -55,5 +57,10 @@ class ProvidedServiceCoverage extends \yii\db\ActiveRecord
     public function getProvidedServiceArea()
     {
         return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_area_id']);
+    }
+
+    public function getCoordinates()
+    {
+        return $this->lat . ',' . $this->lng;
     }
 }

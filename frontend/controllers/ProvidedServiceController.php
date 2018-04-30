@@ -5,6 +5,9 @@ namespace frontend\controllers;
 use common\forms\AddCoverageArea;
 use common\forms\AddType;
 use common\helpers\MatrixHelper;
+use common\models\ProvidedServiceArea;
+use common\models\ProvidedServiceAreaSearch;
+use common\models\ProvidedServiceType;
 use common\models\Provider;
 use common\models\ServiceType;
 use Yii;
@@ -157,7 +160,22 @@ class ProvidedServiceController extends Controller
         ]);
     }
 
-    public function actionAddCoverageArea($id, $type = null)
+    public function actionViewCoverageAreas($id)
+    {
+        $model = $this->findModel($id);
+
+        $searchModel = new ProvidedServiceAreaSearch();
+        $searchModel->provided_service_id = $model->id;
+        $dataProvider = $searchModel->search(Yii::$app->getRequest()->getQueryParams());
+
+        return $this->render('view-coverage-area', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'model' => $model
+        ]);
+    }
+
+    public function actionAddCoverageArea($id, $type = null, $area = null)
     {
         $providedService = $this->findModel($id);
 
@@ -172,7 +190,19 @@ class ProvidedServiceController extends Controller
             $type = $providedService->getProvidedServiceTypes()->one()->id;
         }
 
+        $area = ProvidedServiceArea::find()->where(['id' => $area])->one();
+
         $model = new AddCoverageArea();
+
+        $coveredAreas = [];
+
+        if ($area) {
+            $model->area_id = $area->id;
+            $model->city_id = $area->city_id;
+            $model->area_name = $area->name;
+
+            $coveredAreas = $area->providedServiceCoverages;
+        }
 
         if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
             Yii::$app->getSession()->addFlash('success', 'Coverage areas updated');
@@ -186,36 +216,47 @@ class ProvidedServiceController extends Controller
             'providedService' => $providedService,
             'model' => $model,
             'type' => $type,
+            'coveredAreas' => $coveredAreas
         ]);
     }
 
-    public function actionAddPricing($id)
+    public function actionAddPricing($id, $area, $type)
     {
         $model = $this->findModel($id);
+        $providedServiceType = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $model->id])
+            ->andWhere(['service_type_id' => $type])
+            ->one();
+
+        if (!$providedServiceType) {
+            throw new NotFoundHttpException();
+        }
+
+        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$area) {
+            throw new NotFoundHttpException();
+        }
 
         $matrix = new MatrixHelper($model->service);
 
         if (Yii::$app->getRequest()->isPost) {
             $matrixPrices = Yii::$app->getRequest()->post('matrix_price');
-            $city = Yii::$app->getRequest()->post('city');
+            $noImpactPrices = Yii::$app->getRequest()->post('no_impact_price');
 
-            if (empty($city)) {
-                Yii::$app->getSession()->addFlash('error', 'City not selected');
-                return $this->redirect(Yii::$app->getRequest()->getReferrer());
-            }
+            $model->saveMatrixPrices($matrixPrices, $area->id);
+            $model->saveNoImpactPrices($noImpactPrices, $area->id);
 
-            if (empty($matrixPrices)) {
-                Yii::$app->getSession()->addFlash('error', 'Prices not set');
-                return $this->redirect(Yii::$app->getRequest()->getReferrer());
-            }
-
-            $model->savePrices($matrixPrices, $city);
+            Yii::$app->getSession()->addFlash('success', 'Prices updated');
+            return $this->redirect(Yii::$app->getRequest()->getReferrer());
         }
 
         return $this->render('add-pricing', [
             'model' => $model,
             'service' => $model->service,
             'provider' => $model->provider,
+            'area' => $area,
+            'providedServiceType' => $providedServiceType,
             'matrixHeaders' => $matrix->getMatrixHeaders(),
             'matrixRows' => $matrix->getMatrixRows(),
             'noImpactRows' => $matrix->getNoImpactRows()

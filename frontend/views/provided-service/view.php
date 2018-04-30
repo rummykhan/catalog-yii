@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-view">
 
     <p>
-        <?= Html::a('Add Coverage Area', ['/provided-service/add-coverage-area', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('View Coverage Areas', ['/provided-service/view-coverage-areas', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
     </p>
 
     <?= DetailView::widget([

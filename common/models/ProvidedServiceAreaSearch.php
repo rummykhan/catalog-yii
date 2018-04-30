@@ -6,20 +6,26 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\ProvidedServiceArea;
+use yii\db\Expression;
+use yii\db\Query;
 
 /**
  * ProvidedServiceAreaSearch represents the model behind the search form of `common\models\ProvidedServiceArea`.
  */
 class ProvidedServiceAreaSearch extends ProvidedServiceArea
 {
+    public $provided_service_id;
+    public $city;
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'provided_service_type_id', 'city_id'], 'integer'],
+            [['provided_service_type_id'], 'integer'],
             [['name'], 'safe'],
+            [['city'], 'safe'],
         ];
     }
 
@@ -41,7 +47,20 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
      */
     public function search($params)
     {
-        $query = ProvidedServiceArea::find();
+        $query = (new Query())
+            ->select([
+                'provided_service_area.id',
+                new Expression('city.name as city'),
+                'service_type.type',
+                new Expression('service_type.id service_type_id'),
+                'provided_service_area.name',
+                new Expression('provided_service_type.provided_service_id'),
+            ])
+            ->from('provided_service_area')
+            ->join('inner join', 'provided_service_type', 'provided_service_area.provided_service_type_id=provided_service_type.id')
+            ->join('inner join', 'city', 'provided_service_area.city_id=city.id')
+            ->join('inner join', 'service_type', 'provided_service_type.service_type_id=service_type.id')
+            ->andWhere(['provided_service_type.provided_service_id' => $this->provided_service_id]);
 
         // add conditions that should always apply here
 
@@ -56,15 +75,6 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
             // $query->where('0=1');
             return $dataProvider;
         }
-
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'provided_service_type_id' => $this->provided_service_type_id,
-            'city_id' => $this->city_id,
-        ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name]);
 
         return $dataProvider;
     }
