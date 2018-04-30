@@ -9,12 +9,19 @@
 namespace common\forms;
 
 
+use common\models\ProvidedService;
+use common\models\ProvidedServiceType;
 use yii\base\Model;
 
 class AddType extends Model
 {
     public $provided_service_id;
     public $service_types;
+
+    /**
+     * @var ProvidedService $provided_service
+     */
+    public $provided_service;
 
     public function rules()
     {
@@ -26,6 +33,38 @@ class AddType extends Model
 
     public function attach()
     {
-        dd($this);
+        if (!$this->validate()) {
+            return false;
+        }
+
+        $this->provided_service = ProvidedService::findOne($this->provided_service_id);
+
+        if (!$this->provided_service) {
+            return false;
+        }
+
+
+        foreach ($this->service_types as $service_type) {
+            $this->attachServiceType($service_type);
+        }
+
+        return true;
+    }
+
+    public function attachServiceType($service_type)
+    {
+        $type = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $this->provided_service_id])
+            ->andWhere(['service_type_id' => $service_type])
+            ->one();
+
+        if ($type) {
+            return false;
+        }
+
+        $type = new ProvidedServiceType();
+        $type->provided_service_id = $this->provided_service->id;
+        $type->service_type_id = $service_type;
+        $type->save();
     }
 }

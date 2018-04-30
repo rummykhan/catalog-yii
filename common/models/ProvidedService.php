@@ -5,6 +5,7 @@ namespace common\models;
 use RummyKhan\Collection\Collection;
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -86,10 +87,20 @@ class ProvidedService extends \yii\db\ActiveRecord
         return $this->hasOne(Service::className(), ['id' => 'service_id']);
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getProvidedServiceTypes()
     {
-        return $this->hasMany(ServiceType::className(), ['service_type_id' => 'id'])
+        return $this->hasMany(ServiceType::className(), ['id' => 'service_type_id'])
             ->viaTable('provided_service_type', ['provided_service_id' => 'id']);
+    }
+
+    public function getProvidedServiceTypesList()
+    {
+        return collect(
+            $this->getProvidedServiceTypes()->asArray()->all()
+        )->pluck('type', 'id');
     }
 
     public function getUnProvidedServicesList()

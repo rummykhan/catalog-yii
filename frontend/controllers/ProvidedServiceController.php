@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\forms\AddCoverageArea;
 use common\forms\AddType;
 use common\helpers\MatrixHelper;
 use common\models\Provider;
@@ -145,26 +146,46 @@ class ProvidedServiceController extends Controller
         $model = new AddType();
         $model->provided_service_id = $id;
 
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
+
+            return $this->redirect(['/provided-service/view', 'id' => $id]);
+        }
+
         return $this->render('add-type', [
             'providedService' => $providedService,
             'model' => $model
         ]);
     }
 
-    public function actionAddCoverageArea($id)
+    public function actionAddCoverageArea($id, $type = null)
     {
-        $model = $this->findModel($id);
+        $providedService = $this->findModel($id);
 
-        if (count($model->providedServiceTypes) === 0) {
+        if (count($providedService->providedServiceTypes) === 0) {
             return $this->redirect(['/provided-service/add-type', 'id' => $id]);
         }
         // check service request types
         // if there is none redirect him to add the service request types
         // else show him the add coverage
 
+        if (empty($type)) {
+            $type = $providedService->getProvidedServiceTypes()->one()->id;
+        }
+
+        $model = new AddCoverageArea();
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
+            Yii::$app->getSession()->addFlash('success', 'Coverage areas updated');
+            return $this->redirect(Yii::$app->getRequest()->getReferrer());
+        }
+
+        $model->service_type = $type;
+        $model->provided_service_id = $id;
+
         return $this->render('add-coverage', [
+            'providedService' => $providedService,
             'model' => $model,
-            'coveredAreas' => [],
+            'type' => $type,
         ]);
     }
 

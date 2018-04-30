@@ -3,33 +3,41 @@
 use common\models\ServiceType;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use yii\widgets\DetailView;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\ProvidedService */
+/* @var $model \common\forms\AddCoverageArea */
+/* @var $providedService common\models\ProvidedService */
 /* @var $type string */
 
 $this->title = 'Add Coverage';
-$this->params['breadcrumbs'][] = ['label' => $model->provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
-$this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
-$this->params['breadcrumbs'][] = ['label' => $model->service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $providedService->provider->username, 'url' => ['/provider/view', 'id' => $providedService->provider_id]];
+$this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $providedService->provider_id]];
+$this->params['breadcrumbs'][] = ['label' => $providedService->service->name, 'url' => ['/provided-service/view', 'id' => $providedService->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
-$provider = $model->provider;
-$service = $model->service;
+$provider = $providedService->provider;
+$service = $providedService->service;
 
 $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=" . Yii::$app->params["googleMapsKey"]);
 ?>
 
 
 <div class="provider-update">
-    <?= Html::beginForm(Url::to(['/provided-service/add-coverage', 'id' => $model->id])) ?>
+    <?php $form = ActiveForm::begin(['action' => ['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $type]]) ?>
 
     <div class="row">
         <div class="col-md-6">
-            <div class="form-group">
-                <label for="">Area Name</label>
-                <input type="text" class="form-control" name="area-name">
+            <?= $form->field($model, 'area_name')->textInput() ?>
+        </div>
+        <div class="col-md-6">
+            <div class="btn-group">
+                <?php foreach ($providedService->providedServiceTypes as $providedServiceType) { ?>
+                    <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $providedServiceType->id]) ?>"
+                       class="btn <?= $providedServiceType->id == $type ? 'btn-primary' : 'btn-default' ?>">
+                        <?= $providedServiceType->type ?>
+                    </a>
+                <?php } ?>
             </div>
         </div>
     </div>
@@ -42,13 +50,15 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
             </div>
         </div>
 
-        <input type="hidden" id="areas-input" name="areas" class="form-control">
+        <?= $form->field($model, 'coverage_areas', ['template' => '{input}'])->hiddenInput() ?>
+        <?= $form->field($model, 'service_type', ['template' => '{input}'])->hiddenInput() ?>
+        <?= $form->field($model, 'provided_service_id', ['template' => '{input}'])->hiddenInput() ?>
 
         <br><br>
-        <?= Html::submitButton('Save Areas', ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton('Update Areas', ['class' => 'btn btn-primary']) ?>
 
 
-        <?= Html::endForm() ?>
+        <?php ActiveForm::end() ?>
         <br/>
     </div>
 </div>
@@ -57,6 +67,8 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
 <?php
 
 $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.0/underscore-min.js");
+
+$coverageAreaId = Html::getInputId($model, 'coverage_areas');
 
 ?>
 
@@ -69,6 +81,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
     ];
 
     $defaultCountry = 'AE';
+    $coveredAreas = [];
 
     $first_area = !empty($coveredAreas) ? $coveredAreas[0] : null;
     $first_area = empty($first_area) ? (isset($countries[$defaultCountry]) ? $countries[$defaultCountry] : $countries[$defaultCountry]) : $first_area->coordinates;
@@ -78,6 +91,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
     ?>
 
     <?php ob_start() ?>
+    var coverageAreaId = '<?= $coverageAreaId ?>';
     var circles = {};
     var i = 1;
     var canAdd = true;
@@ -87,7 +101,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
-    console.log('mapOptions:',mapOptions);
+    console.log('mapOptions:', mapOptions);
 
     var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
@@ -210,7 +224,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
         updateInputs();
     }
     function updateInputs() {
-        $("#areas-input").val('');
+        $("#" + coverageAreaId ).val('');
         var val = [];
         $.each(circles, function (index, circle) {
             if (circle.valid) {
@@ -220,8 +234,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
                 });
             }
         });
-        $("#areas-input").val(JSON.stringify(val));
-        console.log(val);
+        $("#" + coverageAreaId).val(JSON.stringify(val));
     }
     <?php foreach ($coveredAreas as $key => $coveredArea) { ?>
     var circle<?= $coveredArea->id ?> = {
@@ -262,6 +275,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
     .multi-area #map-overlay.hidden {
         display: none;
     }
+
     .multi-area #map-overlay {
         position: absolute;
         top: 0;
@@ -283,6 +297,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
         font-size: 31px;
         color: #5c5c5c;
     }
+
     .multi-area #pac-input {
         background-color: #fff;
         font-family: Roboto;
@@ -293,6 +308,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
         text-overflow: ellipsis;
         width: 300px;
     }
+
     .multi-area .controls {
         margin-top: 10px;
         border: 1px solid transparent;

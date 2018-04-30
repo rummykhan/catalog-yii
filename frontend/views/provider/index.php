@@ -23,16 +23,15 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'username',
-            'password',
-            'email:email',
+            [
+                'label' => 'username',
+                'value' => function ($model) {
+                    return Html::a($model->username, ['/provider/view', 'id' => $model->id]);
+                },
+                'format' => 'html'
+            ],
+            'email',
             'created_at',
-            //'updated_at',
-
-            ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
 </div>

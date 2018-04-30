@@ -30,6 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'model' => $model,
                 'attribute' => 'service_types',
                 'data' => \common\models\ServiceType::toList(),
+                'value' => $model->service_types,
                 'options' => ['placeholder' => 'Select service type'],
                 'pluginOptions' => [
                     'multiple' => true,

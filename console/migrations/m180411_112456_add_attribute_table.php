@@ -227,7 +227,8 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'provided_service_area_id' => $this->integer(),
             'lat' => $this->string(),
-            'lng' => $this->string()
+            'lng' => $this->string(),
+            'radius' => $this->decimal(),
         ]);
 
         $this->addForeignKey('fk-psc-psa', 'provided_service_coverage', 'provided_service_area_id', 'provided_service_area', 'id');

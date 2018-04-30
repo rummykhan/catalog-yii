@@ -28,6 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->service->name;
                 }
             ],
+            [
+                'label' => 'Service Type',
+                'value' => function($model){
+                    /**@var $model \common\models\ProvidedService */
+                    return implode(',', collect($model->getProvidedServiceTypes()->select(['type'])->asArray()->all())->pluck('type')->toArray());
+                }
+            ],
             'created_at',
             'updated_at',
         ],
