@@ -6,7 +6,7 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model common\models\ProvidedService */
 
-$this->title = $model->id;
+$this->title = $model->service->name;
 $this->params['breadcrumbs'][] = ['label' => $model->provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = $this->title;
@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-view">
 
     <p>
-        <?= Html::a('View / Set Pricing', ['/provided-service/add-pricing', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Add Coverage Area', ['/provided-service/add-coverage-area', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
     </p>
 
     <?= DetailView::widget([

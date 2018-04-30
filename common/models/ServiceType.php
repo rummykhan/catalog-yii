@@ -53,4 +53,9 @@ class ServiceType extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ProvidedServiceType::className(), ['service_type_id' => 'id']);
     }
+
+    public static function toList()
+    {
+        return collect(static::find()->all())->pluck('type', 'id');
+    }
 }

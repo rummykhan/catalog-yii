@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\forms\AddType;
 use common\helpers\MatrixHelper;
 use common\models\Provider;
 use common\models\ServiceType;
@@ -137,17 +138,33 @@ class ProvidedServiceController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionAddCoverage($id, $type = null)
+    public function actionAddType($id)
     {
-        if (empty($type)) {
-            $type = ServiceType::TYPE_IN_HOUSE;
-        }
+        $providedService = $this->findModel($id);
+
+        $model = new AddType();
+        $model->provided_service_id = $id;
+
+        return $this->render('add-type', [
+            'providedService' => $providedService,
+            'model' => $model
+        ]);
+    }
+
+    public function actionAddCoverageArea($id)
+    {
         $model = $this->findModel($id);
+
+        if (count($model->providedServiceTypes) === 0) {
+            return $this->redirect(['/provided-service/add-type', 'id' => $id]);
+        }
+        // check service request types
+        // if there is none redirect him to add the service request types
+        // else show him the add coverage
 
         return $this->render('add-coverage', [
             'model' => $model,
             'coveredAreas' => [],
-            'type' => $type
         ]);
     }
 
@@ -183,4 +200,6 @@ class ProvidedServiceController extends Controller
             'noImpactRows' => $matrix->getNoImpactRows()
         ]);
     }
+
+
 }

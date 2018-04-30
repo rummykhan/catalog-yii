@@ -18,24 +18,19 @@ $this->params['breadcrumbs'][] = $this->title;
 $provider = $model->provider;
 $service = $model->service;
 
-$this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&sensor=false&key=" . Yii::$app->params["googleMapsKey"]);
+$this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=" . Yii::$app->params["googleMapsKey"]);
 ?>
 
 
 <div class="provider-update">
+    <?= Html::beginForm(Url::to(['/provided-service/add-coverage', 'id' => $model->id])) ?>
+
     <div class="row">
-        <div class="col-md-12">
-            <div class="btn-group">
-                <a href="<?= Url::to(['/provided-service/add-coverage', 'id' => $model->id, 'type' => ServiceType::TYPE_IN_HOUSE]) ?>"
-                   class="btn <?= $type === ServiceType::TYPE_IN_HOUSE ? 'btn-primary' : 'btn-default' ?>">
-                    On-site
-                </a>
-                <a href="<?= Url::to(['/provided-service/add-coverage', 'id' => $model->id, 'type' => ServiceType::TYPE_COLLECT_AND_RETURN]) ?>"
-                   class="btn <?= $type === ServiceType::TYPE_COLLECT_AND_RETURN ? 'btn-primary' : 'btn-default' ?>">
-                    Collect & return
-                </a>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="">Area Name</label>
+                <input type="text" class="form-control" name="area-name">
             </div>
-            <br><br>
         </div>
     </div>
 
@@ -46,26 +41,13 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
             <div id="map-canvas" style="width:100%; height:600px;">
             </div>
         </div>
-        <?= Html::beginForm(Url::to(['/provided-service/add-coverage', 'id' => $model->id, 'type' => $type])) ?>
+
         <input type="hidden" id="areas-input" name="areas" class="form-control">
-        <br/>
-
-
-        <input type="checkbox" name="copy" value="true"> Copy
-        From <?= $type === \common\models\ServiceType::TYPE_COLLECT_AND_RETURN ? 'On-Site' : 'Collect & Return' ?>
 
         <br><br>
+        <?= Html::submitButton('Save Areas', ['class' => 'btn btn-primary']) ?>
 
-        <ul class="pull-right">
-            <li><?= Yii::t("app", "Click the map to add new area."); ?></li>
-            <li><?= Yii::t("app", "Drag the dot in the center of an area to move it."); ?></li>
-            <li><?= Yii::t("app", "Drag the dot on the edge of an area to change its radius."); ?></li>
-            <li><?= Yii::t("app", "After adding or editing an area please wait until it is validated."); ?></li>
-            <li><?= Yii::t("app", "Right Click an area to delete it."); ?></li>
-            <li><?= Yii::t("app", "Red areas are invalid and will not be saved."); ?></li>
-        </ul>
-        <?= Html::submitButton('Save', ['class' => 'btn btn-primary']) ?>
-        <br/>
+
         <?= Html::endForm() ?>
         <br/>
     </div>
@@ -106,7 +88,10 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
     };
 
     console.log('mapOptions:',mapOptions);
+
     var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+    console.log('map:', map);
 
     // Create the search box and link it to the UI element.
     var input = document.getElementById('pac-input');
@@ -272,6 +257,7 @@ $this->registerJsFile("https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.
     updateInputs();
     <?php $js = ob_get_clean(); ?>
 </script>
+<?php $this->registerJs($js) ?>
 <style type="text/css">
     .multi-area #map-overlay.hidden {
         display: none;

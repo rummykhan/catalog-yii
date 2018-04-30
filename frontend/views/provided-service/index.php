@@ -26,18 +26,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             [
-                'label' => '',
-                'value' => function ($model) {
-                    return Html::a($model->id, ['/provided-service/view', 'id' => $model->id]);
-                },
-                'format' => 'html'
-            ],
-            [
                 'label' => 'Service',
                 'value' => function ($model) {
                     /**@var $model \common\models\ProvidedService */
-                    return $model->service->name;
-                }
+                    return Html::a($model->service->name, ['/provided-service/view', 'id' => $model->id]);
+                },
+                'format' => 'html'
             ],
             'created_at',
         ],

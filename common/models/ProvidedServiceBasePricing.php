@@ -11,13 +11,13 @@ use Yii;
  * @property int $provided_service_id
  * @property int $pricing_attribute_id
  * @property double $base_price
- * @property int $city_id
+ * @property int $provided_service_area_id
  * @property string $created_at
  * @property string $updated_at
  *
  * @property PricingAttribute $pricingAttribute
  * @property ProvidedService $providedService
- * @property City $city
+ * @property ProvidedServiceArea $providedServiceArea
  */
 class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
 {
@@ -40,6 +40,7 @@ class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['pricing_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttribute::className(), 'targetAttribute' => ['pricing_attribute_id' => 'id']],
             [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
+            [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
         ];
     }
 
@@ -77,8 +78,8 @@ class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCity()
+    public function getProvidedServiceArea()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
+        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_area_id']);
     }
 }

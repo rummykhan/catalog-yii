@@ -19,6 +19,7 @@ use yii\db\Query;
  *
  * @property Provider $provider
  * @property Service $service
+ * @property ProvidedServiceType[] $providedServiceTypes
  */
 class ProvidedService extends \yii\db\ActiveRecord
 {
@@ -83,6 +84,12 @@ class ProvidedService extends \yii\db\ActiveRecord
     public function getService()
     {
         return $this->hasOne(Service::className(), ['id' => 'service_id']);
+    }
+
+    public function getProvidedServiceTypes()
+    {
+        return $this->hasMany(ServiceType::className(), ['service_type_id' => 'id'])
+            ->viaTable('provided_service_type', ['provided_service_id' => 'id']);
     }
 
     public function getUnProvidedServicesList()
@@ -206,15 +213,5 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->where(['pricing_attribute_parent.service_id' => $service_id]);
 
         return collect($query->all())->groupBy('pricing_attribute_parent_id');
-    }
-
-    /**
-     * @param $parents Collection
-     * @param $matrix array
-     * @return mixed
-     */
-    public static function findParent($parents, $matrix)
-    {
-
     }
 }

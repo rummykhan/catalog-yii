@@ -30,24 +30,6 @@ $this->params['breadcrumbs'][] = $this->title;
     'method' => 'POST'
 ]) ?>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="">Select City</label>
-            <?= Select2::widget([
-                'name' => 'city',
-                'data' => $service->getCitiesList(),
-                'options' => ['placeholder' => 'Select city'],
-                'pluginOptions' => [
-                    'allowClear' => true,
-                    'multiple' => false,
-                    'change' => new \yii\web\JsExpression( "function(e) { console.log('change'); }")
-                ]
-            ]) ?>
-        </div>
-    </div>
-</div>
-
 <table class="table table-striped">
     <thead>
     <tr>
