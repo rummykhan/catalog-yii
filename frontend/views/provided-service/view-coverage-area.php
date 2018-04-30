@@ -25,7 +25,6 @@ $service = $model->service;
 
 ?>
 
-<a href="<?= Url::to(['/provided-service/add-type', 'id' => $model->id]) ?>" class="btn btn-primary">Add Service Type</a>
 <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $model->id]) ?>" class="btn btn-primary">Add Coverage Area</a>
 <br><br>
 

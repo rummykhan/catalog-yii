@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
@@ -15,6 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('View Coverage Areas', ['/provided-service/view-coverage-areas', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <a href="<?= Url::to(['/provided-service/add-type', 'id' => $model->id]) ?>" class="btn btn-primary">Add Service Type</a>
     </p>
 
     <?= DetailView::widget([
