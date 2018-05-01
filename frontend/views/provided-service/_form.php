@@ -21,6 +21,7 @@ use kartik\select2\Select2;
             'name' => 'services',
             'data' => $model->getUnProvidedServicesList(),
             'options' => ['placeholder' => 'Select Services'],
+            'model' => $model->service_id,
             'pluginOptions' => [
                 'multiple' => true,
                 'allowClear' => true

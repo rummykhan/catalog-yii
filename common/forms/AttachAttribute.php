@@ -18,14 +18,29 @@ use yii\web\NotFoundHttpException;
 class AttachAttribute extends Model
 {
     public $service_id;
-    public $attribute_id;
+    public $attribute_name;
     public $input_type;
     public $user_input_type;
+    public $price_type;
+    public $field_type;
+    public $min;
+    public $max;
 
     public function rules()
     {
         return [
-            [['service_id', 'input_type', 'user_input_type', 'attribute_id'], 'integer']
+            [['service_id', 'input_type', 'user_input_type'], 'required'],
+            [['service_id', 'input_type', 'user_input_type'], 'integer'],
+            [['price_type'], 'integer'],
+            [['attribute_name'], 'required'],
+            [['attribute_name'], 'safe']
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+          'attribute_name' => 'Field name'
         ];
     }
 

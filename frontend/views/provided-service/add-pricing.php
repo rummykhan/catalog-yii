@@ -56,7 +56,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php $matrixItems[] = $column['service_attribute_option_id'] ?>
             <?php } ?>
             <td>
-                <input type="text" name="matrix_price[<?= implode('_', $matrixItems) ?>]" value="<?= $model->getPriceOfMatrixRow($matrixItems) ?>" class="form-control">
+                <input type="text" name="matrix_price[<?= implode('_', $matrixItems) ?>]" value="<?= $model->getPriceOfMatrixRow($matrixItems, $area->id) ?>" class="form-control">
             </td>
         </tr>
     <?php } ?>

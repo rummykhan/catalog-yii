@@ -15,6 +15,8 @@ use Yii;
  */
 class ValidationOption extends \yii\db\ActiveRecord
 {
+    const Min = 'Min';
+    const Max = 'Max';
     /**
      * @inheritdoc
      */

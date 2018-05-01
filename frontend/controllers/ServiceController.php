@@ -64,10 +64,14 @@ class ServiceController extends Controller
      */
     public function actionView($id)
     {
-        $model = $this->findModel($id);
+        $service = $this->findModel($id);
+
+        $model = new AttachAttribute();
+        $model->service_id = $service->id;
 
         return $this->render('view', [
             'model' => $model,
+            'service' => $service
         ]);
     }
 

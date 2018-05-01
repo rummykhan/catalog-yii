@@ -18,6 +18,13 @@ use yii\db\Expression;
  */
 class Validation extends \yii\db\ActiveRecord
 {
+    const Required = 'required';
+    const Image = 'image';
+    const Doc = 'doc';
+    const Coordinates = 'coordinates';
+    const Phone = 'phone';
+    const Integer = 'integer';
+    const String = 'string';
     /**
      * @inheritdoc
      */

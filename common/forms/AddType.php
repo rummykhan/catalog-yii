@@ -67,4 +67,15 @@ class AddType extends Model
         $type->service_type_id = $service_type;
         $type->save();
     }
+
+    public function updateServiceTypes()
+    {
+        $this->provided_service = ProvidedService::findOne($this->provided_service_id);
+
+        if (!$this->provided_service) {
+            return null;
+        }
+
+        $this->service_types = collect($this->provided_service->getProvidedServiceTypes()->all())->pluck('id')->toArray();
+    }
 }

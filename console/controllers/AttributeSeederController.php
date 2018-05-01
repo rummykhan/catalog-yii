@@ -21,6 +21,7 @@ use common\models\UserInputType;
 use common\models\Validation;
 use common\models\ValidationOption;
 use PHPUnit\Framework\Constraint\Count;
+use Symfony\Component\Console\Input\Input;
 use yii\console\Application;
 use yii\console\Controller;
 use yii\helpers\Console;
@@ -69,7 +70,18 @@ class AttributeSeederController extends Controller
             InputType::deleteAll();
         }
 
-        $types = ['TextBox', 'Numeric', 'DatePicker', 'DateRange', 'TextArea', 'File', 'GoogleMap', 'DropDown', 'Checkbox', 'Radio'];
+        $types = [
+            InputType::TextBox,
+            InputType::Numeric,
+            InputType::DatePicker,
+            InputType::DateRange,
+            InputType::TextArea,
+            InputType::File,
+            InputType::GoogleMap,
+            InputType::DropDown,
+            InputType::Checkbox,
+            InputType::Radio
+        ];
         foreach ($types as $type) {
             $attributeType = new InputType();
             $attributeType->name = $type;
@@ -85,7 +97,7 @@ class AttributeSeederController extends Controller
             ValidationOption::deleteAll();
         }
 
-        $options = ['Min', 'Max'];
+        $options = [ValidationOption::Min, ValidationOption::Max];
         foreach ($options as $option) {
             $validationOption = new ValidationOption();
             $validationOption->name = $option;
@@ -101,7 +113,7 @@ class AttributeSeederController extends Controller
             Validation::deleteAll();
         }
 
-        $options = ['required', 'image', 'doc', 'coordinates', 'phone', 'integer', 'string'];
+        $options = [Validation::Required, Validation::Image, Validation::Doc, Validation::Coordinates, Validation::Phone, Validation::Integer, Validation::String];
         foreach ($options as $option) {
             $validation = new Validation();
             $validation->type = $option;

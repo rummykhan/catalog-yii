@@ -15,8 +15,12 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-view">
 
     <p>
-        <?= Html::a('View Coverage Areas', ['/provided-service/view-coverage-areas', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <a href="<?= Url::to(['/provided-service/add-type', 'id' => $model->id]) ?>" class="btn btn-primary">Add Service Type</a>
+        <a href="<?= Url::to(['/provided-service/update', 'id' => $model->id]) ?>" class="btn btn-primary">
+            Update
+        </a>
+        <a href="<?= Url::to(['/provided-service/view-coverage-areas', 'id' => $model->id]) ?>" class="btn btn-primary">
+            View / Set Coverage Areas
+        </a>
     </p>
 
     <?= DetailView::widget([

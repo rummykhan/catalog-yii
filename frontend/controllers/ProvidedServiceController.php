@@ -101,14 +101,20 @@ class ProvidedServiceController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $providedService = $this->findModel($id);
+
+        $model = new AddType();
+        $model->provided_service_id = $id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
+        $model->updateServiceTypes();
+
         return $this->render('update', [
             'model' => $model,
+            'providedService' => $providedService
         ]);
     }
 

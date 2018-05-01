@@ -188,14 +188,14 @@ class ProvidedService extends \yii\db\ActiveRecord
             return false;
         }
 
-        if (!$parent->providedServiceMatrixPricing) {
+        $matrixPricing = $parent->getProvidedServiceMatrixPricings()->where(['provided_service_area_id' => $area_id])->one();
+
+        if (!$matrixPricing) {
             $matrixPricing = new ProvidedServiceMatrixPricing();
-        } else {
-            $matrixPricing = $parent->providedServiceMatrixPricing;
         }
 
         $matrixPricing->provided_service_id = $this->id;
-        $matrixPricing->pricing_attribute_parent_id = $parent_id;
+        $matrixPricing->pricing_attribute_parent_id = $parent->id;
         $matrixPricing->price = $price;
         $matrixPricing->provided_service_area_id = $area_id;
 
@@ -251,7 +251,7 @@ class ProvidedService extends \yii\db\ActiveRecord
         return collect($query->all())->groupBy('pricing_attribute_parent_id');
     }
 
-    public function getPriceOfMatrixRow($row)
+    public function getPriceOfMatrixRow($row, $area_id)
     {
         $parent_id = static::getParent($row, $this->service_id);
 
@@ -265,11 +265,14 @@ class ProvidedService extends \yii\db\ActiveRecord
             return null;
         }
 
-        if (!$parent->providedServiceMatrixPricing) {
+        /** @var ProvidedServiceMatrixPricing $matrixPricing */
+        $matrixPricing = $parent->getProvidedServiceMatrixPricings()->where(['provided_service_area_id' => $area_id])->one();
+
+        if (!$matrixPricing) {
             return null;
         }
 
-        return $parent->providedServiceMatrixPricing->price;
+        return $matrixPricing->price;
 
     }
 }

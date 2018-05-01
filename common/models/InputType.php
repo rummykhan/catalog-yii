@@ -18,6 +18,17 @@ use yii\db\Expression;
  */
 class InputType extends \yii\db\ActiveRecord
 {
+    const TextBox = 'TextBox';
+    const Numeric = 'Numeric';
+    const DatePicker = 'DatePicker';
+    const DateRange = 'DateRange';
+    const TextArea = 'TextArea';
+    const File = 'File';
+    const GoogleMap = 'GoogleMap';
+    const DropDown = 'DropDown';
+    const Checkbox = 'Checkbox';
+    const Radio = 'Radio';
+
     /**
      * @inheritdoc
      */
