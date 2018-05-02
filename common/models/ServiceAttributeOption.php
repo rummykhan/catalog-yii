@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\queries\NotDeletedQuery;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -12,6 +13,7 @@ use yii\db\Expression;
  * @property int $id
  * @property int $service_attribute_id
  * @property string $name
+ * @property boolean $deleted
  *
  * @property ServiceAttribute $serviceAttribute
  */
@@ -31,11 +33,17 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_attribute_id', 'attribute_option_id'], 'integer'],
+            [['service_attribute_id'], 'integer'],
             [['name'], 'required'],
             [['name'], 'safe'],
+            [['deleted'], 'boolean'],
             [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
         ];
+    }
+
+    public static function find()
+    {
+        return new NotDeletedQuery(get_called_class());
     }
 
     /**

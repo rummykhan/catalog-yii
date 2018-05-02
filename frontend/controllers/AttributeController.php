@@ -13,6 +13,7 @@ use common\models\AttributeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 
 /**
  * AttributeController implements the CRUD actions for Attribute model.
@@ -28,7 +29,6 @@ class AttributeController extends Controller
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['POST'],
                 ],
             ],
         ];
@@ -111,15 +111,27 @@ class AttributeController extends Controller
     /**
      * Deletes an existing Attribute model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
+     * @param integer $service_id
+     * @param integer $attribute_id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionDelete($service_id, $attribute_id)
     {
-        $this->findModel($id)->delete();
+        /** @var Service $service */
+        $service = Service::findOne($service_id);
 
-        return $this->redirect(['index']);
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $attribute->deleted = true;
+        $attribute->save();
+
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 
     /**
@@ -219,8 +231,7 @@ class AttributeController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $attribute = Attribute::findOne($attribute_id);
-
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
         if (!$attribute) {
             throw new NotFoundHttpException();
         }
@@ -239,5 +250,26 @@ class AttributeController extends Controller
             'attribute' => $attribute,
             'model' => $model
         ]);
+    }
+
+    public function actionGetOptions()
+    {
+        Yii::$app->getResponse()->format = Response::FORMAT_JSON;
+
+        $service = Service::findOne(Yii::$app->getRequest()->post('service_id'));
+
+        if(!$service){
+            return [];
+        }
+
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['deleted' => false])->andWhere(['id' => Yii::$app->getRequest()->post('attribute_id')])->one();
+
+        if (!$service || !$attribute) {
+            return [];
+        }
+
+        return collect($attribute->getServiceAttributeOptions()->where(['deleted' => false])->asArray()->all())
+            ->pluck('name', 'id')->toArray();
     }
 }

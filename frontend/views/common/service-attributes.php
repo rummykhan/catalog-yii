@@ -16,7 +16,7 @@ use common\models\Service;
 
 <br>
 
-<h4>Existing Attributes for <?= $model->name ?></h4>
+<h4>Existing Fields for <?= $model->name ?></h4>
 
 <table class="table table-striped table-responsive">
     <thead>
@@ -29,31 +29,21 @@ use common\models\Service;
     </tr>
     </thead>
     <tbody>
-    <?php /** @var \common\models\Attribute $attribute */
-    foreach ($model->serviceAttributes as $attribute) { ?>
+    <?php /** @var \common\models\ServiceAttribute $attribute */
+    foreach ($model->getServiceAttributes()->where(['deleted' => false])->all() as $attribute) { ?>
         <tr>
             <td><?= $attribute->id ?></td>
             <td><?= $attribute->name ?></td>
+            <td><?= $attribute->getServiceAttributeOptions()->where(['deleted' => false])->count() ?></td>
+            <td><?= $attribute->validationsString ?></td>
             <td>
-                <?=
-                \common\models\ServiceAttributeOption::find()
-                    ->where([
-                        'service_attribute_id' => \common\models\ServiceAttribute::find()->where(['service_id' => $model->id])->andWhere(['attribute_id' => $attribute->id])->one()->id
-                    ])
-                    ->count()
-                ?>
-            </td>
-            <td>
-                <?= \common\models\ServiceAttribute::getValidationsString($model->id, $attribute->id) ?>
-            </td>
-            <td>
-                <a href="<?= \yii\helpers\Url::to(['/attribute/attach-options', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                <a href="<?= \yii\helpers\Url::to(['/service/edit-attribute', 'id' => $model->id, 'attribute_id' => $attribute->id]) ?>"
                    class="btn btn-primary btn-sm">
-                    View / Attach Options
+                    Edit Field
                 </a>
-                <a href="<?= \yii\helpers\Url::to(['/attribute/attach-validation', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                <a href="<?= \yii\helpers\Url::to(['/attribute/delete', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
                    class="btn btn-primary btn-sm">
-                    View / Attach Validation
+                    Delete Field
                 </a>
             </td>
         </tr>

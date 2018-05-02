@@ -15,12 +15,16 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-view">
 
     <p>
+        <?php if ($model->getProvidedServiceTypes()->count() > 0) { ?>
+            <a href="<?= Url::to(['/provided-service/view-coverage-areas', 'id' => $model->id]) ?>" class="btn btn-primary">
+                View / Set Coverage Areas
+            </a>
+        <?php } ?>
+
         <a href="<?= Url::to(['/provided-service/update', 'id' => $model->id]) ?>" class="btn btn-primary">
-            Update
+            Set Request Type
         </a>
-        <a href="<?= Url::to(['/provided-service/view-coverage-areas', 'id' => $model->id]) ?>" class="btn btn-primary">
-            View / Set Coverage Areas
-        </a>
+
     </p>
 
     <?= DetailView::widget([
@@ -29,14 +33,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             [
                 'label' => 'Service',
-                'value' => function($model){
+                'value' => function ($model) {
                     /**@var $model \common\models\ProvidedService */
                     return $model->service->name;
                 }
             ],
             [
                 'label' => 'Service Type',
-                'value' => function($model){
+                'value' => function ($model) {
                     /**@var $model \common\models\ProvidedService */
                     return implode(',', collect($model->getProvidedServiceTypes()->select(['type'])->asArray()->all())->pluck('type')->toArray());
                 }

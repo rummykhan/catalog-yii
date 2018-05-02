@@ -16,11 +16,6 @@ $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['/service/v
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<p>
-    <a href="<?= \yii\helpers\Url::to(['/service/set-pricing', 'id' => $model->id]) ?>" class="btn btn-primary">Set
-        Pricing Attributes</a>
-</p>
-
 <table class="table table-striped">
     <thead>
     <tr>

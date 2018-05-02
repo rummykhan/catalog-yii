@@ -13,6 +13,7 @@ use common\models\Attribute;
 use common\models\AttributeOption;
 use common\models\City;
 use common\models\Country;
+use common\models\FieldType;
 use common\models\InputType;
 use common\models\AttributeType;
 use common\models\PriceType;
@@ -54,6 +55,7 @@ class AttributeSeederController extends Controller
         $this->seedCountries();
         $this->seedCities();
         $this->seedServiceType();
+        $this->addFieldTypes();
 
         $this->stdout("\n");
         $this->stdout('Running seeders complete..', Console::FG_GREEN);
@@ -217,6 +219,29 @@ class AttributeSeederController extends Controller
         foreach ($options as $option) {
             $attributeOption = new ServiceType();
             $attributeOption->type = $option;
+            $attributeOption->save();
+        }
+    }
+
+    protected function addFieldTypes()
+    {
+        $this->stdout('Seeding field type', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (FieldType::find()->count() > 0) {
+            FieldType::deleteAll();
+        }
+
+        $options = [
+            FieldType::TYPE_LIST,
+            FieldType::TYPE_RANGE,
+            FieldType::TYPE_LOCATION,
+            FieldType::TYPE_FILE,
+            FieldType::TYPE_TOGGLE,
+            FieldType::TYPE_TEXT
+        ];
+        foreach ($options as $option) {
+            $attributeOption = new FieldType();
+            $attributeOption->name = $option;
             $attributeOption->save();
         }
     }

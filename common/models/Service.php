@@ -18,8 +18,7 @@ use yii\db\Query;
  * @property string $updated_at
  *
  * @property Category $category
- * @property Attribute[] $serviceAttributes
- * @property ServiceAttribute[] $serviceLevelAttributes
+ * @property ServiceAttribute[] $serviceAttributes
  * @property PricingAttributeGroup[] $pricingAttributeGroups
  * @property City[] $cities
  */
@@ -85,15 +84,6 @@ class Service extends \yii\db\ActiveRecord
      */
     public function getServiceAttributes()
     {
-        return $this->hasMany(Attribute::className(), ['id' => 'attribute_id'])
-            ->viaTable('service_attribute', ['service_id' => 'id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getServiceLevelAttributes()
-    {
         return $this->hasMany(ServiceAttribute::className(), ['service_id' => 'id']);
     }
 
@@ -150,13 +140,7 @@ class Service extends \yii\db\ActiveRecord
 
     public function getServiceAttributesList()
     {
-        $query = (new Query())
-            ->select(['service_attribute.id', 'attribute.name'])
-            ->from('service_attribute')
-            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
-            ->andWhere(['service_attribute.service_id' => $this->id]);
-
-        return collect($query->all())->pluck('name', 'id');
+        return collect($this->getServiceAttributes()->where(['deleted' => false])->asArray()->all())->pluck('name', 'id');
     }
 
     /**
@@ -187,17 +171,17 @@ class Service extends \yii\db\ActiveRecord
         $query = (new Query())
             ->select([
                 new Expression('service_attribute.id as service_attribute_id'),
-                new Expression('attribute.name attribute_name'),
+                new Expression('service_attribute.name attribute_name'),
                 new Expression('service_attribute_option.id service_attribute_option_id'),
-                new Expression('attribute_option.name attribute_option_name')
+                new Expression('service_attribute_option.name attribute_option_name')
             ])
             ->from('pricing_attribute')
             ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
             ->join('inner join', 'price_type', 'pricing_attribute.price_type_id=price_type.id')
-            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
             ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
-            ->join('inner join', 'attribute_option', 'service_attribute_option.attribute_option_id=attribute_option.id')
             ->andWhere(['price_type.type' => $priceType->type])
+            ->andWhere(['service_attribute_option.deleted' => false])
+            ->andWhere(['service_attribute.deleted' => false])
             ->andWhere(['service_attribute.service_id' => $this->id]);
 
 

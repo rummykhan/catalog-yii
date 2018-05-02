@@ -63,17 +63,25 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-avo-avi', 'attribute_validation_option', 'attribute_validation_id', 'validation_option', 'id');
         $this->addForeignKey('fk-avo-vo', 'attribute_validation_option', 'validation_option_id', 'validation_option', 'id');
 
+        $this->createTable('field_type', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()
+        ]);
+
         $this->createTable('service_attribute', [
             'id' => $this->primaryKey(),
             'service_id' => $this->integer(),
             'name' => $this->string(),
             'input_type_id' => $this->integer(),
             'user_input_type_id' => $this->integer(),
+            'field_type_id' => $this->integer(),
+            'deleted' => $this->boolean()->defaultValue(false),
         ]);
 
         $this->addForeignKey('fk-sa-s', 'service_attribute', 'service_id', 'service', 'id');
         $this->addForeignKey('fk-sa-it', 'service_attribute', 'input_type_id', 'input_type', 'id');
         $this->addForeignKey('fk-sa-uit', 'service_attribute', 'user_input_type_id', 'user_input_type', 'id');
+        $this->addForeignKey('fk-sa-ft', 'service_attribute', 'field_type_id', 'field_type', 'id');
 
         $this->createTable('service_attribute_validation', [
             'id' => $this->primaryKey(),
@@ -88,6 +96,7 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'service_attribute_id' => $this->integer(),
             'name' => $this->string(),
+            'deleted' => $this->boolean()->defaultValue(false),
         ]);
 
         $this->addForeignKey('fk-sao-sa', 'service_attribute_option', 'service_attribute_id', 'service_attribute', 'id');
@@ -253,6 +262,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-psmp-psa', 'provided_service_matrix_pricing');
         $this->dropForeignKey('fk-psa-pst', 'provided_service_area');
         $this->dropForeignKey('fk-psa-c', 'provided_service_area');
+        $this->dropForeignKey('fk-sa-ft', 'service_attribute');
 
 
         $this->dropTable('service_attribute_option');
@@ -278,5 +288,6 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('service_type');
         $this->dropTable('provided_service_type');
         $this->dropTable('provided_service_coverage');
+        $this->dropTable('field_type');
     }
 }

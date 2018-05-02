@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use common\queries\NotDeletedQuery;
+use frontend\helpers\FieldsConfigurationHelper;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -17,12 +19,16 @@ use yii\web\NotFoundHttpException;
  * @property string $name
  * @property int $input_type_id
  * @property int $user_input_type_id
+ * @property string $validationsString
+ * @property boolean $deleted
+ * @property int $field_type_id
  *
  * @property ServiceAttributeDepends[] $parental
  * @property ServiceAttributeDepends[] $dependants
  * @property Service $service
  * @property ServiceAttributeOption[] $serviceAttributeOptions
  * @property Validation[] $validations
+ * @property PricingAttribute[] $pricingAttributes
  */
 class ServiceAttribute extends \yii\db\ActiveRecord
 {
@@ -40,12 +46,14 @@ class ServiceAttribute extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_id', 'attribute_id'], 'integer'],
+            [['service_id'], 'integer'],
             [['name'], 'required'],
             [['name'], 'safe'],
+            [['deleted'], 'boolean'],
             [['service_id'], 'exist', 'skipOnError' => true, 'targetClass' => Service::className(), 'targetAttribute' => ['service_id' => 'id']],
             [['input_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type_id' => 'id']],
             [['user_input_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type_id' => 'id']],
+            [['field_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type_id' => 'id']],
         ];
     }
 
@@ -59,6 +67,14 @@ class ServiceAttribute extends \yii\db\ActiveRecord
             'service_id' => 'Service ID',
             'name' => 'Field Name'
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public static function find()
+    {
+        return new NotDeletedQuery(get_called_class());
     }
 
     public function getInputType()
@@ -93,6 +109,11 @@ class ServiceAttribute extends \yii\db\ActiveRecord
     public function getUserInputType()
     {
         return $this->hasOne(UserInputType::className(), ['id' => 'user_input_type_id']);
+    }
+
+    public function getFieldType()
+    {
+        return $this->hasOne(FieldType::className(), ['id' => 'field_type_id']);
     }
 
     /**
@@ -131,27 +152,20 @@ class ServiceAttribute extends \yii\db\ActiveRecord
             ->viaTable('service_attribute_validation', ['service_attribute_id' => 'id']);
     }
 
-    public static function getValidationsString($service_id, $attribute_id)
+    public function getValidationsString()
     {
-        $attribute = static::findByService($service_id, $attribute_id);
-
-        if (!$attribute) {
-            throw new NotFoundHttpException();
-        }
-
-        $attributeValidation = $attribute->getValidations()->asArray()->all();
+        $attributeValidation = $this->getValidations()->asArray()->all();
 
         return implode(',', collect($attributeValidation)->pluck('type')->toArray());
     }
 
-    public static function findByService($service_id, $attribute_id)
+    public function getMinimum()
     {
-        /** @var ServiceAttribute $attribute */
-        $attribute = ServiceAttribute::find()
-            ->andWhere(['service_id' => $service_id])
-            ->andWhere(['attribute_id' => $attribute_id])
-            ->one();
+        return $this->getServiceAttributeOptions()->where(['deleted' => false])->one();
+    }
 
-        return $attribute;
+    public function getMaximum()
+    {
+        return $this->getServiceAttributeOptions()->where(['deleted' => false])->orderBy(['id' => SORT_DESC])->one();
     }
 }

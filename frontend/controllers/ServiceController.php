@@ -4,13 +4,16 @@ namespace frontend\controllers;
 
 use common\forms\AddPricingAttribute;
 use common\forms\AttachAttribute;
+use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
+use common\models\FieldType;
 use common\models\PriceType;
 use common\models\PricingAttribute;
 use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeDepends;
 use common\models\ServiceCity;
+use frontend\helpers\FieldsConfigurationHelper;
 use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\Service;
@@ -156,6 +159,47 @@ class ServiceController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    public function actionEditAttribute($id, $attribute_id = null)
+    {
+        $service = $this->findModel($id);
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $model = new UpdateAttribute();
+        $model->attribute_id = $attribute->id;
+        $model->service_id = $service->id;
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->update()) {
+            Yii::$app->getSession()->addFlash('success', 'Attribute configuration updated');
+            return $this->redirect(['/service/edit-attribute', 'id' => $id, 'attribute_id' => $attribute_id]);
+        }
+
+        $model->attribute_name = $attribute->name;
+        $model->price_type_id = count($attribute->pricingAttributes) > 0 ? Arr::first($attribute->pricingAttributes)->price_type_id : null;
+        $model->input_type_id = $attribute->input_type_id;
+        $model->user_input_type_id = $attribute->user_input_type_id;
+        $model->attribute_options = collect($attribute->getServiceAttributeOptions()->asArray()->all())->pluck('id')->toArray();
+        $model->attribute_validations = collect($attribute->getValidations()->asArray()->all())->pluck('id')->toArray();
+        $model->field_type_id = $attribute->field_type_id;
+        $model->field_type = FieldType::findOne($attribute->field_type_id)->name;
+
+        if ($model->field_type === FieldType::TYPE_RANGE) {
+            $model->min = $attribute->getMinimum() ? $attribute->getMinimum()->name : null;
+            $model->max = $attribute->getMaximum() ? $attribute->getMaximum()->name : null;
+        }
+
+
+        return $this->render('update-attribute', [
+            'model' => $model,
+            'attribute' => $attribute,
+            'service' => $service
+        ]);
+    }
+
     /**
      * Attach Attributes to service
      * @param $id
@@ -189,13 +233,10 @@ class ServiceController extends Controller
         $formModel = new AddPricingAttribute();
         $formModel->service_id = $model->id;
 
-        foreach ($model->serviceLevelAttributes as $serviceLevelAttribute) {
+        /** @var ServiceAttribute $serviceAttribute */
+        foreach ($model->serviceAttributes as $serviceAttribute) {
 
-            $pricingAttribute = PricingAttribute::find()
-                ->where(['service_attribute_id' => $serviceLevelAttribute->id])
-                ->one();
-
-            if (!$pricingAttribute) {
+            if (count($serviceAttribute->pricingAttributes) === 0) {
                 return $this->render('set-pricing-attributes', ['model' => $model, 'formModel' => $formModel]);
             }
         }
@@ -271,50 +312,42 @@ class ServiceController extends Controller
         return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 
-    public function actionAddAttributeDependency($id, $attribute_id = null, $depends_on_id = null)
+    public function actionAddAttributeDependency($id)
     {
         $model = $this->findModel($id);
 
-        $depends_on = ServiceAttribute::findOne($depends_on_id);
 
-        if ($depends_on) {
-            $options = $depends_on->getOptionsList();
-        } else {
-            $options = [];
+        if (Yii::$app->getRequest()->isPost) {
+            $data = Yii::$app->getRequest()->post();
+
+            $attribute_id = Arr::get($data, 'depends_on_id');
+            $depends_on_id = Arr::get($data, 'attribute_id');
+            $option_id = Arr::get($data, 'option_id');
+
+            $dependency = new ServiceAttributeDepends();
+            $dependency->service_attribute_id = $attribute_id;
+            $dependency->depends_on_id = $depends_on_id;
+            $dependency->service_attribute_option_id = $option_id;
+            $dependency->save();
+
+            Yii::$app->getSession()->addFlash('success', 'Dependency saved');
+            return $this->redirect(Yii::$app->getRequest()->getReferrer());
         }
 
 
         return $this->render('add-attribute-depenedency', [
-            'model' => $model,
-            'options' => $options,
-            'attribute_id' => $attribute_id,
-            'depends_on_id' => $depends_on_id
+            'model' => $model
         ]);
     }
 
-    public function actionAttachAttributeDependency($id)
+    public function actionRemoveDependency($id)
     {
-        $model = $this->findModel($id);
+        $dependency = ServiceAttributeDepends::findOne($id);
 
-        $data = Yii::$app->getRequest()->post();
-
-        $attribute_id = Arr::get($data, 'attribute_id');
-        $depends_on = Arr::get($data, 'depends_on_id');
-        $service_attribute_options = Arr::get($data, 'service_attribute_option_id');
-
-        if (empty($service_attribute_options)) {
-            Yii::$app->getSession()->addFlash('error', 'Please select attribute option');
-            return $this->redirect(Yii::$app->getRequest()->getReferrer());
+        if($dependency){
+            $dependency->delete();
         }
 
-        foreach ($service_attribute_options as $service_attribute_option) {
-            $dependency = new ServiceAttributeDepends();
-            $dependency->service_attribute_id = $attribute_id;
-            $dependency->depends_on_id = $depends_on;
-            $dependency->service_attribute_option_id = $service_attribute_option;
-            $dependency->save();
-        }
-
-        return $this->redirect(['/service/add-attribute-dependency', 'id' => $model->id]);
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 }

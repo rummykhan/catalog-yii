@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 /* @var $model \common\forms\AttachAttribute */
 
 
-$this->title = 'Add Fields';
+$this->title = 'Add Field';
 $this->params['breadcrumbs'][] = ['label' => 'Services', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/service/view', 'id' => $service->id]];
 $this->params['breadcrumbs'][] = $this->title;
@@ -29,14 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= Select2::widget([
                     'model' => $model,
                     'attribute' => 'field_type',
-                    'data' => [
-                        'text' => 'Text',
-                        'range' => 'Range',
-                        'list' => 'List',
-                        'toggle' => 'Boolean',
-                        'file' => 'File',
-                        'location' => 'Google Map',
-                    ],
+                    'data' => \frontend\helpers\FieldsConfigurationHelper::getDropDownData(),
                     'options' => ['placeholder' => 'Select field type'],
                     'pluginOptions' => [
                         'multiple' => false,
@@ -96,6 +89,39 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
             </div>
 
+
+            <div class="form-group hidden" id="values">
+                <label for="">Add Field Values</label>
+                <?= Select2::widget([
+                    'model' => $model,
+                    'attribute' => 'service_attribute_options',
+                    'value' => [],
+                    'data' => [],
+                    'maintainOrder' => true,
+                    'options' => ['placeholder' => 'Add options', 'multiple' => true],
+                    'pluginOptions' => [
+                        'tags' => true,
+                        'maximumInputLength' => 30
+                    ],
+                ]); ?>
+            </div>
+
+            <div class="form-group">
+                <label for="">Validations</label>
+                <?= Select2::widget([
+                    'model' => $model,
+                    'attribute' => 'validations',
+                    'data' => \common\models\Validation::toList(),
+                    'value' => $model->validations,
+                    'options' => ['placeholder' => 'Select validations'],
+                    'pluginOptions' => [
+                        'multiple' => true,
+                        'allowClear' => true
+                    ]
+                ]) ?>
+            </div>
+
+
             <div class="form-group">
                 <?= Html::submitButton('Add Field', ['class' => 'btn btn-primary']) ?>
             </div>
@@ -124,6 +150,7 @@ var inputTypeSelector = '#{$inputTypeID}';
 var userInputTypeSelector = '#{$userInputTypeID}';
 var priceTypeSelector = '#{$priceTypeID}';
 var rangeSelector = '#range'; 
+var valueInputSelector = '#values';
 
 function getConfiguration(type){
     
@@ -145,6 +172,18 @@ function showRange(){
     }
 }
 
+function hideValuesInput(){
+    if(!$(valueInputSelector).hasClass('hidden')){
+        $(valueInputSelector).addClass('hidden');
+    }
+}
+
+function showValuesInput(){
+    if($(valueInputSelector).hasClass('hidden')){
+        $(valueInputSelector).removeClass('hidden');
+    }
+}
+
 function loadConfiguration(type){
     var typeConfiguration = getConfiguration(type);
     
@@ -160,8 +199,14 @@ function loadConfiguration(type){
     
     hideRange();
     
+    hideValuesInput();
+    
     if(!typeConfiguration.rangeHidden){
         showRange();
+    }
+    
+    if(!typeConfiguration.valueHidden){
+        showValuesInput();
     }
     
 }
