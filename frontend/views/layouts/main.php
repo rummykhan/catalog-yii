@@ -40,23 +40,23 @@ AppAsset::register($this);
         ['label' => 'Category', 'url' => ['/category/index']],
         ['label' => 'Service', 'url' => ['/service/index']],
         ['label' => 'Provider', 'url' => ['/provider/index']],
-        [
+        /*[
             'label' => 'Attributes',
             'items' => [
                 ['label' => 'Attribute', 'url' => ['/attribute/index']],
                 ['label' => 'Option', 'url' => ['/attribute-option/index']],
             ]
-        ],
+        ],*/
         [
-            'label' => 'Catalog Setting',
+            'label' => 'Setting',
             'items' => [
-                ['label' => 'Input Type', 'url' => ['/input-type/index']],
+                /*['label' => 'Input Type', 'url' => ['/input-type/index']],
                 ['label' => 'User Input Type', 'url' => ['/user-input-type/index']],
                 ['label' => 'Validation', 'url' => ['/validation/index']],
-                ['label' => 'Price Type', 'url' => ['/price-type/index']],
+                ['label' => 'Price Type', 'url' => ['/price-type/index']],*/
                 ['label' => 'Country', 'url' => ['/country/index']],
                 ['label' => 'City', 'url' => ['/city/index']],
-                ['label' => 'Service Type', 'url' => ['/service-type/index']],
+                //['label' => 'Service Type', 'url' => ['/service-type/index']],
             ]
         ]
     ];

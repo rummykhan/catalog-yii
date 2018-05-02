@@ -150,7 +150,8 @@ class m180411_112456_add_attribute_table extends Migration
         $this->createTable('provided_service_type', [
             'id' => $this->primaryKey(),
             'provided_service_id' => $this->integer(),
-            'service_type_id' => $this->integer()
+            'service_type_id' => $this->integer(),
+            'deleted' => $this->boolean()->defaultValue(false)
         ]);
 
         $this->addForeignKey('fk-pst-ps', 'provided_service_type', 'provided_service_id', 'provided_service', 'id');

@@ -101,21 +101,57 @@ class ProvidedServiceController extends Controller
      */
     public function actionUpdate($id)
     {
+        $serviceTypes = Yii::$app->getRequest()->post('service_type');
         $providedService = $this->findModel($id);
 
-        $model = new AddType();
-        $model->provided_service_id = $id;
+        //dd($providedService, $serviceTypes);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        /** @var ServiceType $serviceType */
+        foreach (ServiceType::find()->all() as $serviceType) {
+
+            // if service type is checked
+            if (isset($serviceTypes[$serviceType->id])) {
+
+                // if not attached..
+
+                $providedServiceType = ProvidedServiceType::find()
+                    ->where(['provided_service_id' => $id])
+                    ->andWhere(['service_type_id' => $serviceType->id])
+                    ->andWhere(['deleted' => false])
+                    ->one();
+
+                // attach it
+
+                if ($providedServiceType) {
+                    continue;
+                }
+
+                $providedServiceType = new ProvidedServiceType();
+                $providedServiceType->provided_service_id = $providedService->id;
+                $providedServiceType->service_type_id = $serviceType->id;
+                $providedServiceType->save();
+                continue;
+            }
+
+
+            // if service type is not checked..
+
+            $providedServiceType = ProvidedServiceType::find()
+                ->where(['provided_service_id' => $id])
+                ->andWhere(['service_type_id' => $serviceType->id])
+                ->andWhere(['deleted' => false])
+                ->one();
+
+            if (!$providedServiceType) {
+                continue;
+            }
+
+            $providedServiceType->deleted = true;
+            $providedServiceType->save();
+            // remove it.
         }
 
-        $model->updateServiceTypes();
-
-        return $this->render('update', [
-            'model' => $model,
-            'providedService' => $providedService
-        ]);
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 
     /**
@@ -192,8 +228,11 @@ class ProvidedServiceController extends Controller
         // if there is none redirect him to add the service request types
         // else show him the add coverage
 
+
         if (empty($type)) {
-            $type = $providedService->getProvidedServiceTypes()->one()->id;
+            $serviceType = $providedService->getProvidedServiceTypes()->one();
+        } else {
+            $serviceType = ServiceType::findOne($type);
         }
 
         $area = ProvidedServiceArea::find()->where(['id' => $area])->one();
@@ -212,16 +251,21 @@ class ProvidedServiceController extends Controller
 
         if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
             Yii::$app->getSession()->addFlash('success', 'Coverage areas updated');
-            return $this->redirect(Yii::$app->getRequest()->getReferrer());
+            return $this->redirect([
+                '/provided-service/view-coverage-areas',
+                'id' => $providedService->id,
+                'type' => $serviceType->id,
+                'area' =>  $model->provided_service_area->id
+            ]);
         }
 
-        $model->service_type = $type;
+        $model->service_type = $serviceType->id;
         $model->provided_service_id = $id;
 
         return $this->render('add-coverage', [
             'providedService' => $providedService,
             'model' => $model,
-            'type' => $type,
+            'serviceType' => $serviceType,
             'coveredAreas' => $coveredAreas
         ]);
     }

@@ -10,6 +10,7 @@ use Yii;
  * @property int $id
  * @property int $provided_service_id
  * @property int $service_type_id
+ * @property boolean $deleted
  *
  * @property ProvidedServiceArea[] $providedServiceAreas
  * @property ServiceType $serviceType
@@ -32,6 +33,7 @@ class ProvidedServiceType extends \yii\db\ActiveRecord
     {
         return [
             [['provided_service_id', 'service_type_id'], 'integer'],
+            ['deleted', 'boolean'],
             [['service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceType::className(), 'targetAttribute' => ['service_type_id' => 'id']],
             [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
         ];

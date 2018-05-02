@@ -273,6 +273,16 @@ class ProvidedService extends \yii\db\ActiveRecord
         }
 
         return $matrixPricing->price;
+    }
 
+    /**
+     * @return ProvidedServiceType[]
+     */
+    public function getUnDeletedServiceTypes()
+    {
+        return ProvidedServiceType::find()
+            ->where(['provided_service_id' => $this->id])
+            ->andWhere(['deleted' => false])
+            ->all();
     }
 }
