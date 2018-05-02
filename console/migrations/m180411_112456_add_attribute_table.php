@@ -39,13 +39,6 @@ class m180411_112456_add_attribute_table extends Migration
             'updated_at' => $this->dateTime()
         ]);
 
-        $this->createTable('attribute', [
-            'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'created_at' => $this->dateTime(),
-            'updated_at' => $this->dateTime(),
-        ]);
-
         $this->createTable('validation', [
             'id' => $this->primaryKey(),
             'type' => $this->string(),
@@ -70,23 +63,15 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-avo-avi', 'attribute_validation_option', 'attribute_validation_id', 'validation_option', 'id');
         $this->addForeignKey('fk-avo-vo', 'attribute_validation_option', 'validation_option_id', 'validation_option', 'id');
 
-        $this->createTable('attribute_option', [
-            'id' => $this->primaryKey(),
-            'name' => $this->string(),
-            'created_at' => $this->dateTime(),
-            'updated_at' => $this->dateTime()
-        ]);
-
         $this->createTable('service_attribute', [
             'id' => $this->primaryKey(),
             'service_id' => $this->integer(),
-            'attribute_id' => $this->integer(),
+            'name' => $this->string(),
             'input_type_id' => $this->integer(),
             'user_input_type_id' => $this->integer(),
         ]);
 
         $this->addForeignKey('fk-sa-s', 'service_attribute', 'service_id', 'service', 'id');
-        $this->addForeignKey('fk-sa-a', 'service_attribute', 'attribute_id', 'attribute', 'id');
         $this->addForeignKey('fk-sa-it', 'service_attribute', 'input_type_id', 'input_type', 'id');
         $this->addForeignKey('fk-sa-uit', 'service_attribute', 'user_input_type_id', 'user_input_type', 'id');
 
@@ -102,12 +87,10 @@ class m180411_112456_add_attribute_table extends Migration
         $this->createTable('service_attribute_option', [
             'id' => $this->primaryKey(),
             'service_attribute_id' => $this->integer(),
-            'attribute_option_id' => $this->integer()
+            'name' => $this->string(),
         ]);
 
-
         $this->addForeignKey('fk-sao-sa', 'service_attribute_option', 'service_attribute_id', 'service_attribute', 'id');
-        $this->addForeignKey('fk-sao-ao', 'service_attribute_option', 'attribute_option_id', 'attribute_option', 'id');
 
 
         $this->createTable('price_type', [
@@ -242,12 +225,10 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-avo-avi', 'attribute_validation_option');
         $this->dropForeignKey('fk-avo-vo', 'attribute_validation_option');
         $this->dropForeignKey('fk-sa-s', 'service_attribute');
-        $this->dropForeignKey('fk-sa-a', 'service_attribute');
         $this->dropForeignKey('fk-sa-it', 'service_attribute');
         $this->dropForeignKey('fk-sav-sa', 'service_attribute_validation');
         $this->dropForeignKey('fk-sav-v', 'service_attribute_validation');
         $this->dropForeignKey('fk-sao-sa', 'service_attribute_option');
-        $this->dropForeignKey('fk-sao-ao', 'service_attribute_option');
         $this->dropForeignKey('fk-pa-sa', 'pricing_attribute');
         $this->dropForeignKey('fk-pa-pt', 'pricing_attribute');
         $this->dropForeignKey('fk-pa-pag', 'pricing_attribute');
@@ -276,14 +257,12 @@ class m180411_112456_add_attribute_table extends Migration
 
         $this->dropTable('service_attribute_option');
         $this->dropTable('service_attribute');
-        $this->dropTable('attribute_option');
         $this->dropTable('input_type');
         $this->dropTable('user_input_type');
         $this->dropTable('service_attribute_validation');
         $this->dropTable('attribute_validation_option');
         $this->dropTable('validation_option');
         $this->dropTable('validation');
-        $this->dropTable('attribute');
         $this->dropTable('price_type');
         $this->dropTable('pricing_attribute_group');
         $this->dropTable('pricing_attribute');

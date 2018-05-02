@@ -51,8 +51,6 @@ class AttributeSeederController extends Controller
         $this->seedValidation();
         $this->seedPriceTypes();
         $this->seedUserInputType();
-        $this->seedAttributeOptions();
-        $this->seedAttributes();
         $this->seedCountries();
         $this->seedCities();
         $this->seedServiceType();
@@ -150,47 +148,6 @@ class AttributeSeederController extends Controller
             $priceType = new UserInputType();
             $priceType->name = $option;
             $priceType->save();
-        }
-    }
-
-    protected function seedAttributeOptions()
-    {
-        $this->stdout('Seeding attribute options', Console::FG_GREEN);
-        $this->stdout("\n");
-        if (AttributeOption::find()->count() > 0) {
-            AttributeOption::deleteAll();
-        }
-
-        $options = [
-            '1', '2', '3', '4', 'Yes', 'No', 'Male', 'Female', 'Any',
-            'Broken Screen', 'Broken Cover', 'Mic not working', 'Headphone not working', 'Not charging',
-            'Dubai', 'Sharjah', 'Abu Dhabi', 'Ajman', 'Fujairah',
-            'Gold', 'Silver', 'Black', 'Rose Gold', 'White',
-            'Protector', 'Mic', 'Headphone', 'Charger', '1BHK', '2BHK', 'Studio', 'Villa'
-        ];
-        foreach ($options as $option) {
-            $attributeOption = new AttributeOption();
-            $attributeOption->name = $option;
-            $attributeOption->save();
-        }
-    }
-
-    protected function seedAttributes()
-    {
-        $this->stdout('Seeding attributes', Console::FG_GREEN);
-        $this->stdout("\n");
-        if (Attribute::find()->count() > 0) {
-            Attribute::deleteAll();
-        }
-
-        $options = [
-            'Hours', 'No of cleaners', 'Gender Preference', 'From', 'To', 'Issues', 'Color',
-            'Accessories', 'Type of House', 'Cleaning Material'
-        ];
-        foreach ($options as $option) {
-            $attributeOption = new Attribute();
-            $attributeOption->name = $option;
-            $attributeOption->save();
         }
     }
 

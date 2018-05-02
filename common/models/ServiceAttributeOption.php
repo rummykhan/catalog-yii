@@ -11,9 +11,8 @@ use yii\db\Expression;
  *
  * @property int $id
  * @property int $service_attribute_id
- * @property int $attribute_option_id
+ * @property string $name
  *
- * @property AttributeOption $attributeOption
  * @property ServiceAttribute $serviceAttribute
  */
 class ServiceAttributeOption extends \yii\db\ActiveRecord
@@ -33,7 +32,8 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     {
         return [
             [['service_attribute_id', 'attribute_option_id'], 'integer'],
-            [['attribute_option_id'], 'exist', 'skipOnError' => true, 'targetClass' => AttributeOption::className(), 'targetAttribute' => ['attribute_option_id' => 'id']],
+            [['name'], 'required'],
+            [['name'], 'safe'],
             [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
         ];
     }
@@ -46,16 +46,8 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'service_attribute_id' => 'Service Attribute ID',
-            'attribute_option_id' => 'Attribute Option ID',
+            'name' => 'Field Value',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAttributeOption()
-    {
-        return $this->hasOne(AttributeOption::className(), ['id' => 'attribute_option_id']);
     }
 
     /**

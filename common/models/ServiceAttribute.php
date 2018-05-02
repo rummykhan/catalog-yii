@@ -14,13 +14,12 @@ use yii\web\NotFoundHttpException;
  *
  * @property int $id
  * @property int $service_id
- * @property int $attribute_id
+ * @property string $name
  * @property int $input_type_id
  * @property int $user_input_type_id
  *
  * @property ServiceAttributeDepends[] $parental
  * @property ServiceAttributeDepends[] $dependants
- * @property Attribute $attribute0
  * @property Service $service
  * @property ServiceAttributeOption[] $serviceAttributeOptions
  * @property Validation[] $validations
@@ -42,7 +41,8 @@ class ServiceAttribute extends \yii\db\ActiveRecord
     {
         return [
             [['service_id', 'attribute_id'], 'integer'],
-            [['attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => Attribute::className(), 'targetAttribute' => ['attribute_id' => 'id']],
+            [['name'], 'required'],
+            [['name'], 'safe'],
             [['service_id'], 'exist', 'skipOnError' => true, 'targetClass' => Service::className(), 'targetAttribute' => ['service_id' => 'id']],
             [['input_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type_id' => 'id']],
             [['user_input_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type_id' => 'id']],
@@ -57,16 +57,8 @@ class ServiceAttribute extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'service_id' => 'Service ID',
-            'attribute_id' => 'Attribute ID',
+            'name' => 'Field Name'
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAttribute0()
-    {
-        return $this->hasOne(Attribute::className(), ['id' => 'attribute_id']);
     }
 
     public function getInputType()

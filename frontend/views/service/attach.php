@@ -119,8 +119,6 @@ $js = <<<JS
 
 var baseConfiguration = JSON.parse('$configuration');
 
-console.log('configuration', baseConfiguration);
-
 var fieldTypeSelector = '#{$fieldTypeID}';
 var inputTypeSelector = '#{$inputTypeID}';
 var userInputTypeSelector = '#{$userInputTypeID}';
@@ -153,6 +151,8 @@ function loadConfiguration(type){
     if(!type){
         return false;
     }
+    
+    console.log('typeConfiguration', typeConfiguration);
     
     $(inputTypeSelector).val(typeConfiguration.inputType.id).trigger('change');
     $(userInputTypeSelector).val(typeConfiguration.userInputType.id).trigger('change');
