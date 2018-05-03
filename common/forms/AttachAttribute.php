@@ -38,6 +38,7 @@ class AttachAttribute extends Model
     public $max;
     public $service_attribute_options;
     public $validations;
+    public $bulk;
 
     public function rules()
     {
@@ -53,14 +54,16 @@ class AttachAttribute extends Model
             ['service_attribute_options', 'each', 'rule' => ['safe']],
             ['validations', 'each', 'rule' => ['exist', 'targetClass' => Validation::className(), 'targetAttribute' => ['validations' => 'id']]],
             ['field_type', 'exist', 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type' => 'name']],
-            [['service_id', 'attribute_name', 'input_type', 'user_input_type', 'price_type', 'field_type'], 'required']
+            [['service_id', 'attribute_name', 'input_type', 'user_input_type', 'price_type', 'field_type'], 'required'],
+            ['bulk', 'safe']
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'attribute_name' => 'Field name'
+            'attribute_name' => 'Field name',
+            'bulk' => 'Add Bulk values (comma separated)'
         ];
     }
 
@@ -120,6 +123,8 @@ class AttachAttribute extends Model
 
         $this->addValidations($serviceAttribute, $this->validations);
 
+        $this->addBulkOptions($serviceAttribute, $this->bulk);
+
         return $serviceAttribute;
     }
 
@@ -135,6 +140,7 @@ class AttachAttribute extends Model
             $option = ServiceAttributeOption::find()
                 ->where(['service_attribute_id' => $serviceAttribute->id])
                 ->andWhere(['name' => $i])
+                ->andWhere(['deleted' => false])
                 ->one();
 
             if ($option) {
@@ -154,11 +160,23 @@ class AttachAttribute extends Model
      */
     protected function addListOptions($serviceAttribute, $options)
     {
+        if (empty($options) || !is_array($options)) {
+            return false;
+        }
+
 
         foreach ($options as $option) {
+
+            $option = trim($option);
+
+            if (empty($option)) {
+                continue;
+            }
+
             $attributeOption = $serviceAttribute
                 ->getServiceAttributeOptions()
                 ->where(['name' => $option])
+                ->andWhere(['deleted' => false])
                 ->one();
 
             if ($attributeOption) {
@@ -196,5 +214,24 @@ class AttachAttribute extends Model
             $attributeValidation->validation_id = $validation;
             $attributeValidation->save();
         }
+    }
+
+    /**
+     * @param $serviceAttribute ServiceAttribute
+     * @param $options
+     */
+    protected function addBulkOptions($serviceAttribute, $options)
+    {
+        if (empty($options)) {
+            return false;
+        }
+
+        $options = explode(',', $options);
+
+        if (empty($options)) {
+            return false;
+        }
+
+        $this->addListOptions($serviceAttribute, $options);
     }
 }

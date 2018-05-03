@@ -22,11 +22,12 @@ $this->params['breadcrumbs'][] = $this->title;
     'action' => ['/service/edit-attribute', 'id' => $service->id, 'attribute_id' => $attribute->id]
 ]) ?>
 
+
 <div class="row">
     <div class="col-md-6">
-
         <?= $form->field($model, 'attribute_name')->textInput() ?>
-
+    </div>
+    <div class="col-md-6">
         <div class="form-group">
             <label for="">Field Type</label>
             <?= Select2::widget([
@@ -41,7 +42,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-md-6">
         <div class="form-group">
             <label for="">Input type to be rendered</label>
             <?= Select2::widget([
@@ -55,7 +60,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
-
+    </div>
+    <div class="col-md-6">
         <div class="form-group">
             <label for="">User input</label>
             <?= Select2::widget([
@@ -69,7 +75,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-md-6">
         <div class="form-group">
             <label for="">Price Type</label>
             <?= Select2::widget([
@@ -83,9 +93,33 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
-
     </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="">Validations</label>
+            <?= Select2::widget([
+                'model' => $model,
+                'attribute' => 'attribute_validations',
+                'data' => \common\models\Validation::toList(),
+                'value' => $model->attribute_validations,
+                'options' => ['placeholder' => 'Select validations'],
+                'pluginOptions' => [
+                    'multiple' => true,
+                    'allowClear' => true
+                ]
+            ]) ?>
+        </div>
+    </div>
+</div>
 
+
+<div class="form-group">
+    <?= Html::submitButton('Update Field', ['class' => 'btn btn-primary']) ?>
+</div>
+
+<hr>
+
+<div class="row">
     <div class="col-md-6">
         <div class="row" id="range">
             <div class="col-md-12">
@@ -130,7 +164,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div id="list-type-parent" class="">
 
                         <div id="list-type-parent-list">
-                            <?php foreach ($attribute->getServiceAttributeOptions()->where(['!=','deleted',true])->all() as $serviceAttributeOption) { ?>
+                            <?php foreach ($attribute->getServiceAttributeOptions()->where(['!=', 'deleted', true])->all() as $serviceAttributeOption) { ?>
                                 <div class="row" id="attribute-option-<?= $serviceAttributeOption->id ?>-parent">
                                     <div class="col-md-9">
                                         <div class="form-group">
@@ -150,7 +184,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <?php } ?>
 
                             <div class="form-group">
-                                <label for="">Add more values</label>
+                                <label for="">Add values</label>
                                 <?= Select2::widget([
                                     'model' => $model,
                                     'attribute' => 'attribute_more_options',
@@ -184,34 +218,15 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
 
-        <hr>
-
-        <div class="row">
-            <div class="col-md-12">
-                <h4>Validations</h4>
-                <div class="form-group">
-                    <?= Select2::widget([
-                        'model' => $model,
-                        'attribute' => 'attribute_validations',
-                        'data' => \common\models\Validation::toList(),
-                        'value' => $model->attribute_validations,
-                        'options' => ['placeholder' => 'Select validations'],
-                        'pluginOptions' => [
-                            'multiple' => true,
-                            'allowClear' => true
-                        ]
-                    ]) ?>
-                </div>
-            </div>
-        </div>
-
+    </div>
+    <div class="col-md-6">
+        <h4>Bulk Update</h4>
+        <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
     </div>
 </div>
 
-<br>
-
 <div class="form-group">
-    <?= Html::submitButton('Update Field', ['class' => 'btn btn-primary']) ?>
+    <?= Html::submitButton('Update Values', ['class' => 'btn btn-primary']) ?>
 </div>
 
 

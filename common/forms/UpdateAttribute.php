@@ -41,6 +41,8 @@ class UpdateAttribute extends Model
 
     public $field_type;
 
+    public $bulk;
+
     public function rules()
     {
         return [
@@ -53,14 +55,16 @@ class UpdateAttribute extends Model
             [['attribute_options', 'attribute_validations', 'attribute_more_options'], 'each', 'rule' => ['safe']],
             ['attribute_name', 'safe'],
             [['min', 'max'], 'integer'],
-            ['field_type', 'required']
+            ['field_type', 'required'],
+            ['bulk', 'safe'],
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'attribute_name' => 'Field Name'
+            'attribute_name' => 'Field Name',
+            'bulk' => 'Add Bulk values (comma separated)'
         ];
     }
 
@@ -141,6 +145,8 @@ class UpdateAttribute extends Model
                 break;
         }
 
+        $this->addBulkOptions($serviceAttribute, $this->bulk);
+
         return true;
     }
 
@@ -203,7 +209,10 @@ class UpdateAttribute extends Model
      */
     protected function addBaseListOptions($serviceAttribute, $options, $moreOptions)
     {
-        //dd($this, $options, $moreOptions);
+
+        if (empty($options)) {
+            $options = [];
+        }
         foreach ($options as $id => $option) {
             $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
                 ->where(['id' => $id])
@@ -213,6 +222,8 @@ class UpdateAttribute extends Model
                 $serviceAttributeOption->deleted = true;
                 $serviceAttributeOption->save();
             }
+
+            $option = trim($option);
 
             if (empty($option)) {
                 continue;
@@ -232,6 +243,22 @@ class UpdateAttribute extends Model
         }
 
         foreach ($moreOptions as $moreOption) {
+
+            $moreOption = trim($moreOption);
+
+            if (empty($moreOption)) {
+                continue;
+            }
+
+            $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
+                ->where(['!=', 'deleted', true])
+                ->andWhere(['name' => $moreOption])
+                ->one();
+
+            if ($serviceAttributeOption) {
+                continue;
+            }
+
             $serviceAttributeOption = new ServiceAttributeOption();
             $serviceAttributeOption->name = $moreOption;
             $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
@@ -287,6 +314,47 @@ class UpdateAttribute extends Model
                 $serviceAttributeOption->deleted = true;
                 $serviceAttributeOption->save();
             }
+        }
+    }
+
+    /**
+     * @param $serviceAttribute ServiceAttribute
+     * @param $options
+     * @return bool
+     */
+    protected function addBulkOptions($serviceAttribute, $options)
+    {
+        if (empty($options)) {
+            return false;
+        }
+
+        $options = explode(',', $options);
+
+        if (empty($options)) {
+            return false;
+        }
+
+        foreach ($options as $option) {
+
+            $option = trim($option);
+
+            if (empty($option)) {
+                continue;
+            }
+
+            $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
+                ->where(['!=', 'deleted', true])
+                ->andWhere(['name' => $option])
+                ->one();
+
+            if ($serviceAttributeOption) {
+                continue;
+            }
+
+            $serviceAttributeOption = new ServiceAttributeOption();
+            $serviceAttributeOption->name = $option;
+            $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
+            $serviceAttributeOption->save();
         }
     }
 }

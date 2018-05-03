@@ -16,11 +16,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
+<?php $form = ActiveForm::begin([
+    'action' => ['/service/attach-attribute', 'id' => $service->id]
+]) ?>
+
     <div class="row">
         <div class="col-md-6">
-            <?php $form = ActiveForm::begin([
-                'action' => ['/service/attach-attribute', 'id' => $service->id]
-            ]) ?>
+
 
             <?= $form->field($model, 'attribute_name')->textInput() ?>
 
@@ -80,6 +82,30 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]) ?>
             </div>
 
+            <div class="form-group">
+                <label for="">Validations</label>
+                <?= Select2::widget([
+                    'model' => $model,
+                    'attribute' => 'validations',
+                    'data' => \common\models\Validation::toList(),
+                    'value' => $model->validations,
+                    'options' => ['placeholder' => 'Select validations'],
+                    'pluginOptions' => [
+                        'multiple' => true,
+                        'allowClear' => true
+                    ]
+                ]) ?>
+            </div>
+
+
+            <div class="form-group">
+                <?= Html::submitButton('Add Field', ['class' => 'btn btn-primary']) ?>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
             <div class="row hidden" id="range">
                 <div class="col-md-6">
                     <?= $form->field($model, 'min')->textInput(['type' => 'number']) ?>
@@ -106,30 +132,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]); ?>
             </div>
 
-            <div class="form-group">
-                <label for="">Validations</label>
-                <?= Select2::widget([
-                    'model' => $model,
-                    'attribute' => 'validations',
-                    'data' => \common\models\Validation::toList(),
-                    'value' => $model->validations,
-                    'options' => ['placeholder' => 'Select validations'],
-                    'pluginOptions' => [
-                        'multiple' => true,
-                        'allowClear' => true
-                    ]
-                ]) ?>
-            </div>
 
-
-            <div class="form-group">
-                <?= Html::submitButton('Add Field', ['class' => 'btn btn-primary']) ?>
-            </div>
-
-
-            <?php ActiveForm::end() ?>
+            <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
         </div>
     </div>
+
+<?php ActiveForm::end() ?>
 
 
 <?php
