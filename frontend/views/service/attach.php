@@ -133,7 +133,9 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
 
 
-            <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
+            <div class="" id="bulk">
+                <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
+            </div>
         </div>
     </div>
 
@@ -159,6 +161,7 @@ var userInputTypeSelector = '#{$userInputTypeID}';
 var priceTypeSelector = '#{$priceTypeID}';
 var rangeSelector = '#range'; 
 var valueInputSelector = '#values';
+var bulkInputSelector = '#bulk';
 
 function getConfiguration(type){
     
@@ -192,6 +195,24 @@ function showValuesInput(){
     }
 }
 
+function hideBulk(){
+    if(!$(bulkInputSelector).hasClass('hidden')){
+        $(bulkInputSelector).addClass('hidden');
+    }
+}
+
+function showBulk(){
+    if($(bulkInputSelector).hasClass('hidden')){
+        $(bulkInputSelector).removeClass('hidden');
+    }
+}
+
+function hideAll(){
+    hideRange();
+    hideValuesInput();
+    hideBulk();
+}
+
 function loadConfiguration(type){
     var typeConfiguration = getConfiguration(type);
     
@@ -205,9 +226,7 @@ function loadConfiguration(type){
     $(userInputTypeSelector).val(typeConfiguration.userInputType.id).trigger('change');
     $(priceTypeSelector).val(typeConfiguration.priceType.id).trigger('change');
     
-    hideRange();
-    
-    hideValuesInput();
+    hideAll();
     
     if(!typeConfiguration.rangeHidden){
         showRange();
@@ -215,6 +234,10 @@ function loadConfiguration(type){
     
     if(!typeConfiguration.valueHidden){
         showValuesInput();
+    }
+    
+    if(!typeConfiguration.bulkHidden){
+        showBulk();
     }
     
 }
