@@ -50,9 +50,15 @@ $service = $model->service;
         [
             'label' => 'Actions',
             'value' => function ($model) {
-                return Html::a('Add Pricing', [
-                    '/provided-service/add-pricing', 'id' => $model['provided_service_id'], 'area' => $model['id'], 'type' => $model['service_type_id']
+                $buttons = Html::a('Set Pricing', [
+                    '/provided-service/set-pricing', 'id' => $model['provided_service_id'], 'area' => $model['id'], 'type' => $model['service_type_id']
                 ], ['class' => 'btn btn-primary btn-sm']);
+
+                $buttons .= Html::a('Set Availability', [
+                    '/provided-service/set-availability', 'id' => $model['provided_service_id'], 'area' => $model['id'], 'type' => $model['service_type_id']
+                ], ['class' => 'btn btn-primary btn-sm']);
+
+                return $buttons;
             },
             'format' => 'html'
         ]

@@ -228,7 +228,6 @@ class m180411_112456_add_attribute_table extends Migration
 
         $this->addForeignKey('fk-psc-psa', 'provided_service_coverage', 'provided_service_area_id', 'provided_service_area', 'id');
     }
-
     /**
      * {@inheritdoc}
      */

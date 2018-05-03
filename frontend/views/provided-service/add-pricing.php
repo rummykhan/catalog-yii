@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php ActiveForm::begin([
     'action' => [
-        '/provided-service/add-pricing',
+        '/provided-service/set-pricing',
         'id' => $model->id,
         'area' => $area->id,
         'type' => $providedServiceType->service_type_id

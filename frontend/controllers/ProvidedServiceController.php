@@ -270,7 +270,7 @@ class ProvidedServiceController extends Controller
         ]);
     }
 
-    public function actionAddPricing($id, $area, $type)
+    public function actionSetPricing($id, $area, $type)
     {
         $model = $this->findModel($id);
         $providedServiceType = ProvidedServiceType::find()
