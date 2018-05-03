@@ -23,6 +23,7 @@ $this->title = 'Add Pricing for ' . $area->name;
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $providedServiceType->serviceType->type];
 $this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -77,7 +78,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <tr>
             <td>Pricing</td>
             <?php foreach ($noImpactSingleRow as $item => $column) { ?>
-                <td><input type="text" name="no_impact_price[<?= $column['service_attribute_option_id'] ?>]"></td>
+                <td><input type="text" name="no_impact_price[<?= $column['service_attribute_option_id'] ?>]" value="<?= $model->getPriceOfNoImpactRow($column['service_attribute_option_id'], $area->id) ?>"></td>
             <?php } ?>
         </tr>
         </tbody>

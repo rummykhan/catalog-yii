@@ -5,6 +5,7 @@ namespace common\models;
 use RummyKhan\Collection\Arr;
 use RummyKhan\Collection\Collection;
 use Yii;
+use yii\base\Exception;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -157,8 +158,82 @@ class ProvidedService extends \yii\db\ActiveRecord
 
     public function saveNoImpactPrices($prices, $area_id)
     {
+        if (empty($prices)) {
+            return true;
+        }
 
-        //dd($prices, $area_id);
+        foreach ($prices as $service_attribute_option_id => $price) {
+
+            $query = (new Query())
+                ->select(['service_attribute_option.id'])
+                ->from('pricing_attribute')
+                ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+                ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+                ->join('inner join', 'service', 'service_attribute.service_id=service.id')
+                ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+                ->where(['service.id' => $this->service_id])
+                ->andWhere(['provided_service.provider_id' => $this->provider_id])
+                ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
+                ->andWhere(['service_attribute_option.deleted' => false])
+                ->andWhere(['service_attribute.deleted' => false]);
+
+            if (!$query->one()) {
+
+                // this option doesn't belong to this service
+                // maybe we can throw exceptions
+
+                continue;
+            }
+
+
+            // check if already inserted ?
+
+            $query = (new Query())
+                ->select(['provided_service_base_pricing.id'])
+                ->from('provided_service_base_pricing')
+                ->join('inner join', 'pricing_attribute', 'provided_service_base_pricing.pricing_attribute_id=pricing_attribute.id')
+                ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+                ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+                ->join('inner join', 'service', 'service_attribute.service_id=service.id')
+                ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+                ->where(['service.id' => $this->service_id])
+                ->andWhere(['provided_service.provider_id' => $this->provider_id])
+                ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
+                ->andWhere(['provided_service_base_pricing.service_attribute_option_id' => $service_attribute_option_id])
+                ->andWhere(['service_attribute_option.deleted' => false])
+                ->andWhere(['service_attribute.deleted' => false])
+                ->andWhere(['provided_service_base_pricing.provided_service_area_id' => $area_id]);
+
+            $result = $query->one();
+
+            $basePricing = null;
+            if ($result) {
+                $basePricing = ProvidedServiceBasePricing::findOne($result['id']);
+            } else {
+                $basePricing = new ProvidedServiceBasePricing();
+            }
+
+            $query = (new Query())
+                ->select(['pricing_attribute.id'])
+                ->from('pricing_attribute')
+                ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+                ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+                ->andWhere(['service_attribute.deleted' => false])
+                ->andWhere(['service_attribute_option.deleted' => false])
+                ->andWhere(['service_attribute_option.id' => $service_attribute_option_id]);
+
+            $pricingAttribute = $query->one();
+            if (!$pricingAttribute) {
+                throw new Exception('Pricing matrix not confirmed.');
+            }
+
+            $basePricing->service_attribute_option_id = $service_attribute_option_id;
+            $basePricing->provided_service_id = $this->id;
+            $basePricing->provided_service_area_id = $area_id;
+            $basePricing->pricing_attribute_id = $pricingAttribute['id'];
+            $basePricing->base_price = $price;
+            $basePricing->save();
+        }
     }
 
     public function saveMatrixPrices($prices, $area_id)
@@ -284,5 +359,32 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->where(['provided_service_id' => $this->id])
             ->andWhere(['deleted' => false])
             ->all();
+    }
+
+    public function getPriceOfNoImpactRow($service_attribute_option_id, $area_id)
+    {
+        $query = (new Query())
+            ->select(['provided_service_base_pricing.base_price'])
+            ->from('provided_service_base_pricing')
+            ->join('inner join', 'pricing_attribute', 'provided_service_base_pricing.pricing_attribute_id=pricing_attribute.id')
+            ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+            ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+            ->join('inner join', 'service', 'service_attribute.service_id=service.id')
+            ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+            ->where(['service.id' => $this->service_id])
+            ->andWhere(['provided_service.provider_id' => $this->provider_id])
+            ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
+            ->andWhere(['provided_service_base_pricing.service_attribute_option_id' => $service_attribute_option_id])
+            ->andWhere(['service_attribute_option.deleted' => false])
+            ->andWhere(['service_attribute.deleted' => false])
+            ->andWhere(['provided_service_base_pricing.provided_service_area_id' => $area_id]);
+
+        $results = $query->one();
+
+        if (!$results || !isset($results['base_price'])) {
+            return null;
+        }
+
+        return $results['base_price'];
     }
 }

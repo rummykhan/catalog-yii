@@ -12,6 +12,7 @@ use Yii;
  * @property int $pricing_attribute_id
  * @property double $base_price
  * @property int $provided_service_area_id
+ * @property int $service_attribute_option_id
  * @property string $created_at
  * @property string $updated_at
  *
@@ -41,6 +42,7 @@ class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
             [['pricing_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttribute::className(), 'targetAttribute' => ['pricing_attribute_id' => 'id']],
             [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
             [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
+            [['service_attribute_option_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttributeOption::className(), 'targetAttribute' => ['service_attribute_option_id' => 'id']],
         ];
     }
 

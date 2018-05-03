@@ -187,6 +187,7 @@ class m180411_112456_add_attribute_table extends Migration
             'pricing_attribute_id' => $this->integer(),
             'base_price' => $this->double(),
             'provided_service_area_id' => $this->integer(),
+            'service_attribute_option_id' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime(),
         ]);
@@ -194,6 +195,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-psbp-ps', 'provided_service_base_pricing', 'provided_service_id', 'provided_service', 'id');
         $this->addForeignKey('fk-psbp-pa', 'provided_service_base_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
         $this->addForeignKey('fk-psbp-psa', 'provided_service_base_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-psbp-sao', 'provided_service_base_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
 
         $this->createTable('service_attribute_depends', [
             'id' => $this->primaryKey(),
@@ -264,6 +266,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-psa-pst', 'provided_service_area');
         $this->dropForeignKey('fk-psa-c', 'provided_service_area');
         $this->dropForeignKey('fk-sa-ft', 'service_attribute');
+        $this->dropForeignKey('fk-psbp-sao', 'provided_service_base_pricing');
 
 
         $this->dropTable('service_attribute_option');

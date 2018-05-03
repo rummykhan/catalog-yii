@@ -276,6 +276,7 @@ class ProvidedServiceController extends Controller
         $providedServiceType = ProvidedServiceType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
+            ->andWhere(['deleted' => false])
             ->one();
 
         if (!$providedServiceType) {
