@@ -5,11 +5,16 @@ namespace frontend\controllers;
 use common\forms\AddCoverageArea;
 use common\forms\AddType;
 use common\helpers\MatrixHelper;
+use common\models\AvailabilityException;
+use common\models\AvailabilityRule;
+use common\models\GlobalAvailabilityException;
+use common\models\GlobalAvailabilityRule;
 use common\models\ProvidedServiceArea;
 use common\models\ProvidedServiceAreaSearch;
 use common\models\ProvidedServiceType;
 use common\models\Provider;
 use common\models\ServiceType;
+use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceSearch;
@@ -255,7 +260,7 @@ class ProvidedServiceController extends Controller
                 '/provided-service/view-coverage-areas',
                 'id' => $providedService->id,
                 'type' => $serviceType->id,
-                'area' =>  $model->provided_service_area->id
+                'area' => $model->provided_service_area->id
             ]);
         }
 
@@ -312,6 +317,133 @@ class ProvidedServiceController extends Controller
             'matrixRows' => $matrix->getMatrixRows(),
             'noImpactRows' => $matrix->getNoImpactRows()
         ]);
+    }
+
+    public function actionSetAvailability($id, $area, $type)
+    {
+        $model = $this->findModel($id);
+        $providedServiceType = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $model->id])
+            ->andWhere(['service_type_id' => $type])
+            ->andWhere(['deleted' => false])
+            ->one();
+
+        if (!$providedServiceType) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ProvidedServiceArea $area */
+        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$area) {
+            throw new NotFoundHttpException();
+        }
+
+        $globalRules = $area->getGlobalRules();
+        $localRules = $area->getLocalRules();
+
+        return $this->render('set-availability', [
+            'model' => $model,
+            'providedServiceType' => $providedServiceType,
+            'area' => $area,
+            'service' => $model->service,
+            'provider' => $model->provider,
+            'type' => $type,
+            'globalRules' => $globalRules,
+            'localRules' => $localRules,
+        ]);
+    }
+
+    public function actionAddGlobalRules($id, $area, $type)
+    {
+        $model = $this->findModel($id);
+        $providedServiceType = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $model->id])
+            ->andWhere(['service_type_id' => $type])
+            ->andWhere(['deleted' => false])
+            ->one();
+
+        if (!$providedServiceType) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ProvidedServiceArea $area */
+        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$area) {
+            throw new NotFoundHttpException();
+        }
+
+        $data = Yii::$app->getRequest()->post();
+
+        $rules = Arr::get($data, 'global-rules');
+
+        if (empty($rules) || empty(json_decode($rules, true))) {
+            return $this->redirect(['/provided-service/set-availability', 'id' => $model->id, 'area' => $area->id, 'type' => $type]);
+        }
+
+        $rulesJson = collect(json_decode($rules, true))->groupBy('type')->toArray();
+
+        foreach ($rulesJson as $ruleType => $rules) {
+            switch ($ruleType) {
+                case 'Available':
+                    GlobalAvailabilityRule::addRules($area, $rules);
+                    break;
+
+                case 'Not Available':
+                    GlobalAvailabilityException::addRules($area, $rules);
+                    break;
+            }
+        }
+
+        return $this->redirect(['/provided-service/set-availability', 'id' => $model->id, 'area' => $area->id, 'type' => $type]);
+    }
+
+
+    public function actionAddDateRule($id, $type, $area)
+    {
+        $model = $this->findModel($id);
+        $providedServiceType = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $model->id])
+            ->andWhere(['service_type_id' => $type])
+            ->andWhere(['deleted' => false])
+            ->one();
+
+        if (!$providedServiceType) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ProvidedServiceArea $area */
+        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$area) {
+            throw new NotFoundHttpException();
+        }
+
+        $data = Yii::$app->getRequest()->post();
+
+        $rules = Arr::get($data, 'date-rules');
+        $date = Arr::get($data, 'date');
+
+        if (empty($rules) || empty(json_decode($rules, true)) || empty($date)) {
+            return $this->redirect(['/provided-service/set-availability', 'id' => $model->id, 'area' => $area->id, 'type' => $type]);
+        }
+
+        $rulesJson = collect(json_decode($rules, true))->groupBy('type')->toArray();
+
+        foreach ($rulesJson as $ruleType => $rules) {
+            switch ($ruleType) {
+                case 'Available':
+                    AvailabilityRule::addRules($area, $rules, $date);
+                    break;
+
+                case 'Not Available':
+                    AvailabilityException::addRules($area, $rules, $date);
+                    break;
+            }
+        }
+
+        return $this->redirect(['/provided-service/set-availability', 'id' => $model->id, 'area' => $area->id, 'type' => $type]);
     }
 
 

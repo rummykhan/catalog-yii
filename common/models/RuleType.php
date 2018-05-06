@@ -5,7 +5,7 @@ namespace common\models;
 use Yii;
 
 /**
- * This is the model class for table "rule_value_type".
+ * This is the model class for table "rule_type".
  *
  * @property int $id
  * @property string $name
@@ -13,17 +13,17 @@ use Yii;
  * @property AvailabilityRule[] $availabilityRules
  * @property GlobalAvailabilityRule[] $globalAvailabilityRules
  */
-class RuleValueType extends \yii\db\ActiveRecord
+class RuleType extends \yii\db\ActiveRecord
 {
-    const TYPE_PERCENTAGE = 'Percentage';
-    const TYPE_FIXED = 'Fixed';
+    const TYPE_INCREASE = 'Increase';
+    const TYPE_DECREASE = 'Decrease';
 
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'rule_value_type';
+        return 'rule_type';
     }
 
     /**
@@ -52,7 +52,7 @@ class RuleValueType extends \yii\db\ActiveRecord
      */
     public function getAvailabilityRules()
     {
-        return $this->hasMany(AvailabilityRule::className(), ['rule_value_type_id' => 'id']);
+        return $this->hasMany(AvailabilityRule::className(), ['rule_type_id' => 'id']);
     }
 
     /**
@@ -60,11 +60,6 @@ class RuleValueType extends \yii\db\ActiveRecord
      */
     public function getGlobalAvailabilityRules()
     {
-        return $this->hasMany(GlobalAvailabilityRule::className(), ['rule_value_type_id' => 'id']);
-    }
-
-    public static function toList()
-    {
-        return collect(static::find()->all())->pluck('name','name')->toArray();
+        return $this->hasMany(GlobalAvailabilityRule::className(), ['rule_type_id' => 'id']);
     }
 }

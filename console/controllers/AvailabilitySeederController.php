@@ -9,6 +9,7 @@
 namespace console\controllers;
 
 
+use common\models\RuleType;
 use common\models\RuleValueType;
 use yii\console\Controller;
 use yii\helpers\Console;
@@ -24,6 +25,7 @@ class AvailabilitySeederController extends Controller
         $this->stdout("\n");
 
         $this->seedRuleValueType();
+        $this->seedRuleType();
 
         $this->stdout("\n");
         $this->stdout('Running seeders complete..', Console::FG_GREEN);
@@ -40,10 +42,29 @@ class AvailabilitySeederController extends Controller
 
         $types = [
             RuleValueType::TYPE_PERCENTAGE,
-            RuleValueType::TYPE_PREFIX
+            RuleValueType::TYPE_FIXED
         ];
         foreach ($types as $type) {
             $attributeType = new RuleValueType();
+            $attributeType->name = $type;
+            $attributeType->save();
+        }
+    }
+
+    protected function seedRuleType()
+    {
+        $this->stdout('Seeding rule type..', Console::FG_GREEN);
+        $this->stdout("\n");
+        if (RuleType::find()->count() > 0) {
+            RuleType::deleteAll();
+        }
+
+        $types = [
+            RuleType::TYPE_INCREASE,
+            RuleType::TYPE_DECREASE
+        ];
+        foreach ($types as $type) {
+            $attributeType = new RuleType();
             $attributeType->name = $type;
             $attributeType->save();
         }
