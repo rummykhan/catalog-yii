@@ -219,7 +219,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" id="bulk">
         <h4>Bulk Update</h4>
         <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
     </div>
@@ -256,6 +256,8 @@ var typeRangeParentSelector = '#range-type-parent';
 var rangeTypeParentRangeSelector = '#range-type-parent-range';
 var listTypeParentListSelector = '#list-type-parent-list';
 
+var bulkInputSelector = '#bulk';
+
 function removeOption(element){
     var target = element.attr('data-target');
     var targetParent = target+'-parent';
@@ -286,6 +288,10 @@ function hideAll(){
     if(!$(typeRangeParentSelector).hasClass('hidden')){
         $(typeRangeParentSelector).addClass('hidden');
     }
+    
+    if(!$(bulkInputSelector).hasClass('hidden')){
+        $(bulkInputSelector).addClass('hidden');
+    }
 }
 
 function loadConfiguration(type) {
@@ -308,7 +314,11 @@ function loadConfiguration(type) {
         $(typeListParentSelector).removeClass('hidden');
     }
     
-    if(typeConfiguration.rangeHidden && typeConfiguration.valueHidden){
+    if(!typeConfiguration.bulkHidden){
+        $(bulkInputSelector).removeClass('hidden');
+    }
+    
+    if(typeConfiguration.rangeHidden && typeConfiguration.valueHidden && typeConfiguration.bulkHidden){
         return true;
     }
     
