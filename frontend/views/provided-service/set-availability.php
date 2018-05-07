@@ -364,6 +364,45 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
+    <hr>
+
+    <div class="row">
+        <div class="col-md-11">
+            <h4>Availability for this date</h4>
+            <nav>
+                <ul class="pagination" id="date-availability-hours">
+
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Applied Rules</h4>
+            <table class="table table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <th>Rule Type</th>
+                        <th>Day/Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Available</th>
+                        <th>Increase/Decrease</th>
+                        <th>Percentage/Fixed</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="date-applied-rules">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
     <div class="row hidden" id="update-date-rule">
         <div class="col-md-12">
 
@@ -421,6 +460,8 @@ var dateRuleModalDateSelector = '#date-rule-modal-date';
 var dateRuleUpdateSelector = '#update-date-rule';
 var dateRulesSelector = '#date-rules';
 var dateRulesDateSelector = '#date-rules-date';
+var dateRuleAvailabilityHoursSelector = '#date-availability-hours';
+var dateRuleAppliedRules = '#date-applied-rules';
 
 var dateAvailabilityRules = JSON.parse('{$localRulesJson}');
 
@@ -430,13 +471,73 @@ var manager = new Availability(availabilityRules, dateAvailabilityRules);
 refreshRulesDisplay(availabilityRules);
 initializeCalendar();
 
-function dayClicked(date){
+function dayClicked(date, rules){
     var momentDate = moment(date);
     
     $('#date-modal').modal();
     $(dateRuleModalDateSelector).text(momentDate.format('YYYY-MM-DD'));
     $(dateRulesDateSelector).val(momentDate.format('YYYY-MM-DD'));
     refreshDateRuleTableDisplay(dateAvailabilityRules);
+    showDateAvailability(rules);
+    //showDateAppliedRules(rules);
+}
+
+function addAppliedRuleRow(rule, type){
+    var tableRow = '<tr>'+
+        '<td>'+type+'</td>'+
+         '<td>'+(!!rule.day ? rule.day : (!!rule.date ? rule.date : '') )+'</td>'+
+         '<td>'+rule.start_time+'</td>'+
+         '<td>'+rule.end_time+'</td>'+
+         '<td>'+(rule.type)+'</td>'+
+         (!!rule.price_type ? '<td>'+rule.price_type+'</td>' : '<td></td>')+
+         (!!rule.update_as ? '<td>'+rule.update_as+'</td>' : '<td></td>')+
+         (!!rule.value ? '<td>'+rule.value+'</td>' : '<td></td>')+
+         '</tr>';
+    
+    $(dateRuleAppliedRules).append(tableRow);
+}
+
+function showDateAppliedRules(rules){
+    
+    $(dateRuleAppliedRules).empty();
+    
+    rules = JSON.parse(rules);
+    
+    $.each(rules.globalAvailability, function(i, value){
+        addAppliedRuleRow(value, 'Day Rule');
+    });
+    
+    $.each(rules.globalException, function(i, value){
+        addAppliedRuleRow(value, 'Day Rule');
+    });
+    
+    $.each(rules.localAvailability, function(i, value){
+        addAppliedRuleRow(value, 'Date Rule');
+    });
+    
+    $.each(rules.locationExceptions, function(i, value){
+        addAppliedRuleRow(value, 'Date Rule');
+    });
+}
+
+function showDateAvailability(rules){
+    $(dateRuleAvailabilityHoursSelector).empty();
+    rules = JSON.parse(rules);
+    
+    for(var i=0; i<=23; i++){
+        
+        var elementClass = '';
+        
+        if(rules.merged.indexOf(i) > -1){
+            elementClass = 'active';
+        }else{
+            elementClass = 'disabled';
+        }
+        
+        var elementHtml = '<li class="'+elementClass+'"><a href="#">'+i+' <span class="sr-only">'+i+'</span></a></li>';
+        
+        $(dateRuleAvailabilityHoursSelector).append(elementHtml);
+    }
 }
 
 function initializeCalendar(){
@@ -445,8 +546,11 @@ function initializeCalendar(){
         minDate: startDateMoment.toDate(),
         maxDate: endDateMoment.toDate(),
         clickDay: function(e){
-            console.log(e);
-            dayClicked(e.date);
+            
+            var rules = $(e.element).find('div.day-content').attr('data-rules');
+            
+            dayClicked(e.date, rules);
+            
         },
         customDayRenderer: function(element, date){
             var momentDate = moment(date);
@@ -463,6 +567,7 @@ function initializeCalendar(){
                 var opacity = (data.merged.length/9).toFixed(1);
                 
                 $(element).parent().css('box-shadow', 'rgb(156, 183, 3) 0px -4px 0px 0px inset');
+                $(element).attr('data-rules', JSON.stringify(data));
                 
             }
         }
