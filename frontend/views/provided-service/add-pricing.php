@@ -87,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <table class="table table-striped">
         <thead>
         <tr>
-            <th></th>
+            <th><?= $title ?></th>
             <?php foreach ($independentRow as $item => $column) { ?>
                 <th><?= $column['attribute_option_name'] ?></th>
             <?php } ?>
