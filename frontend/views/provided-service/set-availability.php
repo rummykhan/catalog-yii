@@ -377,6 +377,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
+    <!--
     <hr>
 
     <div class="row">
@@ -401,6 +402,8 @@ $this->params['breadcrumbs'][] = $this->title;
             </table>
         </div>
     </div>
+
+    -->
 
 
     <div class="row hidden" id="update-date-rule">
