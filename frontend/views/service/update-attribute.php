@@ -92,6 +92,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     'allowClear' => true
                 ]
             ]) ?>
+            <span class="help-block">
+                    <b>Composite</b> type will share price with another attribute.
+                    <br>
+                    <b>Incremental</b> type will multiply the selected quantity to composite price.
+                    <br>
+                    <b>No impact</b> type is just instructional for provider, no prices.
+                    <br>
+                    <b>Independent</b> type will have individual price for all of it's options.
+                </span>
         </div>
     </div>
     <div class="col-md-6">
