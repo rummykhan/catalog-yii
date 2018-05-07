@@ -15,6 +15,7 @@ use kartik\select2\Select2;
 /* @var $matrixHeaders array */
 /* @var $matrixRows array */
 /* @var $noImpactRows array */
+/* @var $independentRows array */
 /** @var $area \common\models\ProvidedServiceArea */
 /** @var $providedServiceType \common\models\ProvidedServiceType */
 
@@ -39,6 +40,15 @@ $this->params['breadcrumbs'][] = $this->title;
     'method' => 'POST'
 ]) ?>
 
+
+<?php if (count($matrixRows) > 0) { ?>
+    <div class="row">
+        <div class="col-md-3">
+            <h4>Composite attributes</h4>
+            <hr>
+        </div>
+    </div>
+<?php } ?>
 <table class="table table-striped">
     <thead>
     <tr>
@@ -64,12 +74,21 @@ $this->params['breadcrumbs'][] = $this->title;
     </tbody>
 </table>
 
-<?php foreach ($noImpactRows as $title => $noImpactSingleRow) { ?>
+<?php if (count($independentRows) > 0) { ?>
+    <div class="row">
+        <div class="col-md-3">
+            <h4>Independent attributes</h4>
+            <hr>
+        </div>
+    </div>
+<?php } ?>
+
+<?php foreach ($independentRows as $title => $independentRow) { ?>
     <table class="table table-striped">
         <thead>
         <tr>
             <th></th>
-            <?php foreach ($noImpactSingleRow as $item => $column) { ?>
+            <?php foreach ($independentRow as $item => $column) { ?>
                 <th><?= $column['attribute_option_name'] ?></th>
             <?php } ?>
         </tr>
@@ -77,12 +96,35 @@ $this->params['breadcrumbs'][] = $this->title;
         <tbody>
         <tr>
             <td>Pricing</td>
-            <?php foreach ($noImpactSingleRow as $item => $column) { ?>
-                <td><input type="text" name="no_impact_price[<?= $column['service_attribute_option_id'] ?>]" value="<?= $model->getPriceOfNoImpactRow($column['service_attribute_option_id'], $area->id) ?>"></td>
+            <?php foreach ($independentRow as $item => $column) { ?>
+                <td><input type="text" name="independent_price[<?= $column['service_attribute_option_id'] ?>]" value="<?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ?>"></td>
             <?php } ?>
         </tr>
         </tbody>
     </table>
+<?php } ?>
+
+
+<?php if (count($noImpactRows) > 0) { ?>
+    <div class="row">
+        <div class="col-md-3">
+            <h4>No impact attributes</h4>
+            <hr>
+        </div>
+    </div>
+<?php } ?>
+
+<?php foreach ($noImpactRows as $title => $noImpactSingleRow) { ?>
+    <div class="row">
+        <div class="col-md-4">
+            <ul class="list-group">
+                <b><?= $title ?></b>
+                <?php foreach ($noImpactSingleRow as $item => $value) { ?>
+                    <li class="list-group-item"><?= $value['attribute_option_name'] ?></li>
+                <?php } ?>
+            </ul>
+        </div>
+    </div>
 <?php } ?>
 
 <button class="btn btn-primary pull-right">Save Pricing</button>

@@ -129,7 +129,12 @@ class AttributeSeederController extends Controller
             PriceType::deleteAll();
         }
 
-        $options = [PriceType::TYPE_COMPOSITE, PriceType::TYPE_INCREMENTAL, PriceType::TYPE_NO_IMPACT];
+        $options = [
+            PriceType::TYPE_COMPOSITE,
+            PriceType::TYPE_INCREMENTAL,
+            PriceType::TYPE_NO_IMPACT,
+            PriceType::TYPE_INDEPENDENT
+        ];
         foreach ($options as $option) {
             $priceType = new PriceType();
             $priceType->type = $option;

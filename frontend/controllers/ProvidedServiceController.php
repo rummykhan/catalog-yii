@@ -298,10 +298,10 @@ class ProvidedServiceController extends Controller
 
         if (Yii::$app->getRequest()->isPost) {
             $matrixPrices = Yii::$app->getRequest()->post('matrix_price');
-            $noImpactPrices = Yii::$app->getRequest()->post('no_impact_price');
+            $independentPrices = Yii::$app->getRequest()->post('independent_price');
 
             $model->saveMatrixPrices($matrixPrices, $area->id);
-            $model->saveNoImpactPrices($noImpactPrices, $area->id);
+            $model->saveIndependentPrices($independentPrices, $area->id);
 
             Yii::$app->getSession()->addFlash('success', 'Prices updated');
             return $this->redirect(Yii::$app->getRequest()->getReferrer());
@@ -315,7 +315,8 @@ class ProvidedServiceController extends Controller
             'providedServiceType' => $providedServiceType,
             'matrixHeaders' => $matrix->getMatrixHeaders(),
             'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows()
+            'noImpactRows' => $matrix->getNoImpactRows(),
+            'independentRows' => $matrix->getIndependentRows(),
         ]);
     }
 

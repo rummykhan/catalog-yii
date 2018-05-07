@@ -104,7 +104,7 @@ class m180411_112456_add_attribute_table extends Migration
 
         $this->createTable('price_type', [
             'id' => $this->primaryKey(),
-            'type' => $this->string()
+            'type' => $this->string(),
         ]);
 
         $this->createTable('pricing_attribute_group', [
@@ -228,6 +228,7 @@ class m180411_112456_add_attribute_table extends Migration
 
         $this->addForeignKey('fk-psc-psa', 'provided_service_coverage', 'provided_service_area_id', 'provided_service_area', 'id');
     }
+
     /**
      * {@inheritdoc}
      */

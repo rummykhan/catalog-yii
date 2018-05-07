@@ -107,7 +107,6 @@ class AttachAttribute extends Model
         $pricingAttribute = new PricingAttribute();
         $pricingAttribute->service_attribute_id = $serviceAttribute->id;
         $pricingAttribute->price_type_id = $priceType->id;
-        //$pricingAttribute->pricing_attribute_group_id = $pricingAttributeGroup->id;
         $pricingAttribute->save();
 
         // check if it's a range attribute add all options

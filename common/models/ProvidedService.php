@@ -156,7 +156,7 @@ class ProvidedService extends \yii\db\ActiveRecord
         return true;
     }
 
-    public function saveNoImpactPrices($prices, $area_id)
+    public function saveIndependentPrices($prices, $area_id)
     {
         if (empty($prices)) {
             return true;
@@ -164,13 +164,14 @@ class ProvidedService extends \yii\db\ActiveRecord
 
         foreach ($prices as $service_attribute_option_id => $price) {
 
+            // check if this option is not deleted and price can be set.
             $query = (new Query())
                 ->select(['service_attribute_option.id'])
-                ->from('pricing_attribute')
-                ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
-                ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+                ->from('service_attribute_option')
+                ->join('inner join', 'service_attribute', 'service_attribute_option.service_attribute_id=service_attribute.id')
+                ->join('inner join', 'pricing_attribute', 'service_attribute.id=pricing_attribute.service_attribute_id')
                 ->join('inner join', 'service', 'service_attribute.service_id=service.id')
-                ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+                ->join('inner join', 'provided_service', 'service.id=provided_service.service_id')
                 ->where(['service.id' => $this->service_id])
                 ->andWhere(['provided_service.provider_id' => $this->provider_id])
                 ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
@@ -187,7 +188,6 @@ class ProvidedService extends \yii\db\ActiveRecord
 
 
             // check if already inserted ?
-
             $query = (new Query())
                 ->select(['provided_service_base_pricing.id'])
                 ->from('provided_service_base_pricing')
@@ -195,7 +195,7 @@ class ProvidedService extends \yii\db\ActiveRecord
                 ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
                 ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
                 ->join('inner join', 'service', 'service_attribute.service_id=service.id')
-                ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+                ->join('inner join', 'provided_service', 'service.id=provided_service.service_id')
                 ->where(['service.id' => $this->service_id])
                 ->andWhere(['provided_service.provider_id' => $this->provider_id])
                 ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
@@ -370,7 +370,34 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
             ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
             ->join('inner join', 'service', 'service_attribute.service_id=service.id')
-            ->join('inner join', 'provided_service', 'service.id=provided_service.id')
+            ->join('inner join', 'provided_service', 'service.id=provided_service.service_id')
+            ->where(['service.id' => $this->service_id])
+            ->andWhere(['provided_service.provider_id' => $this->provider_id])
+            ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])
+            ->andWhere(['provided_service_base_pricing.service_attribute_option_id' => $service_attribute_option_id])
+            ->andWhere(['service_attribute_option.deleted' => false])
+            ->andWhere(['service_attribute.deleted' => false])
+            ->andWhere(['provided_service_base_pricing.provided_service_area_id' => $area_id]);
+
+        $results = $query->one();
+
+        if (!$results || !isset($results['base_price'])) {
+            return null;
+        }
+
+        return $results['base_price'];
+    }
+
+    public function getPriceOfIndependentRow($service_attribute_option_id, $area_id)
+    {
+        $query = (new Query())
+            ->select(['provided_service_base_pricing.base_price'])
+            ->from('provided_service_base_pricing')
+            ->join('inner join', 'pricing_attribute', 'provided_service_base_pricing.pricing_attribute_id=pricing_attribute.id')
+            ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+            ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+            ->join('inner join', 'service', 'service_attribute.service_id=service.id')
+            ->join('inner join', 'provided_service', 'service.id=provided_service.service_id')
             ->where(['service.id' => $this->service_id])
             ->andWhere(['provided_service.provider_id' => $this->provider_id])
             ->andWhere(['service_attribute_option.id' => $service_attribute_option_id])

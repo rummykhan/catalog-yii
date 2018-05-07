@@ -37,6 +37,16 @@ class MatrixHelper
     private $noImpactRows;
 
     /**
+     * @var array $results
+     */
+    private $independentRows;
+
+    /**
+     * @var array $results
+     */
+    private $compositeAttributes;
+
+    /**
      * @var array $groups
      */
     private $groups;
@@ -59,7 +69,8 @@ class MatrixHelper
     {
         $this->service = $service;
         $this->createMatrix();
-        $this->createNoImpactRow();
+        $this->createNoImpactRows();
+        $this->createIndependentRows();
     }
 
     /**
@@ -69,7 +80,7 @@ class MatrixHelper
     {
         $priceType = PriceType::find()->where(['type' => PriceType::TYPE_COMPOSITE])->one();
 
-        $pricingAttributes = $this->service->getPricingAttributes($priceType);
+        $this->compositeAttributes = $pricingAttributes = $this->service->getPricingAttributes($priceType);
 
         // TODO: What if pricing attributes are empty
         $pricingAttributesGroup = collect($pricingAttributes)
@@ -125,7 +136,7 @@ class MatrixHelper
     /**
      * Create No impact Row
      */
-    private function createNoImpactRow()
+    private function createNoImpactRows()
     {
         $priceType = PriceType::find()->where(['type' => PriceType::TYPE_NO_IMPACT])->one();
 
@@ -141,12 +152,36 @@ class MatrixHelper
         $this->noImpactRows = $pricingAttributesGroup;
     }
 
+    private function createIndependentRows()
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INDEPENDENT])->one();
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType);
+
+        $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
+
+        if (count($pricingAttributesGroup) === 0) {
+            $this->independentRows = [];
+            return false;
+        }
+
+        $this->independentRows = $pricingAttributesGroup;
+    }
+
     /**
      * @return array
      */
     public function getNoImpactRows()
     {
         return $this->noImpactRows;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIndependentRows()
+    {
+        return $this->independentRows;
     }
 
     /**
@@ -219,6 +254,11 @@ class MatrixHelper
     public function getMatrixRows()
     {
         return $this->matrixRows;
+    }
+
+    public function getCompositeAttributes()
+    {
+        return $this->compositeAttributes;
     }
 
     public function saveMatrixRow($row)

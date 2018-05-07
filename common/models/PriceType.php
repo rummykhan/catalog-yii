@@ -17,6 +17,7 @@ class PriceType extends \yii\db\ActiveRecord
     const TYPE_COMPOSITE = 'composite';
     const TYPE_INCREMENTAL = 'incremental';
     const TYPE_NO_IMPACT = 'no impact';
+    const TYPE_INDEPENDENT = 'independent';
 
     /**
      * @inheritdoc

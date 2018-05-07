@@ -247,7 +247,8 @@ class ServiceController extends Controller
             'model' => $model,
             'matrixHeaders' => $matrix->getMatrixHeaders(),
             'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows()
+            'noImpactRows' => $matrix->getNoImpactRows(),
+            'independentRows' => $matrix->getIndependentRows(),
         ]);
     }
 
@@ -271,7 +272,8 @@ class ServiceController extends Controller
             'model' => $model,
             'matrixHeaders' => $matrix->getMatrixHeaders(),
             'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows()
+            'noImpactRows' => $matrix->getNoImpactRows(),
+            'independentRows' => $matrix->getIndependentRows(),
         ]);
     }
 
@@ -281,7 +283,7 @@ class ServiceController extends Controller
 
         $matrix = new MatrixHelper($model);
 
-        if (empty($matrix->getMatrixRows())) {
+        if (count($matrix->getCompositeAttributes()) && empty($matrix->getMatrixRows())) {
             Yii::$app->getSession()->addFlash('error', 'Pricing attributes not set');
             return $this->redirect(['/service/add-pricing', 'id' => $model->id]);
         }
@@ -344,7 +346,7 @@ class ServiceController extends Controller
     {
         $dependency = ServiceAttributeDepends::findOne($id);
 
-        if($dependency){
+        if ($dependency) {
             $dependency->delete();
         }
 
