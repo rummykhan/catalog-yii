@@ -194,6 +194,15 @@ class Service extends \yii\db\ActiveRecord
         return $query->all();
     }
 
+    public function getAllPricingAttributes()
+    {
+        $query = PricingAttribute::find()
+            ->joinWith(['serviceAttribute', 'serviceAttribute.service'])
+            ->where(['service.id' => $this->id]);
+
+        return $query->all();
+    }
+
     /**
      * @return array
      */
@@ -210,7 +219,7 @@ class Service extends \yii\db\ActiveRecord
             ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
             ->join('inner join', 'price_type', 'pricing_attribute.price_type_id=price_type.id')
             ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
-            ->andWhere(['IS NOT','price_type.type', NULL])
+            ->andWhere(['IS NOT', 'price_type.type', NULL])
             ->andWhere(['service_attribute_option.deleted' => false])
             ->andWhere(['service_attribute.deleted' => false])
             ->andWhere(['service_attribute.service_id' => $this->id])

@@ -21,7 +21,14 @@ use yii\web\View;
             <?php foreach ($independentRow as $item => $column) { ?>
                 <tr>
                     <th><?= $column['attribute_option_name'] ?></th>
-                    <td><input type="text" class="form-control" disabled></td>
+                    <td>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                              <input type="checkbox" aria-label="...">
+                            </span>
+                            <input type="number" class="form-control" name="independent_price[<?= $column['service_attribute_option_id'] ?>]">
+                        </div>
+                    </td>
                 </tr>
             <?php } ?>
             </tbody>

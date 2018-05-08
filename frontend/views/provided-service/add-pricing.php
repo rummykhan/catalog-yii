@@ -1,34 +1,64 @@
 <?php
 
-use common\models\ServiceType;
-use yii\helpers\Html;
+use common\helpers\ServiceAttributeMatrix;
+use common\models\ProvidedService;
+use common\models\ProvidedServiceArea;
+use common\models\ProvidedServiceType;
+use common\models\Provider;
+use common\models\Service;
 use yii\helpers\Url;
+use yii\web\View;
 use yii\widgets\ActiveForm;
-use yii\widgets\DetailView;
-use kartik\select2\Select2;
 
-/* @var $this yii\web\View */
-/* @var $model common\models\ProvidedService */
-/* @var $provider common\models\Provider */
-/* @var $service common\models\Service */
+/* @var $this View */
+/* @var $view int */
+/* @var $model ProvidedService */
+/* @var $provider Provider */
+/* @var $service Service */
 /* @var $type string */
+/** @var $area ProvidedServiceArea */
+/** @var $providedServiceType ProvidedServiceType */
+
+/* @var $motherMatrix ServiceAttributeMatrix */
+/* @var $attributeGroups array */
 /* @var $matrixHeaders array */
 /* @var $matrixRows array */
 /* @var $noImpactRows array */
 /* @var $independentRows array */
-/** @var $area \common\models\ProvidedServiceArea */
-/** @var $providedServiceType \common\models\ProvidedServiceType */
-
-
-$this->title = 'Add Pricing for ' . $area->name;
-$this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
-$this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
-$this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = ['label' => $providedServiceType->serviceType->type];
-$this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = $this->title;
+/* @var $incremental array */
 
 ?>
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="<?= Url::to([
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type,
+            'view' => 1
+        ]) ?>"
+           class="btn <?= $view == 1 ? 'btn-primary' : 'btn-default' ?>">Basic</a>
+        <a href="<?= Url::to([
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type,
+            'view' => 2
+        ]) ?>"
+           class="btn <?= $view == 2 ? 'btn-primary' : 'btn-default' ?>">Legacy</a>
+        <a href="<?= Url::to([
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type,
+            'view' => 3
+        ]) ?>"
+           class="btn <?= $view == 3 ? 'btn-primary' : 'btn-default' ?>">Dropdown</a>
+    </div>
+</div>
+
+<br>
 
 <?php ActiveForm::begin([
     'action' => [
@@ -40,89 +70,19 @@ $this->params['breadcrumbs'][] = $this->title;
     'method' => 'POST'
 ]) ?>
 
-
-<?php if (count($matrixRows) > 0) { ?>
-    <div class="row">
-        <div class="col-md-3">
-            <h4>Composite attributes</h4>
-            <hr>
-        </div>
-    </div>
-<?php } ?>
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <?php foreach ($matrixHeaders as $header) { ?>
-            <th><?= $header ?></th>
-        <?php } ?>
-        <th>Pricing</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($matrixRows as $row) { ?>
-        <tr>
-            <?php $matrixItems = []; ?>
-            <?php foreach ($row as $column) { ?>
-                <td><?= $column['attribute_option_name'] ?></td>
-                <?php $matrixItems[] = $column['service_attribute_option_id'] ?>
-            <?php } ?>
-            <td>
-                <input type="text" name="matrix_price[<?= implode('_', $matrixItems) ?>]" value="<?= $model->getPriceOfMatrixRow($matrixItems, $area->id) ?>" class="form-control">
-            </td>
-        </tr>
-    <?php } ?>
-    </tbody>
-</table>
-
-<?php if (count($independentRows) > 0) { ?>
-    <div class="row">
-        <div class="col-md-3">
-            <h4>Independent attributes</h4>
-            <hr>
-        </div>
-    </div>
-<?php } ?>
-
-<?php foreach ($independentRows as $title => $independentRow) { ?>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th><?= $title ?></th>
-            <?php foreach ($independentRow as $item => $column) { ?>
-                <th><?= $column['attribute_option_name'] ?></th>
-            <?php } ?>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>Pricing</td>
-            <?php foreach ($independentRow as $item => $column) { ?>
-                <td><input type="text" name="independent_price[<?= $column['service_attribute_option_id'] ?>]" value="<?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ?>"></td>
-            <?php } ?>
-        </tr>
-        </tbody>
-    </table>
-<?php } ?>
-
-
-<?php if (count($noImpactRows) > 0) { ?>
-    <div class="row">
-        <div class="col-md-3">
-            <h4>No impact attributes</h4>
-            <hr>
-        </div>
-    </div>
-<?php } ?>
-
-<?php foreach ($noImpactRows as $title => $noImpactSingleRow) { ?>
-    <div class="row">
-        <div class="col-md-4">
-            <ul class="list-group">
-                <b><?= $title ?></b>
-                <?php foreach ($noImpactSingleRow as $item => $value) { ?>
-                    <li class="list-group-item"><?= $value['attribute_option_name'] ?></li>
-                <?php } ?>
-            </ul>
+<?php foreach ($motherMatrix->getMatrices() as $index => $matrix) { ?>
+    <div class="panel panel-default">
+        <div class="panel-heading">Group - <?= $index ?></div>
+        <div class="panel-body">
+            <?= $this->render('price-matrix', [
+                'matrixHeaders' => $matrix->getMatrixHeaders(),
+                'matrixRows' => $matrix->getMatrixRows(),
+                'noImpactRows' => $matrix->getNoImpactRows(),
+                'independentRows' => $matrix->getIndependentRows(),
+                'incremental' => $matrix->getIncrementalAttributes(),
+                'attributeGroups' => $matrix->getAttributesGroup(),
+                'view' => $view
+            ]) ?>
         </div>
     </div>
 <?php } ?>

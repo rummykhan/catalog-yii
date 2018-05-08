@@ -26,3 +26,47 @@ use yii\web\View;
     <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
     <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
 <?php } ?>
+
+
+<?php
+
+$js = <<<JS
+
+function getTextBox(element){
+    return element.find('input[type="number"]');
+}
+
+function enablePriceBox(checkBox){
+    var textBox = getTextBox(checkBox.closest('.input-group'));
+    
+    textBox.removeAttr('disabled');
+}
+
+function disablePriceBox(checkBox){
+    var textBox = getTextBox(checkBox.closest('.input-group'));
+    
+    textBox.attr('disabled', 'disabled');
+}
+
+function applySelection(element){
+    if(element.is(':checked')){
+        enablePriceBox(element);
+    }else{
+        disablePriceBox(element);
+    }
+}
+
+$('.disable-input').click(function(e){
+    applySelection($(this));
+});
+
+
+$.each($('.disable-input'), function(i, element){
+    applySelection($(element));
+})
+
+JS;
+
+$this->registerJs($js);
+
+?>

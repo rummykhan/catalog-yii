@@ -10,9 +10,12 @@ namespace common\helpers;
 
 
 use common\models\PriceType;
+use common\models\PricingAttribute;
 use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\PricingAttributeParent;
+use common\models\ProvidedServiceBasePricing;
+use common\models\ProvidedServiceMatrixPricing;
 use common\models\Service;
 use RummyKhan\Collection\Collection;
 
@@ -92,6 +95,8 @@ class Matrix
         $this->createNoImpactRows();
         $this->createIndependentRows();
         $this->updateIncrementalAttribute();
+
+        dd($this);
     }
 
     /**
@@ -302,6 +307,8 @@ class Matrix
      */
     public function saveMatrixRows()
     {
+        $this->deleteExistingPrices();
+
         foreach ($this->getMatrixRows() as $row) {
             $this->saveMatrixRow($row);
         }
@@ -332,6 +339,33 @@ class Matrix
         return true;
     }
 
+    protected function deleteExistingPrices()
+    {
+        $pricingAttributes = $this->service->getAllPricingAttributes();
+
+        /** @var PricingAttribute $pricingAttribute */
+        foreach ($pricingAttributes as $pricingAttribute) {
+
+            // delete all base pricing
+            ProvidedServiceBasePricing::deleteAll(['pricing_attribute_id' => $pricingAttribute->id]);
+
+        }
+
+        $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+
+        /** @var PricingAttributeParent $pricingAttributeParent */
+        foreach ($pricingAttributeParents as $pricingAttributeParent) {
+            // delete matrix prices
+            ProvidedServiceMatrixPricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+
+            // delete matrix rows
+            PricingAttributeMatrix::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+
+            // delete parent
+            $pricingAttributeParent->delete();
+        }
+    }
+
     protected function updateIncrementalAttribute()
     {
         $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INCREMENTAL])->one();
@@ -339,5 +373,10 @@ class Matrix
         $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
 
         $this->incrementalAttributes = collect($pricingAttributes)->groupBy('attribute_name')->keys()->toArray();
+    }
+
+    public static function getRowOptions($row)
+    {
+        return implode('_', array_column($row, 'service_attribute_option_id'));
     }
 }

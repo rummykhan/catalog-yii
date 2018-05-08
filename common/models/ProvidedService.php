@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\helpers\Matrix;
 use RummyKhan\Collection\Arr;
 use RummyKhan\Collection\Collection;
 use Yii;
@@ -241,6 +242,11 @@ class ProvidedService extends \yii\db\ActiveRecord
         if (empty($prices)) {
             return false;
         }
+
+
+        $max = new Matrix($this->service);
+
+        dd($max, $this->service);
 
         foreach ($prices as $matrix => $price) {
             $this->saveMatrixPrice(explode('_', $matrix), $price, $area_id);
