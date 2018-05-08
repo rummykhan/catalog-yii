@@ -290,6 +290,7 @@ class ProvidedServiceController extends Controller
             throw new NotFoundHttpException();
         }
 
+        /** @var ProvidedServiceArea $area */
         $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
 
         if (!$area) {
@@ -300,19 +301,15 @@ class ProvidedServiceController extends Controller
             $view = 1;
         }
 
-        $motherMatrix = new ServiceAttributeMatrix($model->service);
-
         if (Yii::$app->getRequest()->isPost) {
 
-            $matrixPrices = Yii::$app->getRequest()->post('matrix_price');
-            $independentPrices = Yii::$app->getRequest()->post('independent_price');
-
-            $model->saveMatrixPrices($matrixPrices, $area->id);
-            $model->saveIndependentPrices($independentPrices, $area->id);
+            $model->savePrices(Yii::$app->getRequest()->post(), $area);
 
             Yii::$app->getSession()->addFlash('success', 'Prices updated');
             return $this->redirect(Yii::$app->getRequest()->getReferrer());
         }
+
+        $motherMatrix = new ServiceAttributeMatrix($model->service);
 
         return $this->render('add-pricing', [
             'model' => $model,
@@ -323,6 +320,36 @@ class ProvidedServiceController extends Controller
             'motherMatrix' => $motherMatrix,
             'view' => $view,
             'type' => $type,
+        ]);
+    }
+
+    public function actionSetDropdownPricing($id, $area, $type, $view = 3)
+    {
+        $model = $this->findModel($id);
+        $providedServiceType = ProvidedServiceType::find()
+            ->where(['provided_service_id' => $model->id])
+            ->andWhere(['service_type_id' => $type])
+            ->andWhere(['deleted' => false])
+            ->one();
+
+        if (!$providedServiceType) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ProvidedServiceArea $area */
+        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$area) {
+            throw new NotFoundHttpException();
+        }
+
+        $matrix = Yii::$app->getRequest()->post('attribute');
+        $price = Yii::$app->getRequest()->post('price');
+
+        $model->saveMatrixPrice($matrix, $price, $area->id);
+
+        return $this->redirect(['/provided-service/set-pricing',
+            'id' => $id, 'area' => $area->id, 'type' => $type, 'view' => $view
         ]);
     }
 
@@ -405,7 +432,6 @@ class ProvidedServiceController extends Controller
 
         return $this->redirect(['/provided-service/set-availability', 'id' => $model->id, 'area' => $area->id, 'type' => $type]);
     }
-
 
     public function actionAddDateRule($id, $type, $area)
     {

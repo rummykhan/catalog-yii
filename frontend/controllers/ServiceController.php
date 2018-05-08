@@ -254,9 +254,7 @@ class ServiceController extends Controller
 
         $motherMatrix = new ServiceAttributeMatrix($model);
 
-        foreach ($motherMatrix->getMatrices() as $matrix) {
-            $matrix->saveMatrixRows();
-        }
+        $motherMatrix->saveMatricesRows();
 
         Yii::$app->getSession()->addFlash('success', 'Pricing attributes matrix saved');
 

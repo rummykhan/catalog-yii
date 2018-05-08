@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rummykhan
- * Date: 4/23/18
- * Time: 10:08 AM
- */
 
 namespace common\helpers;
 
@@ -95,8 +89,6 @@ class Matrix
         $this->createNoImpactRows();
         $this->createIndependentRows();
         $this->updateIncrementalAttribute();
-
-        dd($this);
     }
 
     /**
@@ -177,6 +169,9 @@ class Matrix
         $this->noImpactRows = $pricingAttributesGroup;
     }
 
+    /**
+     * @return bool
+     */
     private function createIndependentRows()
     {
         $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INDEPENDENT])->one();
@@ -297,6 +292,9 @@ class Matrix
         return $this->incrementalAttributes;
     }
 
+    /**
+     * @return Collection
+     */
     public function getAttributesGroup()
     {
         return $this->attributeGroups;
@@ -305,11 +303,16 @@ class Matrix
     /**
      * Save matrix rows
      */
+    public function deleteExistingConfiguration()
+    {
+        $this->deleteExistingMatrix();
+        $this->deleteExistingPrices();
+        $this->deleteParents();
+    }
+
     public function saveMatrixRows()
     {
-        $this->deleteExistingPrices();
-
-        foreach ($this->getMatrixRows() as $row) {
+        foreach ($this->getMatrixRows() as $row){
             $this->saveMatrixRow($row);
         }
     }
@@ -317,7 +320,7 @@ class Matrix
     /**
      * Save a matrix row
      * @param $row
-     * @return bool
+     * @return mixed
      */
     protected function saveMatrixRow($row)
     {
@@ -325,6 +328,7 @@ class Matrix
             return false;
         }
 
+        $data = [];
         $pricingAttributeParent = new PricingAttributeParent();
         $pricingAttributeParent->service_id = $this->service->id;
         $pricingAttributeParent->save();
@@ -334,23 +338,15 @@ class Matrix
             $pricingAttributeMatrix->pricing_attribute_parent_id = $pricingAttributeParent->id;
             $pricingAttributeMatrix->service_attribute_option_id = $item['service_attribute_option_id'];
             $pricingAttributeMatrix->save();
+
+            $data[] = $pricingAttributeMatrix;
         }
 
-        return true;
+        return $data;
     }
 
-    protected function deleteExistingPrices()
+    protected function deleteExistingMatrix()
     {
-        $pricingAttributes = $this->service->getAllPricingAttributes();
-
-        /** @var PricingAttribute $pricingAttribute */
-        foreach ($pricingAttributes as $pricingAttribute) {
-
-            // delete all base pricing
-            ProvidedServiceBasePricing::deleteAll(['pricing_attribute_id' => $pricingAttribute->id]);
-
-        }
-
         $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
 
         /** @var PricingAttributeParent $pricingAttributeParent */
@@ -360,9 +356,59 @@ class Matrix
 
             // delete matrix rows
             PricingAttributeMatrix::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+        }
+    }
 
+    protected function deleteExistingPrices()
+    {
+        $pricingAttributes = $this->service->getAllPricingAttributes();
+        /** @var PricingAttribute $pricingAttribute */
+        foreach ($pricingAttributes as $pricingAttribute) {
+            // delete all base pricing
+            ProvidedServiceBasePricing::deleteAll(['pricing_attribute_id' => $pricingAttribute->id]);
+        }
+
+
+        $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+        /** @var PricingAttributeParent $pricingAttributeParent */
+        foreach ($pricingAttributeParents as $pricingAttributeParent) {
+            // delete matrix prices
+            ProvidedServiceMatrixPricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+        }
+    }
+
+    protected function deleteParents()
+    {
+        $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+
+        /** @var PricingAttributeParent $pricingAttributeParent */
+        foreach ($pricingAttributeParents as $pricingAttributeParent) {
             // delete parent
             $pricingAttributeParent->delete();
+        }
+    }
+
+    public function deleteAreaPrices($area_id)
+    {
+        $pricingAttributes = $this->service->getAllPricingAttributes();
+        /** @var PricingAttribute $pricingAttribute */
+        foreach ($pricingAttributes as $pricingAttribute) {
+            // delete all base pricing
+            ProvidedServiceBasePricing::deleteAll([
+                'pricing_attribute_id' => $pricingAttribute->id,
+                'provided_service_area_id' => $area_id
+            ]);
+        }
+
+
+        $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+        /** @var PricingAttributeParent $pricingAttributeParent */
+        foreach ($pricingAttributeParents as $pricingAttributeParent) {
+            // delete matrix prices
+            ProvidedServiceMatrixPricing::deleteAll([
+                'pricing_attribute_parent_id' => $pricingAttributeParent->id,
+                'provided_service_area_id' => $area_id
+            ]);
         }
     }
 
@@ -377,6 +423,11 @@ class Matrix
 
     public static function getRowOptions($row)
     {
-        return implode('_', array_column($row, 'service_attribute_option_id'));
+        return implode('_', static::getRowOptionsArray($row));
+    }
+
+    public static function getRowOptionsArray($row)
+    {
+        return array_column($row, 'service_attribute_option_id');
     }
 }

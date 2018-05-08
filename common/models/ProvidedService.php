@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\helpers\Matrix;
+use common\helpers\ServiceAttributeMatrix;
 use RummyKhan\Collection\Arr;
 use RummyKhan\Collection\Collection;
 use Yii;
@@ -243,11 +244,6 @@ class ProvidedService extends \yii\db\ActiveRecord
             return false;
         }
 
-
-        $max = new Matrix($this->service);
-
-        dd($max, $this->service);
-
         foreach ($prices as $matrix => $price) {
             $this->saveMatrixPrice(explode('_', $matrix), $price, $area_id);
         }
@@ -258,7 +254,6 @@ class ProvidedService extends \yii\db\ActiveRecord
     public function saveMatrixPrice($matrix, $price, $area_id)
     {
         $parent_id = static::getParent($matrix, $this->service_id);
-
         if (empty($parent_id)) {
             return false;
         }
@@ -419,5 +414,25 @@ class ProvidedService extends \yii\db\ActiveRecord
         }
 
         return $results['base_price'];
+    }
+
+    /**
+     * @param $prices array
+     * @param $area ProvidedServiceArea
+     */
+    public function savePrices($prices, $area)
+    {
+        $motherMatrix = new ServiceAttributeMatrix($this->service);
+
+        /** @var Matrix $matrix */
+        foreach ($motherMatrix->getMatrices() as $matrix) {
+            $matrix->deleteAreaPrices($area->id);
+        }
+
+        $matrixPrices = Arr::get($prices, 'matrix_price');
+        $independentPrices = Arr::get($prices, 'independent_price');
+
+        $this->saveMatrixPrices($matrixPrices, $area->id);
+        $this->saveIndependentPrices($independentPrices, $area->id);
     }
 }

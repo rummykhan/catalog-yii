@@ -1,6 +1,9 @@
 <?php
 
+use common\models\ProvidedService;
+use common\models\ProvidedServiceArea;
 use yii\web\View;
+use yii\widgets\ActiveForm;
 
 /* @var $this View */
 /* @var $attributeGroups array */
@@ -10,19 +13,48 @@ use yii\web\View;
 /* @var $independentRows array */
 /* @var $incremental array */
 /* @var $view int */
+/* @var $model ProvidedService */
+/* @var $area ProvidedServiceArea */
+/* @var $type string */
 
 ?>
 
 <?php if ($view == 1) { ?>
-    <?= $this->render('price-matrix/basic/matrix', compact('matrixHeaders', 'matrixRows', 'incremental')) ?>
+    <?php ActiveForm::begin([
+        'action' => [
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type
+        ],
+        'method' => 'POST'
+    ]) ?>
+
+    <?= $this->render('price-matrix/basic/matrix', compact('matrixHeaders', 'matrixRows', 'incremental', 'model', 'area')) ?>
     <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
     <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
+
+    <?php ActiveForm::end() ?>
 <?php } else if ($view == 2) { ?>
-    <?= $this->render('price-matrix/legacy/matrix', compact('attributeGroups', 'incremental')) ?>
+
+    <?php ActiveForm::begin([
+        'action' => [
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type
+        ],
+        'method' => 'POST'
+    ]) ?>
+
+    <?= $this->render('price-matrix/legacy/matrix', compact('attributeGroups', 'incremental', 'model', 'area')) ?>
     <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
     <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
+
+    <?php ActiveForm::end() ?>
+
 <?php } else if ($view == 3) { ?>
-    <?= $this->render('price-matrix/dropdown/matrix', compact('matrixHeaders', 'matrixRows', 'attributeGroups', 'incremental')) ?>
+    <?= $this->render('price-matrix/dropdown/matrix', compact('attributeGroups', 'incremental', 'model', 'area', 'view', 'type')) ?>
     <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
     <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
 <?php } ?>
@@ -67,6 +99,8 @@ $.each($('.disable-input'), function(i, element){
 
 JS;
 
-$this->registerJs($js);
+if(in_array($view, range(1,2))){
+    $this->registerJs($js);
+}
 
 ?>

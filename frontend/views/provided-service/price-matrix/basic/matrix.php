@@ -1,12 +1,16 @@
 <?php
 
 use common\helpers\Matrix;
+use common\models\ProvidedService;
+use common\models\ProvidedServiceArea;
 use yii\web\View;
 
 /* @var $this View */
 /* @var $matrixHeaders array */
 /* @var $matrixRows array */
 /* @var $incremental array */
+/* @var $model ProvidedService */
+/* @var $area ProvidedServiceArea */
 
 ?>
 
@@ -36,9 +40,12 @@ use yii\web\View;
                 <td>
                     <div class="input-group">
                         <span class="input-group-addon">
-                          <input type="checkbox" class="disable-input">
+                          <input type="checkbox" class="disable-input" <?= $model->getPriceOfMatrixRow(Matrix::getRowOptionsArray($row), $area->id) ? 'checked="checked"' : '' ?> >
                         </span>
-                        <input type="number" class="form-control" name="matrix_price[<?= Matrix::getRowOptions($row) ?>]">
+                        <input type="number"
+                                class="form-control"
+                               name="matrix_price[<?= Matrix::getRowOptions($row) ?>]"
+                               value="<?= $model->getPriceOfMatrixRow(Matrix::getRowOptionsArray($row), $area->id) ?>">
                     </div>
                 </td>
                 <?php if (!empty($incremental)) { ?>

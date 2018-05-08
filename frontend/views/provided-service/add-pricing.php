@@ -18,14 +18,15 @@ use yii\widgets\ActiveForm;
 /* @var $type string */
 /** @var $area ProvidedServiceArea */
 /** @var $providedServiceType ProvidedServiceType */
-
 /* @var $motherMatrix ServiceAttributeMatrix */
-/* @var $attributeGroups array */
-/* @var $matrixHeaders array */
-/* @var $matrixRows array */
-/* @var $noImpactRows array */
-/* @var $independentRows array */
-/* @var $incremental array */
+
+$this->title = 'Add Pricing for ' . $area->name;
+$this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
+$this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
+$this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $providedServiceType->serviceType->type];
+$this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
@@ -60,21 +61,14 @@ use yii\widgets\ActiveForm;
 
 <br>
 
-<?php ActiveForm::begin([
-    'action' => [
-        '/provided-service/set-pricing',
-        'id' => $model->id,
-        'area' => $area->id,
-        'type' => $providedServiceType->service_type_id
-    ],
-    'method' => 'POST'
-]) ?>
-
 <?php foreach ($motherMatrix->getMatrices() as $index => $matrix) { ?>
     <div class="panel panel-default">
         <div class="panel-heading">Group - <?= $index ?></div>
         <div class="panel-body">
             <?= $this->render('price-matrix', [
+                'model' => $model,
+                'area' => $area,
+                'type' => $providedServiceType->service_type_id,
                 'matrixHeaders' => $matrix->getMatrixHeaders(),
                 'matrixRows' => $matrix->getMatrixRows(),
                 'noImpactRows' => $matrix->getNoImpactRows(),
@@ -86,6 +80,3 @@ use yii\widgets\ActiveForm;
         </div>
     </div>
 <?php } ?>
-
-<button class="btn btn-primary pull-right">Save Pricing</button>
-<?php ActiveForm::end() ?>

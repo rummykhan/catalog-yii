@@ -45,7 +45,7 @@ class ServiceAttributeMatrix
             $this->matrices[] = new Matrix($service, $pricingGroup->id);
         }
 
-        if(!empty($this->noPriceGroupAttributes)){
+        if (!empty($this->noPriceGroupAttributes)) {
             $this->matrices[] = new Matrix($service);
         }
     }
@@ -56,5 +56,16 @@ class ServiceAttributeMatrix
     public function getMatrices()
     {
         return $this->matrices;
+    }
+
+    public function saveMatricesRows()
+    {
+        foreach ($this->getMatrices() as $matrix) {
+            $matrix->deleteExistingConfiguration();
+        }
+
+        foreach ($this->getMatrices() as $matrix) {
+            $matrix->saveMatrixRows();
+        }
     }
 }

@@ -1,9 +1,13 @@
 <?php
 
-/* @var $attributeGroups array */
 use common\helpers\Matrix;
+use common\models\ProvidedService;
+use common\models\ProvidedServiceArea;
 
+/* @var $attributeGroups array */
 /* @var $incremental array */
+/* @var $model ProvidedService */
+/* @var $area ProvidedServiceArea */
 
 
 ?>
@@ -76,9 +80,15 @@ $this->registerCss($css);
                     <td class="text-center">
                         <div class="input-group">
                             <span class="input-group-addon">
-                              <input type="checkbox" class="disable-input">
+                              <input type="checkbox"
+                                     class="disable-input" <?= $model->getPriceOfMatrixRow(Matrix::getRowOptionsArray([$item, $item2]), $area->id) ? 'checked="checked"' : '' ?> >
                             </span>
-                            <input type="number" class="form-control" name="matrix_price[<?= Matrix::getRowOptions([$item, $item2]) ?>]">
+                            <input
+                                    type="number"
+                                    class="form-control"
+                                    name="matrix_price[<?= Matrix::getRowOptions([$item, $item2]) ?>]"
+                                    value="<?= $model->getPriceOfMatrixRow(Matrix::getRowOptionsArray([$item, $item2]), $area->id) ?>"
+                            >
                         </div>
                     </td>
                 <?php } ?>
@@ -86,4 +96,4 @@ $this->registerCss($css);
         <?php } ?>
         </tbody>
     </table>
-<?php }  ?>
+<?php } ?>
