@@ -50,7 +50,9 @@
                 enableContextMenu: opt.enableContextMenu != null ? opt.enableContextMenu : false,
                 contextMenuItems: opt.contextMenuItems instanceof Array ? opt.contextMenuItems : [],
                 customDayRenderer : $.isFunction(opt.customDayRenderer) ? opt.customDayRenderer : null,
-                customDataSourceRenderer : $.isFunction(opt.customDataSourceRenderer) ? opt.customDataSourceRenderer : null
+                customDataSourceRenderer : $.isFunction(opt.customDataSourceRenderer) ? opt.customDataSourceRenderer : null,
+                startMonth: !!opt.startMonth ? parseInt(opt.startMonth) : 1,
+                currentYear: !isNaN(parseInt(opt.currentYear)) ? parseInt(opt.currentYear) : new Date().getFullYear(),
             };
 
             this._initializeDatasourceColors();
@@ -174,7 +176,9 @@
             var monthsDiv = $(document.createElement('div'));
             monthsDiv.addClass('months-container');
 
-            for(var m = 0; m < 12; m++) {
+            var startMonth = (this.options.startYear === this.options.currentYear) ? this.options.startMonth : 0;
+
+            for(var m = startMonth; m < 12; m++) {
                 /* Container */
                 var monthDiv = $(document.createElement('div'));
                 monthDiv.addClass('month-container');

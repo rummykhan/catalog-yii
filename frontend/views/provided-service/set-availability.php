@@ -548,6 +548,7 @@ function initializeCalendar(){
         startYear: moment().format('Y'),
         minDate: startDateMoment.toDate(),
         maxDate: endDateMoment.toDate(),
+        startMonth: startDateMoment.format('MM'),
         clickDay: function(e){
             
             var rules = $(e.element).find('div.day-content').attr('data-rules');

@@ -116,26 +116,25 @@ class Service extends \yii\db\ActiveRecord
         return collect($query->all())->pluck('name', 'id');
     }
 
+    /**
+     * @return array|ServiceAttribute[]|\yii\db\ActiveRecord[]
+     */
     public function getServiceAttributesListNotInPriceGroup()
     {
         $query = (new Query())
-            ->select(['service_attribute.id', 'attribute.name'])
+            ->select(['service_attribute.id', 'service_attribute.name'])
             ->from('service_attribute')
-            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
             ->join('inner join', 'pricing_attribute', 'service_attribute.id=pricing_attribute.service_attribute_id')
             ->join('inner join', 'pricing_attribute_group', 'pricing_attribute.pricing_attribute_group_id=pricing_attribute_group.id')
             ->andWhere(['service_attribute.service_id' => $this->id]);
 
         $attributes = collect($query->all())->pluck('id')->toArray();
 
-        $query = (new Query())
-            ->select(['service_attribute.id', 'attribute.name'])
-            ->from('service_attribute')
-            ->join('inner join', 'attribute', 'service_attribute.attribute_id=attribute.id')
-            ->andWhere(['service_attribute.service_id' => $this->id])
+        $query = ServiceAttribute::find()
+            ->where(['service_attribute.service_id' => $this->id])
             ->andWhere(['NOT IN', 'service_attribute.id', $attributes]);
 
-        return collect($query->all())->pluck('name', 'id');
+        return $query->all();
     }
 
     public function getServiceAttributesList()
@@ -164,9 +163,10 @@ class Service extends \yii\db\ActiveRecord
 
     /**
      * @param $priceType PriceType
+     * @param $priceGroupID integer
      * @return array
      */
-    public function getPricingAttributes($priceType)
+    public function getPricingAttributes($priceType, $priceGroupID = null)
     {
         $query = (new Query())
             ->select([
@@ -184,6 +184,37 @@ class Service extends \yii\db\ActiveRecord
             ->andWhere(['service_attribute.deleted' => false])
             ->andWhere(['service_attribute.service_id' => $this->id]);
 
+        if (!empty($priceGroupID)) {
+            $query->join('inner join', 'pricing_attribute_group', 'pricing_attribute_group.id=pricing_attribute.pricing_attribute_group_id')
+                ->andWhere(['pricing_attribute_group.id' => $priceGroupID]);
+        } else {
+            $query->andWhere(['IS', 'pricing_attribute.pricing_attribute_group_id', NULL]);
+        }
+
+        return $query->all();
+    }
+
+    /**
+     * @return array
+     */
+    public function getPricingAttributesNotInGroup()
+    {
+        $query = (new Query())
+            ->select([
+                new Expression('service_attribute.id as service_attribute_id'),
+                new Expression('service_attribute.name attribute_name'),
+                new Expression('service_attribute_option.id service_attribute_option_id'),
+                new Expression('service_attribute_option.name attribute_option_name')
+            ])
+            ->from('pricing_attribute')
+            ->join('inner join', 'service_attribute', 'pricing_attribute.service_attribute_id=service_attribute.id')
+            ->join('inner join', 'price_type', 'pricing_attribute.price_type_id=price_type.id')
+            ->join('inner join', 'service_attribute_option', 'service_attribute.id=service_attribute_option.service_attribute_id')
+            ->andWhere(['IS NOT','price_type.type', NULL])
+            ->andWhere(['service_attribute_option.deleted' => false])
+            ->andWhere(['service_attribute.deleted' => false])
+            ->andWhere(['service_attribute.service_id' => $this->id])
+            ->andWhere(['IS', 'pricing_attribute.pricing_attribute_group_id', NULL]);
 
         return $query->all();
     }

@@ -6,9 +6,11 @@ use common\forms\AddPricingAttribute;
 use common\forms\AttachAttribute;
 use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
+use common\helpers\ServiceAttributeMatrix;
 use common\models\FieldType;
 use common\models\PriceType;
 use common\models\PricingAttribute;
+use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeDepends;
@@ -225,55 +227,24 @@ class ServiceController extends Controller
      * Set pricing attributes for a service
      *
      * @param $id
+     * @param $view
      * @return mixed
      */
-    public function actionAddPricing($id)
+    public function actionAddPricing($id, $view = 1)
     {
         $model = $this->findModel($id);
-        $formModel = new AddPricingAttribute();
-        $formModel->service_id = $model->id;
 
-        /** @var ServiceAttribute $serviceAttribute */
-        foreach ($model->serviceAttributes as $serviceAttribute) {
+        $motherMatrix = new ServiceAttributeMatrix($model);
 
-            if (count($serviceAttribute->pricingAttributes) === 0) {
-                return $this->render('set-pricing-attributes', ['model' => $model, 'formModel' => $formModel]);
-            }
+        if (empty($view) || !in_array($view, range(1, 3))) {
+            $view = 1;
         }
 
-        $matrix = new MatrixHelper($model);
 
         return $this->render('view-price-matrix', [
             'model' => $model,
-            'matrixHeaders' => $matrix->getMatrixHeaders(),
-            'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows(),
-            'independentRows' => $matrix->getIndependentRows(),
-        ]);
-    }
-
-    public function actionSetPricing($id)
-    {
-        $model = $this->findModel($id);
-
-        $formModel = new AddPricingAttribute();
-        $formModel->service_id = $model->id;
-
-        return $this->render('set-pricing-attributes', ['model' => $model, 'formModel' => $formModel]);
-    }
-
-    public function actionViewPriceMatrix($id)
-    {
-        $model = $this->findModel($id);
-
-        $matrix = new MatrixHelper($model);
-
-        return $this->render('view-price-matrix', [
-            'model' => $model,
-            'matrixHeaders' => $matrix->getMatrixHeaders(),
-            'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows(),
-            'independentRows' => $matrix->getIndependentRows(),
+            'motherMatrix' => $motherMatrix,
+            'view' => $view,
         ]);
     }
 
@@ -281,37 +252,15 @@ class ServiceController extends Controller
     {
         $model = $this->findModel($id);
 
-        $matrix = new MatrixHelper($model);
+        $motherMatrix = new ServiceAttributeMatrix($model);
 
-        if (count($matrix->getCompositeAttributes()) && empty($matrix->getMatrixRows())) {
-            Yii::$app->getSession()->addFlash('error', 'Pricing attributes not set');
-            return $this->redirect(['/service/add-pricing', 'id' => $model->id]);
-        }
-
-        foreach ($matrix->getMatrixRows() as $matrixRow) {
-            $matrix->saveMatrixRow($matrixRow);
+        foreach ($motherMatrix->getMatrices() as $matrix) {
+            $matrix->saveMatrixRows();
         }
 
         Yii::$app->getSession()->addFlash('success', 'Pricing attributes matrix saved');
 
         return $this->redirect(['/service/add-pricing', 'id' => $model->id]);
-    }
-
-    public function actionAddPricingAttribute($id)
-    {
-        $model = $this->findModel($id);
-
-        $formModel = new AddPricingAttribute();
-        $formModel->service_id = $id;
-
-
-        if ($formModel->load(Yii::$app->getRequest()->post()) && $formModel->addAttribute()) {
-            Yii::$app->getSession()->addFlash('success', 'Added');
-        } else {
-            Yii::$app->getSession()->addFlash('error', 'Unable to add');
-        }
-
-        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 
     public function actionAddAttributeDependency($id)
@@ -351,5 +300,47 @@ class ServiceController extends Controller
         }
 
         return $this->redirect(Yii::$app->getRequest()->getReferrer());
+    }
+
+    public function actionSetPricingGroups($id)
+    {
+        $service = $this->findModel($id);
+        $model = new AddPricingAttribute();
+        $model->service_id = $id;
+
+        if (
+            Yii::$app->getRequest()->isPost &&
+            $model->load(Yii::$app->getRequest()->post()) &&
+            $model->addPricingGroup()
+        ) {
+            return $this->redirect(['/service/set-pricing-groups', 'id' => $service->id]);
+        }
+
+        return $this->render('set-pricing-groups', [
+            'service' => $service,
+            'model' => $model,
+        ]);
+    }
+
+    public function actionRemovePricingAttribute($id, $group_id, $service_attribute_id)
+    {
+        $model = $this->findModel($id);
+
+        /** @var PricingAttributeGroup $pricingGroup */
+        $pricingGroup = $model->getPricingAttributeGroups()->where(['id' => $group_id])->one();
+
+        if (!$pricingGroup) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var PricingAttribute $pricingGroupAttribute */
+        $pricingGroupAttribute = $pricingGroup->getPricingAttributes()
+            ->where(['service_attribute_id' => $service_attribute_id])
+            ->one();
+
+        $pricingGroupAttribute->pricing_attribute_group_id = null;
+        $pricingGroupAttribute->save();
+
+        return $this->redirect(['/service/set-pricing-groups', 'id' => $id]);
     }
 }

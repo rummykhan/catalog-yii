@@ -81,6 +81,7 @@ class UpdateAttribute extends Model
                 ->where(['name' => $this->attribute_name])
                 ->andWhere(['!=', 'deleted', true])
                 ->andWhere(['!=', 'id', $this->attribute_id])
+                ->andWhere(['service_id' => $this->service_id])
                 ->count();
     }
 

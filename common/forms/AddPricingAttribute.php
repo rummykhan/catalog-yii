@@ -19,32 +19,48 @@ use yii\web\NotFoundHttpException;
 class AddPricingAttribute extends Model
 {
     public $service_attributes;
-    public $price_type_id;
     public $service_id;
     public $group_name;
+    public $group_id;
 
     public function rules()
     {
         return [
-            [['service_attributes'], 'each', 'rule' => ['integer']],
-            ['price_type_id', 'integer'],
+            ['group_name', 'safe'],
+            ['service_attributes', 'safe'],
+            ['service_id', 'integer'],
+            ['service_id', 'exist', 'targetClass' => Service::className(), 'targetAttribute' => ['service_id' => 'id']],
+            ['group_id', 'integer']
         ];
     }
 
-    public function addAttribute()
+    public function addPricingGroup()
     {
+        if (!$this->validate()) {
+            return false;
+        }
+
+        $this->service_attributes = json_decode($this->service_attributes, true);
+
         $service = Service::findOne($this->service_id);
         if (!$service) {
             throw new NotFoundHttpException();
         }
 
-        $priceType = PriceType::find()->where(['id' => $this->price_type_id])->one();
-        if (!$priceType) {
+        if (count($this->service_attributes) === 0) {
             throw new NotFoundHttpException();
         }
 
-        $group = new PricingAttributeGroup();
-        $group->name = empty($this->group_name) ? $priceType->type : $this->group_name;
+        if (!empty($this->group_id)) {
+            $group = $service->getPricingAttributeGroups()->where(['id' => $this->group_id])->one();
+            if (!$group) {
+                throw new NotFoundHttpException();
+            }
+        }else{
+            $group = new PricingAttributeGroup();
+            $group->name = empty($this->group_name) ? uniqid('PG-', true) : $this->group_name;
+        }
+
         $group->service_id = $this->service_id;
         $group->save();
 
@@ -57,17 +73,18 @@ class AddPricingAttribute extends Model
 
     public function addPricingAttribute($service_attribute_id, $group)
     {
-        $pricingAttribute = PricingAttribute::find()->where(['service_attribute_id' => $service_attribute_id])->one();
+        $pricingAttribute = PricingAttribute::find()
+            ->where(['service_attribute_id' => $service_attribute_id])
+            ->one();
 
-        if ($pricingAttribute) {
-            // TODO: What to do if the pricing attribute already exists.
-            return $pricingAttribute;
+        if (!$pricingAttribute) {
+            // if not add one..
+            $pricingAttribute = new PricingAttribute();
+            $pricingAttribute->service_attribute_id = $service_attribute_id;
+            return false;
         }
 
-        $pricingAttribute = new PricingAttribute();
-        $pricingAttribute->service_attribute_id = $service_attribute_id;
-        $pricingAttribute->price_type_id = $this->price_type_id;
         $pricingAttribute->pricing_attribute_group_id = $group->id;
-        $pricingAttribute->save();
+        return $pricingAttribute->save();
     }
 }

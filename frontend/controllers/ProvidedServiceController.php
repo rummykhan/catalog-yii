@@ -4,7 +4,9 @@ namespace frontend\controllers;
 
 use common\forms\AddCoverageArea;
 use common\forms\AddType;
+use common\helpers\Matrix;
 use common\helpers\MatrixHelper;
+use common\helpers\ServiceAttributeMatrix;
 use common\models\AvailabilityException;
 use common\models\AvailabilityRule;
 use common\models\GlobalAvailabilityException;
@@ -294,7 +296,7 @@ class ProvidedServiceController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $matrix = new MatrixHelper($model->service);
+        $motherMatrix = new ServiceAttributeMatrix($model->service);
 
         if (Yii::$app->getRequest()->isPost) {
             $matrixPrices = Yii::$app->getRequest()->post('matrix_price');
@@ -313,10 +315,7 @@ class ProvidedServiceController extends Controller
             'provider' => $model->provider,
             'area' => $area,
             'providedServiceType' => $providedServiceType,
-            'matrixHeaders' => $matrix->getMatrixHeaders(),
-            'matrixRows' => $matrix->getMatrixRows(),
-            'noImpactRows' => $matrix->getNoImpactRows(),
-            'independentRows' => $matrix->getIndependentRows(),
+            'motherMatrix' => $motherMatrix
         ]);
     }
 
