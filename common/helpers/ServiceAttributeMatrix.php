@@ -55,7 +55,7 @@ class ServiceAttributeMatrix
      */
     public function getMatrices()
     {
-        return $this->matrices;
+        return !empty($this->matrices) ? $this->matrices : [];
     }
 
     public function saveMatricesRows()
