@@ -8,7 +8,7 @@
 use yii\widgets\DetailView;
 
 /* @var $this \yii\web\View */
-/* @var $service \common\models\Service  */
+/* @var $service \common\models\Service */
 
 ?>
 
@@ -17,6 +17,21 @@ use yii\widgets\DetailView;
     'attributes' => [
         'id',
         'name',
+        'slug',
+        'description',
+        [
+            'label' => 'image',
+            'value' => function ($model) {
+
+                if (empty($model->image)) {
+                    return null;
+                }
+
+                /** @var $model \common\models\Service */
+                return \yii\helpers\Html::img($model->getImageFileUrl('image'), ['class' => 'thumbnail', 'width' => '100']);
+            },
+            'format' => 'html'
+        ],
         [
             'label' => 'category',
             'attribute' => 'parent_id',

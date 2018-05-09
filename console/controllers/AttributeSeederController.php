@@ -42,11 +42,6 @@ class AttributeSeederController extends Controller
 
     public function actionSeed()
     {
-        $this->stdout("\n");
-        $this->stdout('Running seeders start..', Console::FG_GREEN);
-        $this->stdout("\n");
-        $this->stdout("\n");
-
         $this->seedAttributeInputType();
         $this->seedValidationOption();
         $this->seedValidation();
@@ -56,10 +51,6 @@ class AttributeSeederController extends Controller
         $this->seedCities();
         $this->seedServiceType();
         $this->addFieldTypes();
-
-        $this->stdout("\n");
-        $this->stdout('Running seeders complete..', Console::FG_GREEN);
-        $this->stdout("\n");
     }
 
     protected function seedAttributeInputType()

@@ -72,6 +72,9 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'service_id' => $this->integer(),
             'name' => $this->string(),
+            'description' => $this->string(),
+            'mobile_description' => $this->string(),
+            'icon' => $this->string(),
             'input_type_id' => $this->integer(),
             'user_input_type_id' => $this->integer(),
             'field_type_id' => $this->integer(),
@@ -82,6 +85,16 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-sa-it', 'service_attribute', 'input_type_id', 'input_type', 'id');
         $this->addForeignKey('fk-sa-uit', 'service_attribute', 'user_input_type_id', 'user_input_type', 'id');
         $this->addForeignKey('fk-sa-ft', 'service_attribute', 'field_type_id', 'field_type', 'id');
+
+        $this->createTable('service_attribute_views', [
+            'id' => $this->primaryKey(),
+            'service_id' => $this->integer(),
+            'service_attribute_id' => $this->integer(),
+            'name' => $this->string(),
+        ]);
+
+        $this->addForeignKey('fk-savv-s', 'service_attribute_views', 'service_id', 'service', 'id');
+        $this->addForeignKey('fk-savv-sa', 'service_attribute_views', 'service_attribute_id', 'service_attribute', 'id');
 
         $this->createTable('service_attribute_validation', [
             'id' => $this->primaryKey(),
@@ -227,6 +240,67 @@ class m180411_112456_add_attribute_table extends Migration
         ]);
 
         $this->addForeignKey('fk-psc-psa', 'provided_service_coverage', 'provided_service_area_id', 'provided_service_area', 'id');
+
+
+        $this->createTable('rule_type', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(),
+        ]);
+
+        $this->createTable('rule_value_type', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(),
+        ]);
+
+        $this->createTable('global_availability_rule', [
+            'id' => $this->primaryKey(),
+            'provided_service_area_id' => $this->integer(),
+            'start_time' => $this->integer(),
+            'end_time' => $this->integer(),
+            'rule_value' => $this->integer(),
+            'rule_value_type_id' => $this->integer(),
+            'rule_type_id' => $this->integer(),
+            'day' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-gar-psa', 'global_availability_rule', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-gar-rvt', 'global_availability_rule', 'rule_value_type_id', 'rule_value_type', 'id');
+        $this->addForeignKey('fk-gar-rt', 'global_availability_rule', 'rule_type_id', 'rule_type', 'id');
+
+        $this->createTable('availability_rule', [
+            'id' => $this->primaryKey(),
+            'provided_service_area_id' => $this->integer(),
+            'start_time' => $this->integer(),
+            'end_time' => $this->integer(),
+            'rule_value' => $this->integer(),
+            'rule_value_type_id' => $this->integer(),
+            'rule_type_id' => $this->integer(),
+            'date' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-ar-psa', 'availability_rule', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-ar-rvt', 'availability_rule', 'rule_value_type_id', 'rule_value_type', 'id');
+        $this->addForeignKey('fk-ar-rt', 'availability_rule', 'rule_type_id', 'rule_type', 'id');
+
+        $this->createTable('global_availability_exception', [
+            'id' => $this->primaryKey(),
+            'provided_service_area_id' => $this->integer(),
+            'start_time' => $this->integer(),
+            'end_time' => $this->integer(),
+            'day' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-gae-psa', 'global_availability_exception', 'provided_service_area_id', 'provided_service_area', 'id');
+
+        $this->createTable('availability_exception', [
+            'id' => $this->primaryKey(),
+            'provided_service_area_id' => $this->integer(),
+            'start_time' => $this->integer(),
+            'end_time' => $this->integer(),
+            'date' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-ae-psa', 'availability_exception', 'provided_service_area_id', 'provided_service_area', 'id');
     }
 
     /**
@@ -267,6 +341,16 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-psa-c', 'provided_service_area');
         $this->dropForeignKey('fk-sa-ft', 'service_attribute');
         $this->dropForeignKey('fk-psbp-sao', 'provided_service_base_pricing');
+        $this->dropForeignKey('fk-savv-s', 'service_attribute_views');
+        $this->dropForeignKey('fk-savv-sa', 'service_attribute_views');
+        $this->dropForeignKey('fk-ae-psa', 'availability_exception');
+        $this->dropForeignKey('fk-gae-psa', 'global_availability_exception');
+        $this->dropForeignKey('fk-ar-psa', 'availability_rule');
+        $this->dropForeignKey('fk-ar-rvt', 'availability_rule');
+        $this->dropForeignKey('fk-gar-psa', 'global_availability_rule');
+        $this->dropForeignKey('fk-gar-rvt', 'global_availability_rule');
+        $this->dropForeignKey('fk-ar-rt', 'availability_rule');
+        $this->dropForeignKey('fk-gar-rt', 'global_availability_rule');
 
 
         $this->dropTable('service_attribute_option');
@@ -293,5 +377,12 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('provided_service_type');
         $this->dropTable('provided_service_coverage');
         $this->dropTable('field_type');
+        $this->dropTable('service_attribute_views');
+        $this->dropTable('availability_exception');
+        $this->dropTable('global_availability_exception');
+        $this->dropTable('availability_rule');
+        $this->dropTable('global_availability_rule');
+        $this->dropTable('rule_value_type');
+        $this->dropTable('rule_type');
     }
 }

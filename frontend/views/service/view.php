@@ -13,8 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="service-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a('Update', ['update', 'id' => $service->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Add Fields', ['/service/attach-attribute', 'id' => $service->id], ['class' => 'btn btn-primary']) ?>

@@ -20,7 +20,10 @@
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "larapack/dd": "^1.1",
         "kartik-v/yii2-widget-select2": "^2.1",
-        "rummykhan/laravel-collection": "^0.0.1"
+        "rummykhan/laravel-collection": "^0.0.1",
+        "omgdef/yii2-multilingual-behavior": "^2.1",
+        "yii-dream-team/yii2-upload-behavior": "*",
+        "2amigos/yii2-ckeditor-widget": "^2.1"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

@@ -19,17 +19,8 @@ class AvailabilitySeederController extends Controller
 {
     public function actionSeed()
     {
-        $this->stdout("\n");
-        $this->stdout('Running seeders start..', Console::FG_GREEN);
-        $this->stdout("\n");
-        $this->stdout("\n");
-
         $this->seedRuleValueType();
         $this->seedRuleType();
-
-        $this->stdout("\n");
-        $this->stdout('Running seeders complete..', Console::FG_GREEN);
-        $this->stdout("\n");
     }
 
     protected function seedRuleValueType()

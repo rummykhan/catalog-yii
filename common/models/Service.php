@@ -2,17 +2,25 @@
 
 namespace common\models;
 
+use omgdef\multilingual\MultilingualBehavior;
 use Yii;
+use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yii\db\Query;
+use yiidreamteam\upload\ImageUploadBehavior;
 
 /**
  * This is the model class for table "service".
  *
  * @property int $id
  * @property string $name
+ * @property string $slug
+ * @property string $image
+ * @property string $description
+ * @property string $active
+ * @property string $order
  * @property int $category_id
  * @property string $created_at
  * @property string $updated_at
@@ -22,6 +30,9 @@ use yii\db\Query;
  * @property PricingAttributeGroup[] $pricingAttributeGroups
  * @property City[] $cities
  * @property PricingAttributeParent[] $pricingAttributeParents
+ *
+ * @method getImageFileUrl($attribute)
+ * @method getThumbFileUrl($attribute)
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -39,9 +50,11 @@ class Service extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['category_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
-            [['name'], 'string', 'max' => 255],
+            [['category_id', 'order'], 'integer'],
+            [['created_at', 'updated_at', 'description'], 'safe'],
+            [['name', 'slug'], 'string', 'max' => 255],
+            ['image', 'file'],
+            ['active', 'boolean'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
@@ -54,6 +67,31 @@ class Service extends \yii\db\ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()')
+            ],
+            'ml' => [
+                'class' => MultilingualBehavior::className(),
+                'languages' => Yii::$app->params['languages'],
+                'defaultLanguage' => 'en',
+                'langForeignKey' => 'service_id',
+                'tableName' => "{{%service_lang}}",
+                'attributes' => [
+                    'name', 'description',
+                ]
+            ],
+            [
+                'class' => ImageUploadBehavior::className(),
+                'attribute' => 'image',
+                'thumbs' => [
+                    'thumb' => ['width' => 400, 'height' => 300],
+                ],
+                'filePath' => '@webroot/assets/service/images/[[pk]].[[extension]]',
+                'fileUrl' => '/assets/service/images/[[pk]].[[extension]]',
+                'thumbPath' => '@webroot/assets/service/images/[[profile]]_[[pk]].[[extension]]',
+                'thumbUrl' => '/assets/service/images/[[profile]]_[[pk]].[[extension]]',
+            ],
+            [
+                'class' => SluggableBehavior::className(),
+                'attribute' => 'name',
             ]
         ];
     }

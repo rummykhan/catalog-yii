@@ -12,8 +12,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="category-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
@@ -30,10 +28,25 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
+            'slug',
+            'description',
+            [
+                'label' => 'image',
+                'value' => function ($model) {
+
+                    if (empty($model->image)) {
+                        return null;
+                    }
+
+                    /** @var $model \common\models\Category */
+                    return \yii\helpers\Html::img($model->getImageFileUrl('image'), ['class' => 'thumbnail', 'width' => '100']);
+                },
+                'format' => 'html'
+            ],
             [
                 'attribute' => 'parent_id',
-                'value' => function($model){
-                    if(!$model->parent){
+                'value' => function ($model) {
+                    if (!$model->parent) {
                         return null;
                     }
 
