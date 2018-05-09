@@ -76,6 +76,33 @@ use yii\widgets\ActiveForm;
 
 <?php } else if ($view == 3) { ?>
     <?= $this->render('price-matrix/dropdown/matrix', compact('attributeGroups', 'incremental', 'model', 'area', 'view', 'type', 'matrix')) ?>
-    <?= $this->render('price-matrix/independent', compact('independentRows', 'model', 'area')) ?>
+
+    <?php if (count($independentRows) > 0) { ?>
+        <?php ActiveForm::begin([
+            'action' => [
+                '/provided-service/set-pricing',
+                'id' => $model->id,
+                'area' => $area->id,
+                'type' => $type,
+                'hash' => $matrix->getHash(),
+            ],
+            'method' => 'POST',
+            'options' => [
+                'name' => md5(uniqid('f-', true)),
+            ]
+        ]) ?>
+
+        <?= $this->render('price-matrix/independent', compact('independentRows', 'model', 'area')) ?>
+
+        <div class="row">
+            <div class="col-md-12 text-right">
+                <button class="btn btn-primary">Update</button>
+            </div>
+        </div>
+
+        <?php ActiveForm::end() ?>
+
+    <?php } ?>
+
     <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
 <?php } ?>

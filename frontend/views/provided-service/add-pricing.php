@@ -31,31 +31,37 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="row">
-    <div class="col-md-12">
-        <a href="<?= Url::to([
-            '/provided-service/set-pricing',
-            'id' => $model->id,
-            'area' => $area->id,
-            'type' => $type,
-            'view' => 1
-        ]) ?>"
-           class="btn <?= $view == 1 ? 'btn-primary' : 'btn-default' ?>">Basic</a>
-        <a href="<?= Url::to([
-            '/provided-service/set-pricing',
-            'id' => $model->id,
-            'area' => $area->id,
-            'type' => $type,
-            'view' => 2
-        ]) ?>"
-           class="btn <?= $view == 2 ? 'btn-primary' : 'btn-default' ?>">Legacy</a>
-        <a href="<?= Url::to([
-            '/provided-service/set-pricing',
-            'id' => $model->id,
-            'area' => $area->id,
-            'type' => $type,
-            'view' => 3
-        ]) ?>"
-           class="btn <?= $view == 3 ? 'btn-primary' : 'btn-default' ?>">Dropdown</a>
+    <div class="col-md-12 text-right">
+
+        <div>
+            <b>Pricing Views: </b>
+            <div class="btn-group">
+                <a href="<?= Url::to([
+                    '/provided-service/set-pricing',
+                    'id' => $model->id,
+                    'area' => $area->id,
+                    'type' => $type,
+                    'view' => 1
+                ]) ?>"
+                   class="btn <?= $view == 1 ? 'btn-primary' : 'btn-default' ?>">Basic</a>
+                <a href="<?= Url::to([
+                    '/provided-service/set-pricing',
+                    'id' => $model->id,
+                    'area' => $area->id,
+                    'type' => $type,
+                    'view' => 2
+                ]) ?>"
+                   class="btn <?= $view == 2 ? 'btn-primary' : 'btn-default' ?>">Legacy</a>
+                <a href="<?= Url::to([
+                    '/provided-service/set-pricing',
+                    'id' => $model->id,
+                    'area' => $area->id,
+                    'type' => $type,
+                    'view' => 3
+                ]) ?>"
+                   class="btn <?= $view == 3 ? 'btn-primary' : 'btn-default' ?>">Dropdown</a>
+            </div>
+        </div>
     </div>
 </div>
 
