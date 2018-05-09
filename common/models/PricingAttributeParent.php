@@ -69,4 +69,16 @@ class PricingAttributeParent extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ProvidedServiceMatrixPricing::className(), ['pricing_attribute_parent_id' => 'id']);
     }
+
+    public function getOptionIdsArray()
+    {
+        return collect($this->getPricingAttributeMatrices()->asArray()->all())->pluck('service_attribute_option_id')->toArray();
+    }
+
+    public function getOptionIdsFormattedName($glue = '_')
+    {
+        $array = $this->getOptionIdsArray();
+
+        return implode($glue, $array);
+    }
 }

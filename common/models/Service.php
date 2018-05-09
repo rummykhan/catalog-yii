@@ -21,6 +21,7 @@ use yii\db\Query;
  * @property ServiceAttribute[] $serviceAttributes
  * @property PricingAttributeGroup[] $pricingAttributeGroups
  * @property City[] $cities
+ * @property PricingAttributeParent[] $pricingAttributeParents
  */
 class Service extends \yii\db\ActiveRecord
 {
@@ -93,6 +94,11 @@ class Service extends \yii\db\ActiveRecord
     public function getPricingAttributeGroups()
     {
         return $this->hasMany(PricingAttributeGroup::className(), ['service_id' => 'id']);
+    }
+
+    public function getPricingAttributeParents()
+    {
+        return $this->hasMany(PricingAttributeParent::className(), ['service_id' => 'id']);
     }
 
     /**

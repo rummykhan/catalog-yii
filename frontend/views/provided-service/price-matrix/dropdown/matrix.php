@@ -77,4 +77,51 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
 
     <?php ActiveForm::end() ?>
 
+    <?php ActiveForm::begin([
+        'action' => [
+            '/provided-service/set-pricing',
+            'id' => $model->id,
+            'area' => $area->id,
+            'type' => $type
+        ],
+        'method' => 'POST'
+    ]) ?>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <?php foreach ($attributeGroups as $title => $attributeGroup) { ?>
+                        <th><?= $title ?></th>
+                    <?php } ?>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <?php foreach ($area->providedServiceMatrixPricings as $pricing) { ?>
+                    <tr>
+                        <?php foreach ($pricing->pricingAttributeParent->pricingAttributeMatrices as $pricingAttributeMatrix) { ?>
+                            <td><?= $pricingAttributeMatrix->serviceAttributeOption->name ?></td>
+                        <?php } ?>
+                        <td>
+                            <input type="text" class="form-control"
+                                   name="matrix_price[<?= $pricing->pricingAttributeParent->getOptionIdsFormattedName() ?>]"
+                                   value="<?= $pricing->price ?>">
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                <?php } ?>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <?php ActiveForm::end() ?>
+
 <?php } ?>
