@@ -277,7 +277,7 @@ class ProvidedServiceController extends Controller
         ]);
     }
 
-    public function actionSetPricing($id, $area, $type, $view = 1)
+    public function actionSetPricing($id, $area, $type, $hash = null, $view = 1)
     {
         $model = $this->findModel($id);
         $providedServiceType = ProvidedServiceType::find()
@@ -302,8 +302,9 @@ class ProvidedServiceController extends Controller
         }
 
         if (Yii::$app->getRequest()->isPost) {
+            $data = Yii::$app->getRequest()->post();
 
-            $model->savePrices(Yii::$app->getRequest()->post(), $area);
+            $model->savePrices($data, $area, $hash);
 
             Yii::$app->getSession()->addFlash('success', 'Prices updated');
             return $this->redirect(Yii::$app->getRequest()->getReferrer());

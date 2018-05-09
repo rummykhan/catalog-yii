@@ -420,13 +420,17 @@ class ProvidedService extends \yii\db\ActiveRecord
      * @param $prices array
      * @param $area ProvidedServiceArea
      */
-    public function savePrices($prices, $area)
+    public function savePrices($prices, $area, $hash)
     {
         $motherMatrix = new ServiceAttributeMatrix($this->service);
 
         /** @var Matrix $matrix */
         foreach ($motherMatrix->getMatrices() as $matrix) {
-            $matrix->deleteAreaPrices($area->id);
+
+            if ($matrix->isEqual($hash)) {
+                $found[] = $hash;
+                $matrix->deleteAreaPrices($area->id);
+            }
         }
 
         $matrixPrices = Arr::get($prices, 'matrix_price');

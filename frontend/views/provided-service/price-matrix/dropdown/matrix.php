@@ -14,7 +14,8 @@ use yii\widgets\ActiveForm;
 /* @var $matrixRows array */
 /* @var $model ProvidedService */
 /* @var $type string */
-/** @var $area ProvidedServiceArea */
+/* @var $area ProvidedServiceArea */
+/* @var $matrix \common\helpers\Matrix */
 
 $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0;
 
@@ -82,7 +83,8 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
             '/provided-service/set-pricing',
             'id' => $model->id,
             'area' => $area->id,
-            'type' => $type
+            'type' => $type,
+            'hash' => $matrix->getHash(),
         ],
         'method' => 'POST'
     ]) ?>
@@ -96,29 +98,35 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
                         <th><?= $title ?></th>
                     <?php } ?>
                     <th>Price</th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
 
                 <?php foreach ($area->providedServiceMatrixPricings as $pricing) { ?>
+                    <?php if(!$matrix->hasIdentifier($pricing->pricingAttributeParent->getOptionIdsFormattedName())) {continue;} ?>
                     <tr>
                         <?php foreach ($pricing->pricingAttributeParent->pricingAttributeMatrices as $pricingAttributeMatrix) { ?>
                             <td><?= $pricingAttributeMatrix->serviceAttributeOption->name ?></td>
                         <?php } ?>
                         <td>
-                            <input type="text" class="form-control"
-                                   name="matrix_price[<?= $pricing->pricingAttributeParent->getOptionIdsFormattedName() ?>]"
-                                   value="<?= $pricing->price ?>">
-                        </td>
-                        <td>
-
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                  <input type="checkbox" class="disable-input" checked="checked">
+                                </span>
+                                <input type="number"
+                                       class="form-control"
+                                       name="matrix_price[<?= $pricing->pricingAttributeParent->getOptionIdsFormattedName() ?>]"
+                                       value="<?= $pricing->price ?>">
+                            </div>
                         </td>
                     </tr>
                 <?php } ?>
 
                 </tbody>
             </table>
+        </div>
+        <div class="col-md-12 text-right">
+            <button class="btn btn-primary">Update</button>
         </div>
     </div>
 

@@ -1,9 +1,13 @@
 <?php
 
+use common\models\ProvidedService;
+use common\models\ProvidedServiceArea;
 use yii\web\View;
 
 /* @var $this View */
 /* @var $independentRows array */
+/* @var $model ProvidedService */
+/* @var $area ProvidedServiceArea */
 
 ?>
 
@@ -24,9 +28,15 @@ use yii\web\View;
                     <td>
                         <div class="input-group">
                             <span class="input-group-addon">
-                              <input type="checkbox" aria-label="...">
+                              <input type="checkbox" class="disable-input"
+                                  <?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ? 'checked="checked"' : '' ?> >
                             </span>
-                            <input type="number" class="form-control" name="independent_price[<?= $column['service_attribute_option_id'] ?>]">
+                            <input
+                                    type="number"
+                                    class="form-control"
+                                    name="independent_price[<?= $column['service_attribute_option_id'] ?>]"
+                                    value="<?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ?>"
+                            >
                         </div>
                     </td>
                 </tr>

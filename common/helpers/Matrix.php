@@ -76,6 +76,21 @@ class Matrix
     private $attributeGroups;
 
     /**
+     * @var
+     */
+    private $rowIdentifiers;
+
+    /**
+     * @var
+     */
+    private $serviceAttributes;
+
+    /**
+     * @var
+     */
+    private $hash;
+
+    /**
      * MatrixHelper constructor.
      * @param $service Service
      * @param $priceGroupID int
@@ -89,6 +104,7 @@ class Matrix
         $this->createNoImpactRows();
         $this->createIndependentRows();
         $this->updateIncrementalAttribute();
+        $this->writeHash();
     }
 
     /**
@@ -103,6 +119,8 @@ class Matrix
         $this->attributeGroups = $pricingAttributesGroup = collect($pricingAttributes)
             ->groupBy('attribute_name')
             ->toArray();
+
+        $this->serviceAttributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
 
         if (count($pricingAttributes) === 0) {
             $this->matrixHeaders = [];
@@ -147,6 +165,7 @@ class Matrix
                 $row[] = $group[$value];
             }
             $this->matrixRows[] = $row;
+            $this->rowIdentifiers[] = $this->makeIdentifiers($row);
         }
     }
 
@@ -160,6 +179,10 @@ class Matrix
         $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
 
         $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
+
+        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
+
+        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
 
         if (count($pricingAttributesGroup) === 0) {
             $this->noImpactRows = [];
@@ -179,6 +202,10 @@ class Matrix
         $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
 
         $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
+
+        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
+
+        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
 
         if (count($pricingAttributesGroup) === 0) {
             $this->independentRows = [];
@@ -312,7 +339,7 @@ class Matrix
 
     public function saveMatrixRows()
     {
-        foreach ($this->getMatrixRows() as $row){
+        foreach ($this->getMatrixRows() as $row) {
             $this->saveMatrixRow($row);
         }
     }
@@ -391,9 +418,15 @@ class Matrix
     public function deleteAreaPrices($area_id)
     {
         $pricingAttributes = $this->service->getAllPricingAttributes();
+
         /** @var PricingAttribute $pricingAttribute */
         foreach ($pricingAttributes as $pricingAttribute) {
-            // delete all base pricing
+
+            if (!in_array($pricingAttribute->service_attribute_id, $this->serviceAttributes)) {
+                continue;
+            }
+
+            // delete all base pricing of this group only
             ProvidedServiceBasePricing::deleteAll([
                 'pricing_attribute_id' => $pricingAttribute->id,
                 'provided_service_area_id' => $area_id
@@ -402,9 +435,16 @@ class Matrix
 
 
         $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+
         /** @var PricingAttributeParent $pricingAttributeParent */
         foreach ($pricingAttributeParents as $pricingAttributeParent) {
-            // delete matrix prices
+
+            if (!$this->hasIdentifier($pricingAttributeParent->getOptionIdsFormattedName())) {
+                continue;
+            }
+
+
+            // delete matrices prices for this matrix
             ProvidedServiceMatrixPricing::deleteAll([
                 'pricing_attribute_parent_id' => $pricingAttributeParent->id,
                 'provided_service_area_id' => $area_id
@@ -429,5 +469,35 @@ class Matrix
     public static function getRowOptionsArray($row)
     {
         return array_column($row, 'service_attribute_option_id');
+    }
+
+    public function makeIdentifiers($row)
+    {
+        $ids = collect($row)->pluck('service_attribute_option_id')->toArray();
+
+        return implode('_', $ids);
+    }
+
+    public function hasIdentifier($identifier)
+    {
+        return in_array($identifier, $this->rowIdentifiers);
+    }
+
+    public function writeHash()
+    {
+        if(empty($this->rowIdentifiers)){
+            $this->rowIdentifiers = $this->serviceAttributes;
+        }
+        $this->hash = md5(implode('-', $this->rowIdentifiers));
+    }
+
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    public function isEqual($hash)
+    {
+        return $hash === $this->hash;
     }
 }

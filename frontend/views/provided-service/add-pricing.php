@@ -62,21 +62,63 @@ $this->params['breadcrumbs'][] = $this->title;
 <br>
 
 <?php foreach ($motherMatrix->getMatrices() as $index => $matrix) { ?>
-    <div class="panel panel-default">
-        <div class="panel-heading">Group - <?= $index ?></div>
-        <div class="panel-body">
-            <?= $this->render('price-matrix', [
-                'model' => $model,
-                'area' => $area,
-                'type' => $providedServiceType->service_type_id,
-                'matrixHeaders' => $matrix->getMatrixHeaders(),
-                'matrixRows' => $matrix->getMatrixRows(),
-                'noImpactRows' => $matrix->getNoImpactRows(),
-                'independentRows' => $matrix->getIndependentRows(),
-                'incremental' => $matrix->getIncrementalAttributes(),
-                'attributeGroups' => $matrix->getAttributesGroup(),
-                'view' => $view
-            ]) ?>
-        </div>
-    </div>
+
+    <?= $this->render('price-matrix', [
+        'model' => $model,
+        'area' => $area,
+        'type' => $providedServiceType->service_type_id,
+        'matrix' => $matrix,
+        'matrixHeaders' => $matrix->getMatrixHeaders(),
+        'matrixRows' => $matrix->getMatrixRows(),
+        'noImpactRows' => $matrix->getNoImpactRows(),
+        'independentRows' => $matrix->getIndependentRows(),
+        'incremental' => $matrix->getIncrementalAttributes(),
+        'attributeGroups' => $matrix->getAttributesGroup(),
+        'view' => $view
+    ]) ?>
+    <hr>
 <?php } ?>
+
+
+<?php
+
+$js = <<<JS
+
+function getTextBox(element){
+    return element.find('input[type="number"]');
+}
+
+function enablePriceBox(checkBox){
+    var textBox = getTextBox(checkBox.closest('.input-group'));
+    
+    textBox.removeAttr('disabled');
+}
+
+function disablePriceBox(checkBox){
+    var textBox = getTextBox(checkBox.closest('.input-group'));
+    
+    textBox.attr('disabled', 'disabled');
+}
+
+function applySelection(element){
+    if(element.is(':checked')){
+        enablePriceBox(element);
+    }else{
+        disablePriceBox(element);
+    }
+}
+
+$('.disable-input').click(function(e){
+    applySelection($(this));
+});
+
+
+$.each($('.disable-input'), function(i, element){
+    applySelection($(element));
+})
+
+JS;
+
+$this->registerJs($js);
+
+?>
