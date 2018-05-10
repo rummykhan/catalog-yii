@@ -21,6 +21,14 @@ use yii\widgets\ActiveForm;
 
             <?= MultilingualInputHelper::textareaInputs($form, $model, 'description') ?>
 
+            <?= MultilingualInputHelper::textareaInputs($form, $model, 'mobile_description') ?>
+
+            <?= $form->field($model, 'active')->checkbox() ?>
+
+        </div>
+
+        <div class="col-md-6">
+
             <div class="form-group">
                 <label for="">Select Category</label>
                 <?= Select2::widget([
@@ -45,12 +53,6 @@ use yii\widgets\ActiveForm;
                     ]
                 ]) ?>
             </div>
-
-            <?= $form->field($model, 'active')->checkbox() ?>
-
-        </div>
-
-        <div class="col-md-6">
 
             <?php if (!empty($model->image)) { ?>
                 <img src="<?= $model->getImageFileUrl('image') ?>" class="thumbnail" style="width: 150px;">

@@ -79,6 +79,7 @@ class m180411_112456_add_attribute_table extends Migration
             'user_input_type_id' => $this->integer(),
             'field_type_id' => $this->integer(),
             'deleted' => $this->boolean()->defaultValue(false),
+            'order' => $this->integer(),
         ]);
 
         $this->addForeignKey('fk-sa-s', 'service_attribute', 'service_id', 'service', 'id');
@@ -86,15 +87,33 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-sa-uit', 'service_attribute', 'user_input_type_id', 'user_input_type', 'id');
         $this->addForeignKey('fk-sa-ft', 'service_attribute', 'field_type_id', 'field_type', 'id');
 
-        $this->createTable('service_attribute_views', [
+        $this->createTable('service_attribute_lang', [
+            'id' => $this->primaryKey(),
+            'service_attribute_id' => $this->integer(),
+            'language' => $this->string(),
+            'name' => $this->string(),
+            'description' => $this->string(),
+            'mobile_description' => $this->string()
+        ]);
+
+        $this->addForeignKey('fk-sal-sa', 'service_attribute_lang', 'service_attribute_id', 'service_attribute', 'id');
+
+        $this->createTable('service_view', [
             'id' => $this->primaryKey(),
             'service_id' => $this->integer(),
-            'service_attribute_id' => $this->integer(),
             'name' => $this->string(),
         ]);
 
-        $this->addForeignKey('fk-savv-s', 'service_attribute_views', 'service_id', 'service', 'id');
-        $this->addForeignKey('fk-savv-sa', 'service_attribute_views', 'service_attribute_id', 'service_attribute', 'id');
+        $this->addForeignKey('fk-svv-s', 'service_view', 'service_id', 'service', 'id');
+
+        $this->createTable('service_view_attribute', [
+            'id' => $this->primaryKey(),
+            'service_view_id' => $this->integer(),
+            'service_attribute_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-svva-s', 'service_view_attribute', 'service_view_id', 'service_view', 'id');
+        $this->addForeignKey('fk-svva-sa', 'service_view_attribute', 'service_attribute_id', 'service_attribute', 'id');
 
         $this->createTable('service_attribute_validation', [
             'id' => $this->primaryKey(),
@@ -109,10 +128,25 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'service_attribute_id' => $this->integer(),
             'name' => $this->string(),
+            'description' => $this->string(),
+            'mobile_description' => $this->string(),
+            'icon' => $this->string(),
+            'order' => $this->integer(),
             'deleted' => $this->boolean()->defaultValue(false),
         ]);
 
         $this->addForeignKey('fk-sao-sa', 'service_attribute_option', 'service_attribute_id', 'service_attribute', 'id');
+
+        $this->createTable('service_attribute_option_lang', [
+            'id' => $this->primaryKey(),
+            'service_attribute_option_id' => $this->integer(),
+            'language' => $this->string(),
+            'name' => $this->string(),
+            'description' => $this->string(),
+            'mobile_description' => $this->string(),
+        ]);
+
+        $this->addForeignKey('fk-saop-sao', 'service_attribute_option_lang', 'service_attribute_option_id', 'service_attribute_option', 'id');
 
 
         $this->createTable('price_type', [
@@ -182,7 +216,6 @@ class m180411_112456_add_attribute_table extends Migration
 
         $this->createTable('provided_service_matrix_pricing', [
             'id' => $this->primaryKey(),
-            'provided_service_id' => $this->integer(),
             'pricing_attribute_parent_id' => $this->integer(),
             'price' => $this->double(),
             'provided_service_area_id' => $this->integer(),
@@ -190,13 +223,11 @@ class m180411_112456_add_attribute_table extends Migration
             'updated_at' => $this->dateTime(),
         ]);
 
-        $this->addForeignKey('fk-psmp-ps', 'provided_service_matrix_pricing', 'provided_service_id', 'provided_service', 'id');
         $this->addForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
         $this->addForeignKey('fk-psmp-psa', 'provided_service_matrix_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
 
         $this->createTable('provided_service_base_pricing', [
             'id' => $this->primaryKey(),
-            'provided_service_id' => $this->integer(),
             'pricing_attribute_id' => $this->integer(),
             'base_price' => $this->double(),
             'provided_service_area_id' => $this->integer(),
@@ -205,7 +236,6 @@ class m180411_112456_add_attribute_table extends Migration
             'updated_at' => $this->dateTime(),
         ]);
 
-        $this->addForeignKey('fk-psbp-ps', 'provided_service_base_pricing', 'provided_service_id', 'provided_service', 'id');
         $this->addForeignKey('fk-psbp-pa', 'provided_service_base_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
         $this->addForeignKey('fk-psbp-psa', 'provided_service_base_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
         $this->addForeignKey('fk-psbp-sao', 'provided_service_base_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
@@ -321,9 +351,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-pap-s', 'pricing_attribute_parent');
         $this->dropForeignKey('fk-pam-pap', 'pricing_attribute_matrix');
         $this->dropForeignKey('fk-pam-sao', 'pricing_attribute_matrix');
-        $this->dropForeignKey('fk-psmp-ps', 'provided_service_matrix_pricing');
         $this->dropForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing');
-        $this->dropForeignKey('fk-psbp-ps', 'provided_service_base_pricing');
         $this->dropForeignKey('fk-psbp-pa', 'provided_service_base_pricing');
         $this->dropForeignKey('fk-sa-uit', 'service_attribute');
         $this->dropForeignKey('fk-sad-sa', 'service_attribute_depends');
@@ -341,8 +369,12 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-psa-c', 'provided_service_area');
         $this->dropForeignKey('fk-sa-ft', 'service_attribute');
         $this->dropForeignKey('fk-psbp-sao', 'provided_service_base_pricing');
-        $this->dropForeignKey('fk-savv-s', 'service_attribute_views');
-        $this->dropForeignKey('fk-savv-sa', 'service_attribute_views');
+        $this->dropForeignKey('fk-svv-s', 'service_view');
+        $this->dropForeignKey('fk-svva-s', 'service_view_attribute');
+        $this->dropForeignKey('fk-svva-sa', 'service_view_attribute');
+        $this->dropForeignKey('fk-sal-sa', 'service_attribute_lang');
+        $this->dropForeignKey('fk-saop-sao', 'service_attribute_option_lang');
+
         $this->dropForeignKey('fk-ae-psa', 'availability_exception');
         $this->dropForeignKey('fk-gae-psa', 'global_availability_exception');
         $this->dropForeignKey('fk-ar-psa', 'availability_rule');
@@ -377,7 +409,11 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('provided_service_type');
         $this->dropTable('provided_service_coverage');
         $this->dropTable('field_type');
-        $this->dropTable('service_attribute_views');
+        $this->dropTable('service_view');
+        $this->dropTable('service_view_attribute');
+        $this->dropTable('service_attribute_lang');
+        $this->dropTable('service_attribute_option_lang');
+
         $this->dropTable('availability_exception');
         $this->dropTable('global_availability_exception');
         $this->dropTable('availability_rule');

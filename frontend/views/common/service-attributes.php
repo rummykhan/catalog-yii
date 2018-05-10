@@ -23,6 +23,7 @@ use common\models\Service;
     <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Price Type</th>
         <th>No of Options</th>
         <th>Validations</th>
         <th>Actions</th>
@@ -34,6 +35,7 @@ use common\models\Service;
         <tr>
             <td><?= $attribute->id ?></td>
             <td><?= $attribute->name ?></td>
+            <td><?= ucwords($attribute->getPriceType()) ?></td>
             <td><?= $attribute->getServiceAttributeOptions()->where(['deleted' => false])->count() ?></td>
             <td><?= $attribute->validationsString ?></td>
             <td>

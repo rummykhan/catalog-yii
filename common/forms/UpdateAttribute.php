@@ -26,7 +26,16 @@ class UpdateAttribute extends Model
 {
     public $service_id;
     public $attribute_id;
-    public $attribute_name;
+
+    public $name;
+    public $description;
+    public $mobile_description;
+
+    public $name_ar;
+    public $description_ar;
+    public $mobile_description_ar;
+
+
     public $price_type_id;
     public $input_type_id;
     public $user_input_type_id;
@@ -53,7 +62,7 @@ class UpdateAttribute extends Model
             ['user_input_type_id', 'exist', 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type_id' => 'id']],
             ['field_type_id', 'exist', 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type_id' => 'id']],
             [['attribute_options', 'attribute_validations', 'attribute_more_options'], 'each', 'rule' => ['safe']],
-            ['attribute_name', 'safe'],
+            [['name', 'description', 'mobile_description', 'name_ar', 'description_ar', 'mobile_description_ar'], 'safe'],
             [['min', 'max'], 'integer'],
             ['field_type', 'required'],
             ['bulk', 'safe'],
@@ -117,7 +126,16 @@ class UpdateAttribute extends Model
 
         $baseFieldType = FieldType::findOne($serviceAttribute->field_type_id);
 
-        $serviceAttribute->name = $this->attribute_name;
+        // english translations
+        $serviceAttribute->name = $this->name;
+        $serviceAttribute->description = $this->description;
+        $serviceAttribute->mobile_description = $this->mobile_description;
+
+        // arabic translations
+        $serviceAttribute->name_ar = $this->name_ar;
+        $serviceAttribute->description_ar = $this->description_ar;
+        $serviceAttribute->mobile_description_ar = $this->mobile_description_ar;
+
         $serviceAttribute->field_type_id = $fieldType->id;
         $serviceAttribute->user_input_type_id = $this->user_input_type_id;
         $serviceAttribute->input_type_id = $this->input_type_id;

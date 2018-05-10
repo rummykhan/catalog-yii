@@ -49,8 +49,6 @@ use yii\widgets\DetailView;
                 /** @var $service \common\models\Service */
                 return implode(',', collect($service->getCities()->asArray()->all())->pluck('name')->toArray());
             }
-        ],
-        'created_at',
-        'updated_at',
+        ]
     ],
 ]) ?>

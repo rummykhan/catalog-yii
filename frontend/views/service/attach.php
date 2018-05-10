@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
+use common\helpers\MultilingualInputHelper;
 
 /* @var $this yii\web\View */
 /* @var $service common\models\Service */
@@ -23,8 +24,37 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="row">
         <div class="col-md-6">
 
+            <?= MultilingualInputHelper::textInputs($form, $model, 'attribute_name') ?>
 
-            <?= $form->field($model, 'attribute_name')->textInput() ?>
+            <?= MultilingualInputHelper::textareaInputs($form, $model, 'description') ?>
+
+            <?= MultilingualInputHelper::textareaInputs($form, $model, 'mobile_description') ?>
+
+
+
+            <div class="form-group">
+                <label for="">Validations</label>
+                <?= Select2::widget([
+                    'model' => $model,
+                    'attribute' => 'validations',
+                    'data' => \common\models\Validation::toList(),
+                    'value' => $model->validations,
+                    'options' => ['placeholder' => 'Select validations'],
+                    'pluginOptions' => [
+                        'multiple' => true,
+                        'allowClear' => true
+                    ]
+                ]) ?>
+            </div>
+
+
+            <div class="form-group">
+                <?= Html::submitButton('Add Field', ['class' => 'btn btn-primary']) ?>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
 
             <div class="form-group">
                 <label for="">Field Type</label>
@@ -90,30 +120,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     <b>Independent</b> type will have individual price for all of it's options.
                 </span>
             </div>
-
-            <div class="form-group">
-                <label for="">Validations</label>
-                <?= Select2::widget([
-                    'model' => $model,
-                    'attribute' => 'validations',
-                    'data' => \common\models\Validation::toList(),
-                    'value' => $model->validations,
-                    'options' => ['placeholder' => 'Select validations'],
-                    'pluginOptions' => [
-                        'multiple' => true,
-                        'allowClear' => true
-                    ]
-                ]) ?>
-            </div>
-
-
-            <div class="form-group">
-                <?= Html::submitButton('Add Field', ['class' => 'btn btn-primary']) ?>
-            </div>
-
-        </div>
-
-        <div class="col-md-6">
 
             <div class="row hidden" id="range">
                 <div class="col-md-6">

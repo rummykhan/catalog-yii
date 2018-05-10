@@ -4,6 +4,7 @@ use common\helpers\GlobalHelper;
 use yii\helpers\Html;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
+use common\helpers\MultilingualInputHelper;
 
 /* @var $this yii\web\View */
 /* @var $service common\models\Service */
@@ -25,7 +26,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="row">
     <div class="col-md-6">
-        <?= $form->field($model, 'attribute_name')->textInput() ?>
+
+        <?= MultilingualInputHelper::textInputs($form, $model, 'name') ?>
+
+        <?= MultilingualInputHelper::textareaInputs($form, $model, 'description') ?>
+
+        <?= MultilingualInputHelper::textareaInputs($form, $model, 'mobile_description') ?>
+
     </div>
     <div class="col-md-6">
         <div class="form-group">
@@ -42,11 +49,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6">
         <div class="form-group">
             <label for="">Input type to be rendered</label>
             <?= Select2::widget([
@@ -60,8 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
-    </div>
-    <div class="col-md-6">
+
         <div class="form-group">
             <label for="">User input</label>
             <?= Select2::widget([
@@ -75,11 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6">
         <div class="form-group">
             <label for="">Price Type</label>
             <?= Select2::widget([
@@ -102,8 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <b>Independent</b> type will have individual price for all of it's options.
                 </span>
         </div>
-    </div>
-    <div class="col-md-6">
+
         <div class="form-group">
             <label for="">Validations</label>
             <?= Select2::widget([
@@ -118,6 +115,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
         </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+
+    </div>
+    <div class="col-md-6">
+
     </div>
 </div>
 

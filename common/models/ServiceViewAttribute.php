@@ -2,33 +2,26 @@
 
 namespace common\models;
 
-use common\queries\NotDeletedQuery;
 use Yii;
-use yii\behaviors\TimestampBehavior;
-use yii\db\Expression;
 
 /**
- * This is the model class for table "service_attribute_option".
+ * This is the model class for table "service_view_attribute".
  *
  * @property int $id
+ * @property int $service_view_id
  * @property int $service_attribute_id
- * @property string $name
- * @property string $description
- * @property string $mobile_description
- * @property string $icon
- * @property int $order
- * @property boolean $deleted
  *
  * @property ServiceAttribute $serviceAttribute
+ * @property ServiceView $serviceView
  */
-class ServiceAttributeOption extends \yii\db\ActiveRecord
+class ServiceViewAttribute extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'service_attribute_option';
+        return 'service_view_attribute';
     }
 
     /**
@@ -37,12 +30,9 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_attribute_id', 'order'], 'integer'],
-            [['name'], 'required'],
-            [['name', 'description', 'mobile_description'], 'safe'],
-            [['deleted'], 'boolean'],
+            [['service_view_id', 'service_attribute_id'], 'integer'],
             [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
-            ['icon', 'file'],
+            [['service_view_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceView::className(), 'targetAttribute' => ['service_view_id' => 'id']],
         ];
     }
 
@@ -53,8 +43,8 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'service_view_id' => 'Service View ID',
             'service_attribute_id' => 'Service Attribute ID',
-            'name' => 'Field Value',
         ];
     }
 
@@ -64,5 +54,13 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     public function getServiceAttribute()
     {
         return $this->hasOne(ServiceAttribute::className(), ['id' => 'service_attribute_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getServiceView()
+    {
+        return $this->hasOne(ServiceView::className(), ['id' => 'service_view_id']);
     }
 }

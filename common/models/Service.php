@@ -19,6 +19,7 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property string $slug
  * @property string $image
  * @property string $description
+ * @property string $mobile_description
  * @property string $active
  * @property string $order
  * @property int $category_id
@@ -30,6 +31,7 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property PricingAttributeGroup[] $pricingAttributeGroups
  * @property City[] $cities
  * @property PricingAttributeParent[] $pricingAttributeParents
+ * @property ServiceView[] $serviceViews
  *
  * @method getImageFileUrl($attribute)
  * @method getThumbFileUrl($attribute)
@@ -51,7 +53,7 @@ class Service extends \yii\db\ActiveRecord
     {
         return [
             [['category_id', 'order'], 'integer'],
-            [['created_at', 'updated_at', 'description'], 'safe'],
+            [['created_at', 'updated_at', 'description', 'mobile_description'], 'safe'],
             [['name', 'slug'], 'string', 'max' => 255],
             ['image', 'file'],
             ['active', 'boolean'],
@@ -75,7 +77,7 @@ class Service extends \yii\db\ActiveRecord
                 'langForeignKey' => 'service_id',
                 'tableName' => "{{%service_lang}}",
                 'attributes' => [
-                    'name', 'description',
+                    'name', 'description', 'mobile_description'
                 ]
             ],
             [
@@ -171,6 +173,26 @@ class Service extends \yii\db\ActiveRecord
             ->join('inner join', 'pricing_attribute', 'service_attribute.id=pricing_attribute.service_attribute_id')
             ->join('inner join', 'pricing_attribute_group', 'pricing_attribute.pricing_attribute_group_id=pricing_attribute_group.id')
             ->andWhere(['service_attribute.service_id' => $this->id]);
+
+        $attributes = collect($query->all())->pluck('id')->toArray();
+
+        $query = ServiceAttribute::find()
+            ->where(['service_attribute.service_id' => $this->id])
+            ->andWhere(['NOT IN', 'service_attribute.id', $attributes]);
+
+        return $query->all();
+    }
+
+    /**
+     * @return array|ServiceAttribute[]|\yii\db\ActiveRecord[]
+     */
+    public function getServiceAttributesListNotInServiceView()
+    {
+        $query = (new Query())
+            ->select(['service_attribute.id', 'service_attribute.name'])
+            ->from('service_attribute')
+            ->join('inner join', 'service_view_attribute', 'service_attribute.id=service_view_attribute.service_attribute_id')
+            ->where(['service_attribute.service_id' => $this->id]);
 
         $attributes = collect($query->all())->pluck('id')->toArray();
 
@@ -295,5 +317,10 @@ class Service extends \yii\db\ActiveRecord
             $serviceCity->city_id = $city;
             $serviceCity->save(true);
         }
+    }
+
+    public function getServiceViews()
+    {
+        return $this->hasMany(ServiceView::className(), ['service_id' => 'id']);
     }
 }

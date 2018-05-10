@@ -42,6 +42,7 @@ class m180411_105633_add_catalog_table extends Migration
             'slug' => $this->string(),
             'image' => $this->string(),
             'description' => $this->string(),
+            'mobile_description' => $this->string(),
             'active' => $this->boolean()->defaultValue(false),
             'order' => $this->integer(),
             'category_id' => $this->integer(),
@@ -54,8 +55,8 @@ class m180411_105633_add_catalog_table extends Migration
             'service_id' => $this->integer(),
             'language' => $this->string(),
             'name' => $this->string(),
-            'image' => $this->string(),
             'description' => $this->string(),
+            'mobile_description' => $this->string(),
         ]);
 
         $this->addForeignKey('fk-service-category', 'service', 'category_id', 'category', 'id');

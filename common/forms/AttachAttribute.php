@@ -29,7 +29,15 @@ use yii\web\NotFoundHttpException;
 class AttachAttribute extends Model
 {
     public $service_id;
+
     public $attribute_name;
+    public $description;
+    public $mobile_description;
+
+    public $attribute_name_ar;
+    public $description_ar;
+    public $mobile_description_ar;
+
     public $input_type;
     public $user_input_type;
     public $price_type;
@@ -47,7 +55,10 @@ class AttachAttribute extends Model
             [['service_id', 'input_type', 'user_input_type', 'min', 'max', 'field_type'], 'integer'],
             [['price_type'], 'integer'],
             [['attribute_name'], 'required'],
-            [['attribute_name'], 'safe'],
+
+            [['attribute_name', 'description', 'mobile_description'], 'safe'],
+            [['attribute_name_ar', 'description_ar', 'mobile_description_ar'], 'safe'],
+
             ['input_type', 'exist', 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type' => 'id']],
             ['user_input_type', 'exist', 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type' => 'id']],
             ['price_type', 'exist', 'targetClass' => PriceType::className(), 'targetAttribute' => ['price_type' => 'id']],
@@ -95,11 +106,21 @@ class AttachAttribute extends Model
 
         // create service attribute.
         $serviceAttribute = new ServiceAttribute();
+
         $serviceAttribute->name = $this->attribute_name;
+        $serviceAttribute->name_ar = $this->attribute_name_ar;
+
+        $serviceAttribute->description = $this->description;
+        $serviceAttribute->description_ar = $this->description_ar;
+
+        $serviceAttribute->mobile_description = $this->mobile_description;
+        $serviceAttribute->mobile_description_ar = $this->mobile_description_ar;
+
         $serviceAttribute->service_id = $service->id;
         $serviceAttribute->user_input_type_id = $this->user_input_type;
         $serviceAttribute->input_type_id = $this->input_type;
         $serviceAttribute->field_type_id = $fieldType->id;
+
         $serviceAttribute->save();
 
 

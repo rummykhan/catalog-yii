@@ -48,20 +48,24 @@ class CatalogSeederController extends Controller
                     [
                         'name' => 'Cleaning',
                         'description' => $this->faker->text(500),
+                        'mobile_description' => $this->faker->text(500),
                         'services' => [
                             [
                                 'name' => 'House Cleaning',
-                                'description' => $this->faker->text(500)
+                                'description' => $this->faker->text(500),
+                                'mobile_description' => $this->faker->text(500),
                             ]
                         ]
                     ],
                     [
                         'name' => 'Moving',
                         'description' => $this->faker->text(500),
+                        'mobile_description' => $this->faker->text(500),
                         'services' => [
                             [
                                 'name' => 'House Moving',
-                                'description' => $this->faker->text(500)
+                                'description' => $this->faker->text(500),
+                                'mobile_description' => $this->faker->text(500),
                             ]
                         ]
                     ],
@@ -75,10 +79,12 @@ class CatalogSeederController extends Controller
                     [
                         'name' => 'Mobile',
                         'description' => $this->faker->text(500),
+                        'mobile_description' => $this->faker->text(500),
                         'services' => [
                             [
                                 'name' => 'IPhone X Repair',
-                                'description' => $this->faker->text(500)
+                                'description' => $this->faker->text(500),
+                                'mobile_description' => $this->faker->text(500),
                             ]
                         ]
                     ]
@@ -123,6 +129,7 @@ class CatalogSeederController extends Controller
         $service = new Service();
         $service->name = $item['name'];
         $service->description = $item['description'];
+        $service->mobile_description = $item['mobile_description'];
         $service->active = true;
         $service->category_id = $category->id;
         $service->save();

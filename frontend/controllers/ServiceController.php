@@ -3,6 +3,7 @@
 namespace frontend\controllers;
 
 use common\forms\AddPricingAttribute;
+use common\forms\AddServiceViewAttribute;
 use common\forms\AttachAttribute;
 use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
@@ -15,6 +16,8 @@ use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeDepends;
 use common\models\ServiceCity;
+use common\models\ServiceView;
+use common\models\ServiceViewAttribute;
 use frontend\helpers\FieldsConfigurationHelper;
 use RummyKhan\Collection\Arr;
 use Yii;
@@ -180,7 +183,14 @@ class ServiceController extends Controller
             return $this->redirect(['/service/edit-attribute', 'id' => $id, 'attribute_id' => $attribute_id]);
         }
 
-        $model->attribute_name = $attribute->name;
+        $model->name = $attribute->name;
+        $model->description = $attribute->description;
+        $model->mobile_description = $attribute->mobile_description;
+
+        $model->name_ar = $attribute->name_ar;
+        $model->description_ar = $attribute->description_ar;
+        $model->mobile_description_ar = $attribute->mobile_description_ar;
+
         $model->price_type_id = count($attribute->pricingAttributes) > 0 ? Arr::first($attribute->pricingAttributes)->price_type_id : null;
         $model->input_type_id = $attribute->input_type_id;
         $model->user_input_type_id = $attribute->user_input_type_id;
@@ -340,5 +350,53 @@ class ServiceController extends Controller
         $pricingGroupAttribute->save();
 
         return $this->redirect(['/service/set-pricing-groups', 'id' => $id]);
+    }
+
+    public function actionSetViewGroups($id)
+    {
+        $service = $this->findModel($id);
+        $model = new AddServiceViewAttribute();
+        $model->service_id = $id;
+
+        if (
+            Yii::$app->getRequest()->isPost &&
+            $model->load(Yii::$app->getRequest()->post()) &&
+            $model->addViewGroup()
+        ) {
+            return $this->redirect(['/service/set-view-groups', 'id' => $service->id]);
+        }
+
+        return $this->render('set-view-groups', [
+            'service' => $service,
+            'model' => $model,
+        ]);
+    }
+
+    public function actionRemoveViewAttribute($id, $view_id, $service_attribute_id)
+    {
+        $model = $this->findModel($id);
+
+        /** @var ServiceView $serviceView */
+        $serviceView = $model->getServiceViews()->where(['id' => $view_id])->one();
+
+        if (!$serviceView) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ServiceViewAttribute $serviceViewAttribute */
+        $serviceViewAttribute = ServiceViewAttribute::find()
+            ->where(['service_attribute_id' => $service_attribute_id])
+            ->andWhere(['service_view_id' => $view_id])
+            ->one();
+
+        if (!$serviceViewAttribute) {
+            throw new NotFoundHttpException();
+        }
+
+        // since it's one to one association
+        // so it's safe to assume we can delete this.
+        $serviceViewAttribute->delete();
+
+        return $this->redirect(['/service/set-view-groups', 'id' => $id]);
     }
 }

@@ -78,7 +78,7 @@ class MultilingualInputHelper
         $items = [];
         $items[] = [
             'label' => Yii::$app->params['defaultLanguageLabel'],
-            'content' => $form->field($model, $attribute)->textarea(['maxlength' => true]),
+            'content' => $form->field($model, $attribute)->textarea(['maxlength' => true, 'rows' => 5]),
             'active' => true,
             'linkOptions' => [
                 'data-multilingual-tab' => 'multilingual-inputs-' . Yii::$app->params['defaultLanguage']
