@@ -24,6 +24,8 @@ use common\models\Service;
         <th>ID</th>
         <th>Name</th>
         <th>Price Type</th>
+        <th>Field Type</th>
+        <th>Input Type</th>
         <th>No of Options</th>
         <th>Validations</th>
         <th>Actions</th>
@@ -31,11 +33,13 @@ use common\models\Service;
     </thead>
     <tbody>
     <?php /** @var \common\models\ServiceAttribute $attribute */
-    foreach ($model->getServiceAttributes()->where(['deleted' => false])->all() as $attribute) { ?>
+    foreach ($model->getServiceAttributes()->where(['deleted' => false])->orderBy(['order' => SORT_ASC])->all() as $attribute) { ?>
         <tr>
             <td><?= $attribute->id ?></td>
             <td><?= $attribute->name ?></td>
-            <td><?= ucwords($attribute->getPriceType()) ?></td>
+            <td><?= ucwords($attribute->priceType) ?></td>
+            <td><?= $attribute->fieldType ? ucwords($attribute->fieldType->name) :'' ?></td>
+            <td><?= $attribute->inputType ? ucwords($attribute->inputType->name) :'' ?></td>
             <td><?= $attribute->getServiceAttributeOptions()->where(['deleted' => false])->count() ?></td>
             <td><?= $attribute->validationsString ?></td>
             <td>
@@ -47,9 +51,9 @@ use common\models\Service;
                    class="btn btn-primary btn-sm">
                     Delete Field
                 </a>
-                <a href="<?= \yii\helpers\Url::to(['/service/import-excel', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                <a href="<?= \yii\helpers\Url::to(['/service/attach-options', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
                    class="btn btn-primary btn-sm">
-                    Import Options from Excel
+                   Add / Edit Options
                 </a>
             </td>
         </tr>

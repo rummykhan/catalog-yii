@@ -3,6 +3,7 @@
 namespace common\models;
 
 use omgdef\multilingual\MultilingualBehavior;
+use omgdef\multilingual\MultilingualQuery;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -32,8 +33,6 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property City[] $cities
  * @property PricingAttributeParent[] $pricingAttributeParents
  * @property ServiceView[] $serviceViews
- * @property ServiceParentAttribute[] $serviceParentAttributes
- * @property ServiceChildAttribute[] $serviceChildAttributes
  * @property ServiceCompositeAttributeParent[] $serviceCompositeAttributeParents
  *
  * @method getImageFileUrl($attribute)
@@ -115,12 +114,17 @@ class Service extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function find()
+    {
+        return new MultilingualQuery(get_called_class());
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getCategory()
     {
-        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::className(), ['id' => 'category_id'])->multilingual();
     }
 
     /**
@@ -128,7 +132,7 @@ class Service extends \yii\db\ActiveRecord
      */
     public function getServiceAttributes()
     {
-        return $this->hasMany(ServiceAttribute::className(), ['service_id' => 'id']);
+        return $this->hasMany(ServiceAttribute::className(), ['service_id' => 'id'])->multilingual();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace frontend\controllers;
 use common\forms\AddPricingAttribute;
 use common\forms\AddServiceViewAttribute;
 use common\forms\AttachAttribute;
+use common\forms\AttachOptions;
 use common\forms\ImportOptionsFromExcel;
 use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
@@ -196,15 +197,9 @@ class ServiceController extends Controller
         $model->price_type_id = count($attribute->pricingAttributes) > 0 ? Arr::first($attribute->pricingAttributes)->price_type_id : null;
         $model->input_type_id = $attribute->input_type_id;
         $model->user_input_type_id = $attribute->user_input_type_id;
-        $model->attribute_options = collect($attribute->getServiceAttributeOptions()->asArray()->all())->pluck('id')->toArray();
         $model->attribute_validations = collect($attribute->getValidations()->asArray()->all())->pluck('id')->toArray();
         $model->field_type_id = $attribute->field_type_id;
         $model->field_type = FieldType::findOne($attribute->field_type_id)->name;
-
-        if ($model->field_type === FieldType::TYPE_RANGE) {
-            $model->min = $attribute->getMinimum() ? $attribute->getMinimum()->name : null;
-            $model->max = $attribute->getMaximum() ? $attribute->getMaximum()->name : null;
-        }
 
 
         return $this->render('update-attribute', [
@@ -236,13 +231,52 @@ class ServiceController extends Controller
     }
 
     /**
+     * @param $service_id int
+     * @param $attribute_id int
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionAttachOptions($service_id, $attribute_id)
+    {
+        $service = $this->findModel($service_id);
+
+        /** @var ServiceAttribute $attribute */
+        $attribute = ServiceAttribute::findOne($attribute_id);
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $model = new AttachOptions();
+        $model->service_id = $service->id;
+        $model->service_attribute_id = $attribute->id;
+
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
+            Yii::$app->getSession()->addFlash('success', 'Attribute options updated.');
+            return $this->redirect(Yii::$app->getRequest()->getReferrer());
+        }
+
+        if ($attribute->fieldType->name === FieldType::TYPE_RANGE) {
+            $model->min = $attribute->getMinimum() ? $attribute->getMinimum()->name : null;
+            $model->max = $attribute->getMaximum() ? $attribute->getMaximum()->name : null;
+        }
+
+
+        return $this->render('attach-options', [
+            'service' => $service,
+            'model' => $model,
+            'attribute' => $attribute
+        ]);
+    }
+
+    /**
      * Set pricing attributes for a service
      *
      * @param $id
-     * @param $view
      * @return mixed
      */
-    public function actionAddPricing($id, $view = 1)
+    public function actionAddPricing($id)
     {
         $model = $this->findModel($id);
 
@@ -252,11 +286,9 @@ class ServiceController extends Controller
             $view = 1;
         }
 
-
         return $this->render('view-price-matrix', [
             'model' => $model,
             'motherMatrix' => $motherMatrix,
-            'view' => $view,
         ]);
     }
 
@@ -487,7 +519,7 @@ class ServiceController extends Controller
             $option->mobile_description_ar = Arr::get($row, 'mobile_description_ar');
             $option->save();
 
-            if($option->hasErrors()){
+            if ($option->hasErrors()) {
                 dd($option->getErrors());
             }
         }

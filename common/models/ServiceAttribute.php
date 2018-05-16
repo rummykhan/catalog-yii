@@ -5,6 +5,7 @@ namespace common\models;
 use common\queries\NotDeletedQuery;
 use frontend\helpers\FieldsConfigurationHelper;
 use omgdef\multilingual\MultilingualBehavior;
+use omgdef\multilingual\MultilingualQuery;
 use RummyKhan\Collection\Arr;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -32,13 +33,18 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property boolean $deleted
  * @property int $field_type_id
  * @property int $order
+ * @property string $priceType
  *
  * @property Service $service
+ * @property FieldType $fieldType
+ * @property InputType $inputType
  * @property ServiceAttributeOption[] $serviceAttributeOptions
  * @property Validation[] $validations
  * @property PricingAttribute[] $pricingAttributes
  * @property ServiceCompositeAttribute[] $serviceCompositeAttributes
  * @property ServiceCompositeAttributeChild[] $serviceCompositeAttributeChildren
+ *
+ * @method getImageFileUrl($attribute)
  */
 class ServiceAttribute extends \yii\db\ActiveRecord
 {
@@ -107,12 +113,9 @@ class ServiceAttribute extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @return ActiveQuery
-     */
     public static function find()
     {
-        return new NotDeletedQuery(get_called_class());
+        return new MultilingualQuery(get_called_class());
     }
 
     public function getInputType()
@@ -125,7 +128,7 @@ class ServiceAttribute extends \yii\db\ActiveRecord
      */
     public function getService()
     {
-        return $this->hasOne(Service::className(), ['id' => 'service_id']);
+        return $this->hasOne(Service::className(), ['id' => 'service_id'])->multilingual();
     }
 
     /**
@@ -133,7 +136,7 @@ class ServiceAttribute extends \yii\db\ActiveRecord
      */
     public function getServiceAttributeOptions()
     {
-        return $this->hasMany(ServiceAttributeOption::className(), ['service_attribute_id' => 'id']);
+        return $this->hasMany(ServiceAttributeOption::className(), ['service_attribute_id' => 'id'])->multilingual();
     }
 
     public function getPricingAttributes()

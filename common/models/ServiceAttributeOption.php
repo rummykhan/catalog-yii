@@ -4,6 +4,7 @@ namespace common\models;
 
 use common\queries\NotDeletedQuery;
 use omgdef\multilingual\MultilingualBehavior;
+use omgdef\multilingual\MultilingualQuery;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -82,12 +83,17 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function find()
+    {
+        return new MultilingualQuery(get_called_class());
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getServiceAttribute()
     {
-        return $this->hasOne(ServiceAttribute::className(), ['id' => 'service_attribute_id']);
+        return $this->hasOne(ServiceAttribute::className(), ['id' => 'service_attribute_id'])->multilingual();
     }
 
     /**

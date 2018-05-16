@@ -42,17 +42,15 @@ class AttachAttribute extends Model
     public $user_input_type;
     public $price_type;
     public $field_type;
-    public $min;
-    public $max;
-    public $service_attribute_options;
     public $validations;
-    public $bulk;
+
+    public $icon;
 
     public function rules()
     {
         return [
             [['service_id', 'input_type', 'user_input_type'], 'required'],
-            [['service_id', 'input_type', 'user_input_type', 'min', 'max', 'field_type'], 'integer'],
+            [['service_id', 'input_type', 'user_input_type', 'field_type'], 'integer'],
             [['price_type'], 'integer'],
             [['attribute_name'], 'required'],
 
@@ -62,11 +60,10 @@ class AttachAttribute extends Model
             ['input_type', 'exist', 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type' => 'id']],
             ['user_input_type', 'exist', 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type' => 'id']],
             ['price_type', 'exist', 'targetClass' => PriceType::className(), 'targetAttribute' => ['price_type' => 'id']],
-            ['service_attribute_options', 'each', 'rule' => ['safe']],
             ['validations', 'each', 'rule' => ['exist', 'targetClass' => Validation::className(), 'targetAttribute' => ['validations' => 'id']]],
             ['field_type', 'exist', 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type' => 'name']],
             [['service_id', 'attribute_name', 'input_type', 'user_input_type', 'price_type', 'field_type'], 'required'],
-            ['bulk', 'safe'],
+            ['icon', 'file']
         ];
     }
 
@@ -130,128 +127,6 @@ class AttachAttribute extends Model
         $pricingAttribute->price_type_id = $priceType->id;
         $pricingAttribute->save();
 
-        // check if it's a range attribute add all options
-        switch ($fieldType->name) {
-            case FieldType::TYPE_RANGE:
-                $this->addRangeOptions($serviceAttribute, $this->min, $this->max);
-                break;
-
-            case FieldType::TYPE_LIST:
-                $this->addListOptions($serviceAttribute, $this->service_attribute_options);
-                break;
-        }
-
-        $this->addValidations($serviceAttribute, $this->validations);
-
-        $this->addBulkOptions($serviceAttribute, $this->bulk);
-
         return $serviceAttribute;
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $min
-     * @param $max
-     */
-    protected function addRangeOptions($serviceAttribute, $min, $max)
-    {
-        for ($i = $min; $i <= $max; $i++) {
-
-            $option = ServiceAttributeOption::find()
-                ->where(['service_attribute_id' => $serviceAttribute->id])
-                ->andWhere(['name' => $i])
-                ->andWhere(['deleted' => false])
-                ->one();
-
-            if ($option) {
-                continue;
-            }
-
-            $option = new ServiceAttributeOption();
-            $option->name = $i;
-            $option->service_attribute_id = $serviceAttribute->id;
-            $option->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $options array
-     */
-    protected function addListOptions($serviceAttribute, $options)
-    {
-        if (empty($options) || !is_array($options)) {
-            return false;
-        }
-
-
-        foreach ($options as $option) {
-
-            $option = trim($option);
-
-            if (empty($option)) {
-                continue;
-            }
-
-            $attributeOption = $serviceAttribute
-                ->getServiceAttributeOptions()
-                ->where(['name' => $option])
-                ->andWhere(['deleted' => false])
-                ->one();
-
-            if ($attributeOption) {
-                continue;
-            }
-
-            $attributeOption = new ServiceAttributeOption();
-            $attributeOption->name = $option;
-            $attributeOption->service_attribute_id = $serviceAttribute->id;
-            $attributeOption->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $validations array
-     */
-    protected function addValidations($serviceAttribute, $validations)
-    {
-        if (empty($validations)) {
-            return true;
-        }
-
-        foreach ($validations as $validation) {
-            $attributeValidation = $serviceAttribute->getValidations()
-                ->where(['id' => $validation])
-                ->one();
-
-            if ($attributeValidation) {
-                continue;
-            }
-
-            $attributeValidation = new ServiceAttributeValidation();
-            $attributeValidation->service_attribute_id = $serviceAttribute->id;
-            $attributeValidation->validation_id = $validation;
-            $attributeValidation->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $options
-     */
-    protected function addBulkOptions($serviceAttribute, $options)
-    {
-        if (empty($options)) {
-            return false;
-        }
-
-        $options = explode(',', $options);
-
-        if (empty($options)) {
-            return false;
-        }
-
-        $this->addListOptions($serviceAttribute, $options);
     }
 }

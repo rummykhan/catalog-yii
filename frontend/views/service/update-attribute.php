@@ -24,6 +24,14 @@ $this->params['breadcrumbs'][] = $this->title;
 ]) ?>
 
 
+<?php if (!empty($attribute->icon)) { ?>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <img src="<?= $attribute->getImageFileUrl('icon') ?>" alt="">
+        </div>
+    </div>
+<?php } ?>
+
 <div class="row">
     <div class="col-md-6">
 
@@ -35,6 +43,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
     </div>
     <div class="col-md-6">
+
+        <?= $form->field($model, 'icon')->fileInput() ?>
+
         <div class="form-group">
             <label for="">Field Type</label>
             <?= Select2::widget([
@@ -119,144 +130,9 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-
-    </div>
-    <div class="col-md-6">
-
-    </div>
-</div>
-
 
 <div class="form-group">
     <?= Html::submitButton('Update Field', ['class' => 'btn btn-primary']) ?>
-</div>
-
-<hr>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="row" id="range">
-            <div class="col-md-12">
-
-                <div class="row">
-
-                    <div class="col-md-6">
-                        <h4>Field Values</h4>
-                    </div>
-
-                    <div class="col-md-6 text-right">
-                        <a href="<?= \yii\helpers\Url::to([
-                            '/service/import-excel', 'attribute_id' => $attribute->id, 'service_id' => $service->id
-                        ]) ?>" class="btn btn-primary">Import options from Excel</a>
-                    </div>
-                </div>
-
-                <br><br>
-
-                <?php if ($model->field_type === \common\models\FieldType::TYPE_RANGE) { ?>
-
-                    <div id="range-type-parent" class="">
-
-                        <div id="range-type-parent-range">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <?= $form->field($model, 'min')->textInput(['type' => 'number']) ?>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <?= $form->field($model, 'max')->textInput(['type' => 'number']) ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group hidden" id="type-list">
-                            <label for="">Add more values</label>
-                            <?= Select2::widget([
-                                'model' => $model,
-                                'attribute' => 'attribute_options',
-                                'value' => [],
-                                'data' => [],
-                                'maintainOrder' => true,
-                                'options' => ['placeholder' => 'Write a value and press enter', 'multiple' => true],
-                                'pluginOptions' => [
-                                    'tags' => true,
-                                    'maximumInputLength' => 10
-                                ],
-                            ]); ?>
-                        </div>
-                    </div>
-
-                <?php } else if ($model->field_type === \common\models\FieldType::TYPE_LIST) { ?>
-
-                    <div id="list-type-parent" class="">
-
-                        <div id="list-type-parent-list">
-                            <?php foreach ($attribute->getServiceAttributeOptions()->where(['!=', 'deleted', true])->all() as $serviceAttributeOption) { ?>
-                                <div class="row" id="attribute-option-<?= $serviceAttributeOption->id ?>-parent">
-                                    <div class="col-md-9">
-                                        <div class="form-group">
-                                            <input type="text"
-                                                   name="<?= GlobalHelper::getModelName($model) ?>[attribute_options][<?= $serviceAttributeOption->id ?>]"
-                                                   value="<?= $serviceAttributeOption->name ?>" class="form-control"
-                                                   id="attribute-option-<?= $serviceAttributeOption->id ?>">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 text-center">
-                                        <button type="button"
-                                                data-target="#attribute-option-<?= $serviceAttributeOption->id ?>"
-                                                class="btn btn-danger btn-sm remove-option">Remove
-                                        </button>
-                                    </div>
-                                </div>
-                            <?php } ?>
-
-                            <div class="form-group">
-                                <label for="">Add values</label>
-                                <?= Select2::widget([
-                                    'model' => $model,
-                                    'attribute' => 'attribute_more_options',
-                                    'value' => [],
-                                    'data' => [],
-                                    'maintainOrder' => true,
-                                    'options' => ['placeholder' => 'Write a value and press enter', 'multiple' => true],
-                                    'pluginOptions' => [
-                                        'tags' => true,
-                                        'maximumInputLength' => 10
-                                    ],
-                                ]); ?>
-                            </div>
-
-                        </div>
-
-                        <div class="row hidden" id="type-range">
-                            <div class="col-md-6">
-                                <?= $form->field($model, 'min')->textInput(['type' => 'number']) ?>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <?= $form->field($model, 'max')->textInput(['type' => 'number']) ?>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                <?php } ?>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-6" id="bulk">
-        <h4>Bulk Update</h4>
-        <?= $form->field($model, 'bulk')->textarea(['rows' => 10]) ?>
-    </div>
-</div>
-
-<div class="form-group">
-    <?= Html::submitButton('Update Values', ['class' => 'btn btn-primary']) ?>
 </div>
 
 

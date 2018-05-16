@@ -35,22 +35,14 @@ class UpdateAttribute extends Model
     public $description_ar;
     public $mobile_description_ar;
 
-
     public $price_type_id;
     public $input_type_id;
     public $user_input_type_id;
     public $field_type_id;
 
-    public $attribute_options;
-    public $attribute_more_options;
     public $attribute_validations;
-
-    public $min;
-    public $max;
-
     public $field_type;
-
-    public $bulk;
+    public $icon;
 
     public function rules()
     {
@@ -66,6 +58,7 @@ class UpdateAttribute extends Model
             [['min', 'max'], 'integer'],
             ['field_type', 'required'],
             ['bulk', 'safe'],
+            ['icon', 'file']
         ];
     }
 
@@ -73,7 +66,6 @@ class UpdateAttribute extends Model
     {
         return [
             'attribute_name' => 'Field Name',
-            'bulk' => 'Add Bulk values (comma separated)'
         ];
     }
 
@@ -124,8 +116,6 @@ class UpdateAttribute extends Model
         /** @var FieldType $fieldType */
         $fieldType = FieldType::find()->where(['name' => $this->field_type])->one();
 
-        $baseFieldType = FieldType::findOne($serviceAttribute->field_type_id);
-
         // english translations
         $serviceAttribute->name = $this->name;
         $serviceAttribute->description = $this->description;
@@ -154,186 +144,7 @@ class UpdateAttribute extends Model
         $pricingAttribute->price_type_id = $this->price_type_id;
         $pricingAttribute->save();
 
-        switch ($fieldType->name) {
-            case FieldType::TYPE_LIST:
-                $this->addListOptions($serviceAttribute, $baseFieldType, $this->attribute_options, $this->attribute_more_options);
-                break;
-
-            case FieldType::TYPE_RANGE:
-                $this->addRangeOptions($serviceAttribute, $baseFieldType, $this->min, $this->max);
-                break;
-        }
-
-        $this->addBulkOptions($serviceAttribute, $this->bulk);
-
         return true;
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $baseFieldType FieldType
-     * @param $options array
-     * @param $moreOptions array
-     */
-    protected function addListOptions($serviceAttribute, $baseFieldType, $options, $moreOptions)
-    {
-        switch ($baseFieldType->name) {
-            case FieldType::TYPE_LIST:
-                // add list options just check if it's already existing, don't need to add
-                $this->addBaseListOptions($serviceAttribute, $options, $moreOptions);
-                break;
-
-            case FieldType::TYPE_RANGE:
-                $this->deleteOptions($serviceAttribute);
-                // delete old options
-                // add new list options
-                $this->addBaseListOptions($serviceAttribute, $options, $moreOptions);
-                break;
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $baseFieldType FieldType
-     * @param $min integer
-     * @param $max integer
-     */
-    protected function addRangeOptions($serviceAttribute, $baseFieldType, $min, $max)
-    {
-        switch ($baseFieldType->name) {
-            case FieldType::TYPE_LIST:
-                // delete old options
-                $this->deleteOptions($serviceAttribute);
-
-                // add range options
-                $this->addBaseRangeOptions($serviceAttribute, $min, $max);
-                break;
-
-            case FieldType::TYPE_RANGE:
-                // add range options just check if it's already existing don't need to add.
-
-                // if user selected a new range disable the old range.
-                $this->deleteBaseRangeOptions($serviceAttribute, $min, $max);
-
-                // add the new range.
-                $this->addBaseRangeOptions($serviceAttribute, $min, $max);
-                break;
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $options array
-     * @param $moreOptions array
-     */
-    protected function addBaseListOptions($serviceAttribute, $options, $moreOptions)
-    {
-
-        if (empty($options)) {
-            $options = [];
-        }
-        foreach ($options as $id => $option) {
-            $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
-                ->where(['id' => $id])
-                ->one();
-
-            if (empty($option) && $serviceAttributeOption) {
-                $serviceAttributeOption->deleted = true;
-                $serviceAttributeOption->save();
-            }
-
-            $option = trim($option);
-
-            if (empty($option)) {
-                continue;
-            }
-
-            if (!$serviceAttributeOption) {
-                $serviceAttributeOption = new ServiceAttributeOption();
-                $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
-            }
-
-            $serviceAttributeOption->name = $option;
-            $serviceAttributeOption->save();
-        }
-
-        if (empty($moreOptions)) {
-            return true;
-        }
-
-        foreach ($moreOptions as $moreOption) {
-
-            $moreOption = trim($moreOption);
-
-            if (empty($moreOption)) {
-                continue;
-            }
-
-            $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
-                ->where(['!=', 'deleted', true])
-                ->andWhere(['name' => $moreOption])
-                ->one();
-
-            if ($serviceAttributeOption) {
-                continue;
-            }
-
-            $serviceAttributeOption = new ServiceAttributeOption();
-            $serviceAttributeOption->name = $moreOption;
-            $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
-            $serviceAttributeOption->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     */
-    protected function deleteOptions($serviceAttribute)
-    {
-        foreach ($serviceAttribute->serviceAttributeOptions as $option) {
-            $option->deleted = true;
-            $option->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $min integer
-     * @param $max integer
-     */
-    protected function addBaseRangeOptions($serviceAttribute, $min, $max)
-    {
-        for ($i = $min; $i <= $max; $i++) {
-            $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()
-                ->where(['!=', 'deleted', true])
-                ->andWhere(['name' => $i])
-                ->one();
-
-            if ($serviceAttributeOption) {
-                continue;
-            }
-
-            $serviceAttributeOption = new ServiceAttributeOption();
-            $serviceAttributeOption->name = $i;
-            $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
-            $serviceAttributeOption->save();
-        }
-    }
-
-    /**
-     * @param $serviceAttribute ServiceAttribute
-     * @param $min
-     * @param $max
-     */
-    protected function deleteBaseRangeOptions($serviceAttribute, $min, $max)
-    {
-        // e.g. if user choosed a new range
-        foreach ($serviceAttribute->serviceAttributeOptions as $serviceAttributeOption) {
-            if ($serviceAttributeOption->name < $min || $serviceAttributeOption->name > $max) {
-                $serviceAttributeOption->deleted = true;
-                $serviceAttributeOption->save();
-            }
-        }
     }
 
     /**

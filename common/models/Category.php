@@ -3,6 +3,7 @@
 namespace common\models;
 
 use omgdef\multilingual\MultilingualBehavior;
+use omgdef\multilingual\MultilingualQuery;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -107,12 +108,17 @@ class Category extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function find()
+    {
+        return new MultilingualQuery(get_called_class());
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getParent()
     {
-        return $this->hasOne(Category::className(), ['id' => 'parent_id']);
+        return $this->hasOne(Category::className(), ['id' => 'parent_id'])->multilingual();
     }
 
     /**
@@ -120,7 +126,12 @@ class Category extends \yii\db\ActiveRecord
      */
     public function getCategories()
     {
-        return $this->hasMany(Category::className(), ['parent_id' => 'id']);
+        return $this->hasMany(Category::className(), ['parent_id' => 'id'])->multilingual();
+    }
+
+    public function getServices()
+    {
+        return $this->hasMany(Service::className(), ['category_id' => 'id'])->multilingual();
     }
 
     public static function toList()

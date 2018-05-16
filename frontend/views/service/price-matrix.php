@@ -13,16 +13,7 @@ use yii\web\View;
 
 ?>
 
-<?php if ($view == 1) { ?>
-    <?= $this->render('price-matrix/basic/matrix', compact('matrixHeaders', 'matrixRows', 'incremental')) ?>
-    <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
-    <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
-<?php } else if ($view == 2) { ?>
-    <?= $this->render('price-matrix/legacy/matrix', compact('attributeGroups', 'incremental')) ?>
-    <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
-    <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
-<?php } else if ($view == 3) { ?>
-    <?= $this->render('price-matrix/dropdown/matrix', compact('matrixHeaders', 'matrixRows', 'attributeGroups', 'incremental')) ?>
-    <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
-    <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
-<?php } ?>
+
+<?= $this->render('price-matrix/dropdown/matrix', compact('matrixHeaders', 'matrixRows', 'attributeGroups', 'incremental')) ?>
+<?= $this->render('price-matrix/independent', compact('independentRows')) ?>
+<?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
