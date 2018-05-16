@@ -43,9 +43,13 @@ use common\models\Service;
                    class="btn btn-primary btn-sm">
                     Edit Field
                 </a>
-                <a href="<?= \yii\helpers\Url::to(['/attribute/delete', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                <a href="<?= \yii\helpers\Url::to(['/service/delete-attribute', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
                    class="btn btn-primary btn-sm">
                     Delete Field
+                </a>
+                <a href="<?= \yii\helpers\Url::to(['/service/import-excel', 'attribute_id' => $attribute->id, 'service_id' => $model->id]) ?>"
+                   class="btn btn-primary btn-sm">
+                    Import Options from Excel
                 </a>
             </td>
         </tr>

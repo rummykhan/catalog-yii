@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\queries\NotDeletedQuery;
+use omgdef\multilingual\MultilingualBehavior;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
@@ -13,8 +14,11 @@ use yii\db\Expression;
  * @property int $id
  * @property int $service_attribute_id
  * @property string $name
+ * @property string $name_ar
  * @property string $description
+ * @property string $description_ar
  * @property string $mobile_description
+ * @property string $mobile_description_ar
  * @property string $icon
  * @property int $order
  * @property boolean $deleted
@@ -55,6 +59,22 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
             'id' => 'ID',
             'service_attribute_id' => 'Service Attribute ID',
             'name' => 'Field Value',
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'ml' => [
+                'class' => MultilingualBehavior::className(),
+                'languages' => Yii::$app->params['languages'],
+                'defaultLanguage' => 'en',
+                'langForeignKey' => 'service_attribute_option_id',
+                'tableName' => "{{%service_attribute_option_lang}}",
+                'attributes' => [
+                    'name', 'description', 'mobile_description'
+                ]
+            ],
         ];
     }
 

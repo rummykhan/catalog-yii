@@ -23,7 +23,8 @@
         "rummykhan/laravel-collection": "^0.0.1",
         "omgdef/yii2-multilingual-behavior": "^2.1",
         "yii-dream-team/yii2-upload-behavior": "*",
-        "2amigos/yii2-ckeditor-widget": "^2.1"
+        "2amigos/yii2-ckeditor-widget": "^2.1",
+        "moonlandsoft/yii2-phpexcel": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

@@ -5,6 +5,7 @@ namespace frontend\controllers;
 use common\forms\AddPricingAttribute;
 use common\forms\AddServiceViewAttribute;
 use common\forms\AttachAttribute;
+use common\forms\ImportOptionsFromExcel;
 use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
 use common\helpers\ServiceAttributeMatrix;
@@ -15,6 +16,7 @@ use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeDepends;
+use common\models\ServiceAttributeOption;
 use common\models\ServiceCity;
 use common\models\ServiceView;
 use common\models\ServiceViewAttribute;
@@ -26,6 +28,7 @@ use common\models\ServiceSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 use yii\web\View;
 use yii\web\ViewAction;
 
@@ -398,5 +401,111 @@ class ServiceController extends Controller
         $serviceViewAttribute->delete();
 
         return $this->redirect(['/service/set-view-groups', 'id' => $id]);
+    }
+
+    /**
+     * @param $service_id
+     * @param $attribute_id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionDeleteAttribute($service_id, $attribute_id)
+    {
+        /** @var Service $service */
+        $service = Service::findOne($service_id);
+
+        /** @var ServiceAttribute $serviceAttribute */
+        $serviceAttribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$serviceAttribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $serviceAttribute->deleted = true;
+        $serviceAttribute->save();
+
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
+    }
+
+    /**
+     * @param $service_id
+     * @param $attribute_id
+     * @throws NotFoundHttpException
+     * @return mixed
+     */
+    public function actionImportExcel($service_id, $attribute_id)
+    {
+        $service = Service::findOne($service_id);
+        if (!$service) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $model = new ImportOptionsFromExcel();
+        $model->service_id = $service_id;
+        $model->attribute_id = $attribute_id;
+
+        $rows = [];
+        if ($model->load(Yii::$app->getRequest()->post())) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+
+            $rows = $model->getValidRows();
+
+            if (!empty($rows)) {
+                return $this->render('import-option-rows', compact('service', 'attribute', 'rows'));
+            }
+        }
+
+        return $this->render('import-options', compact('service', 'attribute', 'model'));
+    }
+
+    public function actionImportOptions($service_id, $attribute_id)
+    {
+        $service = Service::findOne($service_id);
+        if (!$service) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $rows = Yii::$app->getRequest()->post('rows');
+
+        foreach ($rows as $row) {
+
+            $option = $attribute->getServiceAttributeOptions()
+                ->where(['name' => Arr::get($row, 'name')])
+                ->andWhere(['deleted' => false])
+                ->one();
+
+            if (!$option) {
+                $option = new ServiceAttributeOption();
+                $option->service_attribute_id = $attribute_id;
+            }
+
+            $option->name = Arr::get($row, 'name');
+            $option->name_ar = Arr::get($row, 'name_ar');
+            $option->description = Arr::get($row, 'description');
+            $option->description_ar = Arr::get($row, 'description_ar');
+            $option->mobile_description = Arr::get($row, 'mobile_description');
+            $option->mobile_description_ar = Arr::get($row, 'mobile_description_ar');
+            $option->save();
+
+            if($option->hasErrors()){
+                dd($option->getErrors());
+            }
+        }
+
+        return $this->redirect(['/service/view', 'id' => $service_id]);
     }
 }

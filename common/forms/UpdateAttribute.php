@@ -87,7 +87,7 @@ class UpdateAttribute extends Model
     public function attributeNameUnique()
     {
         return 0 == ServiceAttribute::find()
-                ->where(['name' => $this->attribute_name])
+                ->where(['name' => $this->name])
                 ->andWhere(['!=', 'deleted', true])
                 ->andWhere(['!=', 'id', $this->attribute_id])
                 ->andWhere(['service_id' => $this->service_id])

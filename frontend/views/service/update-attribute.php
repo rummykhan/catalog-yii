@@ -139,7 +139,21 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="col-md-6">
         <div class="row" id="range">
             <div class="col-md-12">
-                <h4>Field Values</h4>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <h4>Field Values</h4>
+                    </div>
+
+                    <div class="col-md-6 text-right">
+                        <a href="<?= \yii\helpers\Url::to([
+                            '/service/import-excel', 'attribute_id' => $attribute->id, 'service_id' => $service->id
+                        ]) ?>" class="btn btn-primary">Import options from Excel</a>
+                    </div>
+                </div>
+
+                <br><br>
 
                 <?php if ($model->field_type === \common\models\FieldType::TYPE_RANGE) { ?>
 

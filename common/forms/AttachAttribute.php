@@ -66,7 +66,7 @@ class AttachAttribute extends Model
             ['validations', 'each', 'rule' => ['exist', 'targetClass' => Validation::className(), 'targetAttribute' => ['validations' => 'id']]],
             ['field_type', 'exist', 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type' => 'name']],
             [['service_id', 'attribute_name', 'input_type', 'user_input_type', 'price_type', 'field_type'], 'required'],
-            ['bulk', 'safe']
+            ['bulk', 'safe'],
         ];
     }
 
@@ -74,7 +74,7 @@ class AttachAttribute extends Model
     {
         return [
             'attribute_name' => 'Field name',
-            'bulk' => 'Add Bulk values (comma separated)'
+            'bulk' => 'Add Field values in Bulk (comma separated)'
         ];
     }
 
