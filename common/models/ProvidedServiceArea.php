@@ -15,9 +15,12 @@ use Yii;
  *
  * @property City $city
  * @property ProvidedServiceType $providedServiceType
- * @property ProvidedServiceBasePricing[] $providedServiceBasePricings
- * @property ProvidedServiceCoverage[] $providedServiceCoverages
+ *
+ * @property ProvidedServiceIndependentPricing[] $providedServiceIndependentPricings
+ * @property ProvidedServiceNoImpactPricing[] $providedServiceNoImpactPricings
  * @property ProvidedServiceCompositePricing[] $providedServiceCompositePricings
+ *
+ * @property ProvidedServiceCoverage[] $providedServiceCoverages
  * @property GlobalAvailabilityRule[] $globalAvailabilityRules
  * @property AvailabilityRule[] $availabilityRules
  * @property GlobalAvailabilityException[] $globalAvailabilityExceptions
@@ -78,9 +81,17 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceBasePricings()
+    public function getProvidedServiceIndependentPricings()
     {
-        return $this->hasMany(ProvidedServiceBasePricing::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ProvidedServiceIndependentPricing::className(), ['provided_service_area_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProvidedServiceNoImpactPricings()
+    {
+        return $this->hasMany(ProvidedServiceNoImpactPricing::className(), ['provided_service_area_id' => 'id']);
     }
 
     /**

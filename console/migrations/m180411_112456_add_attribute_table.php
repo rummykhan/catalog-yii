@@ -214,7 +214,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-psa-pst', 'provided_service_area', 'provided_service_type_id', 'provided_service_type', 'id');
         $this->addForeignKey('fk-psa-c', 'provided_service_area', 'city_id', 'city', 'id');
 
-        $this->createTable('provided_service_matrix_pricing', [
+        $this->createTable('provided_service_composite_pricing', [
             'id' => $this->primaryKey(),
             'pricing_attribute_parent_id' => $this->integer(),
             'price' => $this->double(),
@@ -223,10 +223,10 @@ class m180411_112456_add_attribute_table extends Migration
             'updated_at' => $this->dateTime(),
         ]);
 
-        $this->addForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
-        $this->addForeignKey('fk-psmp-psa', 'provided_service_matrix_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-psmp-pap', 'provided_service_composite_pricing', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
+        $this->addForeignKey('fk-psmp-psa', 'provided_service_composite_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
 
-        $this->createTable('provided_service_base_pricing', [
+        $this->createTable('provided_service_independent_pricing', [
             'id' => $this->primaryKey(),
             'pricing_attribute_id' => $this->integer(),
             'base_price' => $this->double(),
@@ -236,9 +236,22 @@ class m180411_112456_add_attribute_table extends Migration
             'updated_at' => $this->dateTime(),
         ]);
 
-        $this->addForeignKey('fk-psbp-pa', 'provided_service_base_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
-        $this->addForeignKey('fk-psbp-psa', 'provided_service_base_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
-        $this->addForeignKey('fk-psbp-sao', 'provided_service_base_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
+        $this->addForeignKey('fk-psbp-pa', 'provided_service_independent_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
+        $this->addForeignKey('fk-psbp-psa', 'provided_service_independent_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-psbp-sao', 'provided_service_independent_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
+
+        $this->createTable('provided_service_no_impact_pricing', [
+            'id' => $this->primaryKey(),
+            'pricing_attribute_id' => $this->integer(),
+            'provided_service_area_id' => $this->integer(),
+            'service_attribute_option_id' => $this->integer(),
+            'created_at' => $this->dateTime(),
+            'updated_at' => $this->dateTime(),
+        ]);
+
+        $this->addForeignKey('fk-psnip-pa', 'provided_service_no_impact_pricing', 'pricing_attribute_id', 'pricing_attribute', 'id');
+        $this->addForeignKey('fk-psnip-psa', 'provided_service_no_impact_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-psnip-sao', 'provided_service_no_impact_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
 
         $this->createTable('service_composite_attribute_parent', [
             'id' => $this->primaryKey(),
@@ -369,8 +382,8 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-pap-s', 'pricing_attribute_parent');
         $this->dropForeignKey('fk-pam-pap', 'pricing_attribute_matrix');
         $this->dropForeignKey('fk-pam-sao', 'pricing_attribute_matrix');
-        $this->dropForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing');
-        $this->dropForeignKey('fk-psbp-pa', 'provided_service_base_pricing');
+        $this->dropForeignKey('fk-psmp-pap', 'provided_service_composite_pricing');
+        $this->dropForeignKey('fk-psbp-pa', 'provided_service_independent_pricing');
         $this->dropForeignKey('fk-sa-uit', 'service_attribute');
         $this->dropForeignKey('fk-c-c', 'city');
         $this->dropForeignKey('fk-sc-c', 'service_city');
@@ -378,12 +391,15 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-pst-ps', 'provided_service_type');
         $this->dropForeignKey('fk-pst-st', 'provided_service_type');
         $this->dropForeignKey('fk-psc-psa', 'provided_service_coverage');
-        $this->dropForeignKey('fk-psbp-psa', 'provided_service_base_pricing');
-        $this->dropForeignKey('fk-psmp-psa', 'provided_service_matrix_pricing');
+        $this->dropForeignKey('fk-psbp-psa', 'provided_service_independent_pricing');
+        $this->dropForeignKey('fk-psmp-psa', 'provided_service_composite_pricing');
         $this->dropForeignKey('fk-psa-pst', 'provided_service_area');
         $this->dropForeignKey('fk-psa-c', 'provided_service_area');
         $this->dropForeignKey('fk-sa-ft', 'service_attribute');
-        $this->dropForeignKey('fk-psbp-sao', 'provided_service_base_pricing');
+        $this->dropForeignKey('fk-psbp-sao', 'provided_service_independent_pricing');
+        $this->dropForeignKey('fk-psnip-pa', 'provided_service_no_impact_pricing');
+        $this->dropForeignKey('fk-psnip-psa', 'provided_service_no_impact_pricing');
+        $this->dropForeignKey('fk-psnip-sao', 'provided_service_no_impact_pricing');
         $this->dropForeignKey('fk-svv-s', 'service_view');
         $this->dropForeignKey('fk-svva-s', 'service_view_attribute');
         $this->dropForeignKey('fk-svva-sa', 'service_view_attribute');
@@ -421,8 +437,9 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('pricing_attribute');
         $this->dropTable('pricing_attribute_parent');
         $this->dropTable('pricing_attribute_matrix');
-        $this->dropTable('provided_service_matrix_pricing');
-        $this->dropTable('provided_service_base_pricing');
+        $this->dropTable('provided_service_composite_pricing');
+        $this->dropTable('provided_service_independent_pricing');
+        $this->dropTable('provided_service_no_impact_pricing');
         $this->dropTable('country');
         $this->dropTable('city');
         $this->dropTable('service_city');
@@ -446,7 +463,5 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('global_availability_rule');
         $this->dropTable('rule_value_type');
         $this->dropTable('rule_type');
-
-
     }
 }

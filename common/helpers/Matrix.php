@@ -8,7 +8,7 @@ use common\models\PricingAttribute;
 use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\PricingAttributeParent;
-use common\models\ProvidedServiceBasePricing;
+use common\models\ProvidedServiceIndependentPricing;
 use common\models\ProvidedServiceCompositePricing;
 use common\models\Service;
 use RummyKhan\Collection\Collection;
@@ -427,7 +427,7 @@ class Matrix
         /** @var PricingAttribute $pricingAttribute */
         foreach ($pricingAttributes as $pricingAttribute) {
             // delete all base pricing
-            ProvidedServiceBasePricing::deleteAll(['pricing_attribute_id' => $pricingAttribute->id]);
+            ProvidedServiceIndependentPricing::deleteAll(['pricing_attribute_id' => $pricingAttribute->id]);
         }
 
 
@@ -469,7 +469,7 @@ class Matrix
             }
 
             // delete all base pricing of this group only
-            ProvidedServiceBasePricing::deleteAll([
+            ProvidedServiceIndependentPricing::deleteAll([
                 'pricing_attribute_id' => $pricingAttribute->id,
                 'provided_service_area_id' => $area_id
             ]);

@@ -210,9 +210,9 @@ class ProvidedService extends \yii\db\ActiveRecord
 
             $basePricing = null;
             if ($result) {
-                $basePricing = ProvidedServiceBasePricing::findOne($result['id']);
+                $basePricing = ProvidedServiceIndependentPricing::findOne($result['id']);
             } else {
-                $basePricing = new ProvidedServiceBasePricing();
+                $basePricing = new ProvidedServiceIndependentPricing();
             }
 
             $query = (new Query())

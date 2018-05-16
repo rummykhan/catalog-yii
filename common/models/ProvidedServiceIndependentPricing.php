@@ -20,14 +20,14 @@ use Yii;
  * @property ProvidedService $providedService
  * @property ProvidedServiceArea $providedServiceArea
  */
-class ProvidedServiceBasePricing extends \yii\db\ActiveRecord
+class ProvidedServiceIndependentPricing extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'provided_service_base_pricing';
+        return 'provided_service_independent_pricing';
     }
 
     /**

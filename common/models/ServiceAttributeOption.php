@@ -29,6 +29,7 @@ use yii\db\Expression;
  *
  * @property ServiceCompositeAttribute[] $serviceCompositeAttributes
  * @property ServiceCompositeAttributeChild[] $serviceCompositeAttributeChildren
+ * @property ProvidedServiceNoImpactPricing[] $providedServiceNoImpactPricings
  */
 class ServiceAttributeOption extends \yii\db\ActiveRecord
 {
@@ -110,5 +111,13 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     public function getServiceCompositeAttributeChildren()
     {
         return $this->hasMany(ServiceCompositeAttributeChild::className(), ['service_attribute_option_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProvidedServiceNoImpactPricings()
+    {
+        return $this->hasMany(ProvidedServiceNoImpactPricing::className(), ['service_attribute_option_id' => 'id']);
     }
 }
