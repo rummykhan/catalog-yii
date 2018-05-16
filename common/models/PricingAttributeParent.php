@@ -12,7 +12,7 @@ use Yii;
  *
  * @property PricingAttributeMatrix[] $pricingAttributeMatrices
  * @property Service $service
- * @property ProvidedServiceMatrixPricing[] $providedServiceMatrixPricings
+ * @property ProvidedServiceCompositePricing[] $providedServiceCompositePricing
  */
 class PricingAttributeParent extends \yii\db\ActiveRecord
 {
@@ -65,9 +65,9 @@ class PricingAttributeParent extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceMatrixPricings()
+    public function getProvidedServiceCompositePricing()
     {
-        return $this->hasOne(ProvidedServiceMatrixPricing::className(), ['pricing_attribute_parent_id' => 'id']);
+        return $this->hasOne(ProvidedServiceCompositePricing::className(), ['pricing_attribute_parent_id' => 'id']);
     }
 
     public function getOptionIdsArray()

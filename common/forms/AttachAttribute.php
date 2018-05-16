@@ -25,6 +25,7 @@ use frontend\helpers\FieldsConfigurationHelper;
 use yii\base\Exception;
 use yii\base\Model;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 class AttachAttribute extends Model
 {
@@ -86,6 +87,8 @@ class AttachAttribute extends Model
 
     public function attach()
     {
+        $this->icon = UploadedFile::getInstance($this, 'icon');
+
         $service = Service::findOne($this->service_id);
         if (!$service) {
             throw new NotFoundHttpException();
@@ -94,6 +97,10 @@ class AttachAttribute extends Model
         $priceType = PriceType::findOne($this->price_type);
 
         $fieldType = FieldType::find()->where(['name' => $this->field_type])->one();
+
+        if(!$fieldType){
+            throw new Exception('Field type not found');
+        }
 
         // if there is an already attribute with this service with same name
         if (!$this->isAttributeNameUnique()) {
@@ -118,6 +125,10 @@ class AttachAttribute extends Model
         $serviceAttribute->input_type_id = $this->input_type;
         $serviceAttribute->field_type_id = $fieldType->id;
 
+        if ($this->icon) {
+            $serviceAttribute->icon = $this->icon;
+        }
+
         $serviceAttribute->save();
 
 
@@ -127,6 +138,38 @@ class AttachAttribute extends Model
         $pricingAttribute->price_type_id = $priceType->id;
         $pricingAttribute->save();
 
+        $this->addValidations($serviceAttribute, $this->validations);
+
         return $serviceAttribute;
     }
+
+    /**
+     * @param $serviceAttribute ServiceAttribute
+     * @param $validations array
+     * @return mixed
+     */
+    protected function addValidations($serviceAttribute, $validations)
+    {
+        if (empty($validations)) {
+            return true;
+        }
+
+        foreach ($validations as $validation) {
+            $attributeValidation = $serviceAttribute->getValidations()
+                ->where(['id' => $validation])
+                ->one();
+
+            if ($attributeValidation) {
+                continue;
+            }
+
+            $attributeValidation = new ServiceAttributeValidation();
+            $attributeValidation->service_attribute_id = $serviceAttribute->id;
+            $attributeValidation->validation_id = $validation;
+            $attributeValidation->save();
+        }
+
+        return true;
+    }
+
 }

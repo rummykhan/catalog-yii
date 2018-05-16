@@ -264,10 +264,10 @@ class ProvidedService extends \yii\db\ActiveRecord
             return false;
         }
 
-        $matrixPricing = $parent->getProvidedServiceMatrixPricings()->where(['provided_service_area_id' => $area_id])->one();
+        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_area_id' => $area_id])->one();
 
         if (!$matrixPricing) {
-            $matrixPricing = new ProvidedServiceMatrixPricing();
+            $matrixPricing = new ProvidedServiceCompositePricing();
         }
 
         $matrixPricing->provided_service_id = $this->id;
@@ -341,8 +341,8 @@ class ProvidedService extends \yii\db\ActiveRecord
             return null;
         }
 
-        /** @var ProvidedServiceMatrixPricing $matrixPricing */
-        $matrixPricing = $parent->getProvidedServiceMatrixPricings()->where(['provided_service_area_id' => $area_id])->one();
+        /** @var ProvidedServiceCompositePricing $matrixPricing */
+        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_area_id' => $area_id])->one();
 
         if (!$matrixPricing) {
             return null;

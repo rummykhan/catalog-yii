@@ -17,7 +17,7 @@ use Yii;
  * @property ProvidedServiceType $providedServiceType
  * @property ProvidedServiceBasePricing[] $providedServiceBasePricings
  * @property ProvidedServiceCoverage[] $providedServiceCoverages
- * @property ProvidedServiceMatrixPricing[] $providedServiceMatrixPricings
+ * @property ProvidedServiceCompositePricing[] $providedServiceCompositePricings
  * @property GlobalAvailabilityRule[] $globalAvailabilityRules
  * @property AvailabilityRule[] $availabilityRules
  * @property GlobalAvailabilityException[] $globalAvailabilityExceptions
@@ -94,9 +94,9 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceMatrixPricings()
+    public function getProvidedServiceCompositePricings()
     {
-        return $this->hasMany(ProvidedServiceMatrixPricing::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ProvidedServiceCompositePricing::className(), ['provided_service_area_id' => 'id']);
     }
 
     /**

@@ -16,6 +16,7 @@ use common\models\PricingAttribute;
 use common\models\Service;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeOption;
+use common\models\ServiceAttributeValidation;
 use common\models\UserInputType;
 use frontend\helpers\FieldsConfigurationHelper;
 use Yii;
@@ -40,7 +41,7 @@ class UpdateAttribute extends Model
     public $user_input_type_id;
     public $field_type_id;
 
-    public $attribute_validations;
+    public $validations;
     public $field_type;
     public $icon;
 
@@ -53,7 +54,7 @@ class UpdateAttribute extends Model
             ['input_type_id', 'exist', 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type_id' => 'id']],
             ['user_input_type_id', 'exist', 'targetClass' => UserInputType::className(), 'targetAttribute' => ['user_input_type_id' => 'id']],
             ['field_type_id', 'exist', 'targetClass' => FieldType::className(), 'targetAttribute' => ['field_type_id' => 'id']],
-            [['attribute_options', 'attribute_validations', 'attribute_more_options'], 'each', 'rule' => ['safe']],
+            [['attribute_options', 'validations', 'attribute_more_options'], 'each', 'rule' => ['safe']],
             [['name', 'description', 'mobile_description', 'name_ar', 'description_ar', 'mobile_description_ar'], 'safe'],
             [['min', 'max'], 'integer'],
             ['field_type', 'required'],
@@ -144,6 +145,9 @@ class UpdateAttribute extends Model
         $pricingAttribute->price_type_id = $this->price_type_id;
         $pricingAttribute->save();
 
+        $this->deleteValidations($serviceAttribute);
+        $this->addValidations($serviceAttribute, $this->validations);
+
         return true;
     }
 
@@ -186,5 +190,55 @@ class UpdateAttribute extends Model
             $serviceAttributeOption->service_attribute_id = $serviceAttribute->id;
             $serviceAttributeOption->save();
         }
+    }
+
+    /**
+     * @param $serviceAttribute ServiceAttribute
+     */
+    protected function deleteValidations($serviceAttribute)
+    {
+        foreach ($serviceAttribute->validations as $validation) {
+
+            $serviceAttributeValidation = ServiceAttributeValidation::find()
+                ->where(['service_attribute_id' => $serviceAttribute->id])
+                ->andWhere(['validation_id' => $validation->id])
+                ->one();
+
+
+            if (!$serviceAttributeValidation) {
+                continue;
+            }
+
+            $serviceAttributeValidation->delete();
+        }
+    }
+
+    /**
+     * @param $serviceAttribute ServiceAttribute
+     * @param $validations array
+     * @return mixed
+     */
+    protected function addValidations($serviceAttribute, $validations)
+    {
+        if (empty($validations)) {
+            return true;
+        }
+
+        foreach ($validations as $validation) {
+            $attributeValidation = $serviceAttribute->getValidations()
+                ->where(['id' => $validation])
+                ->one();
+
+            if ($attributeValidation) {
+                continue;
+            }
+
+            $attributeValidation = new ServiceAttributeValidation();
+            $attributeValidation->service_attribute_id = $serviceAttribute->id;
+            $attributeValidation->validation_id = $validation;
+            $attributeValidation->save();
+        }
+
+        return true;
     }
 }

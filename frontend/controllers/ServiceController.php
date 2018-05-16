@@ -197,7 +197,7 @@ class ServiceController extends Controller
         $model->price_type_id = count($attribute->pricingAttributes) > 0 ? Arr::first($attribute->pricingAttributes)->price_type_id : null;
         $model->input_type_id = $attribute->input_type_id;
         $model->user_input_type_id = $attribute->user_input_type_id;
-        $model->attribute_validations = collect($attribute->getValidations()->asArray()->all())->pluck('id')->toArray();
+        $model->validations = collect($attribute->getValidations()->asArray()->all())->pluck('id')->toArray();
         $model->field_type_id = $attribute->field_type_id;
         $model->field_type = FieldType::findOne($attribute->field_type_id)->name;
 
@@ -282,11 +282,7 @@ class ServiceController extends Controller
 
         $motherMatrix = new ServiceAttributeMatrix($model);
 
-        if (empty($view) || !in_array($view, range(1, 3))) {
-            $view = 1;
-        }
-
-        return $this->render('view-price-matrix', [
+        return $this->render('add-pricing', [
             'model' => $model,
             'motherMatrix' => $motherMatrix,
         ]);

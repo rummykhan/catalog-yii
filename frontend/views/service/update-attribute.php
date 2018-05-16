@@ -24,14 +24,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ]) ?>
 
 
-<?php if (!empty($attribute->icon)) { ?>
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <img src="<?= $attribute->getImageFileUrl('icon') ?>" alt="">
-        </div>
-    </div>
-<?php } ?>
-
 <div class="row">
     <div class="col-md-6">
 
@@ -43,6 +35,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
     </div>
     <div class="col-md-6">
+
+        <?php if (!empty($attribute->icon)) { ?>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <img src="<?= $attribute->getImageFileUrl('icon') ?>" alt="" style="width: 100px; height: 100px;">
+                </div>
+            </div>
+        <?php } ?>
 
         <?= $form->field($model, 'icon')->fileInput() ?>
 
@@ -116,9 +116,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <label for="">Validations</label>
             <?= Select2::widget([
                 'model' => $model,
-                'attribute' => 'attribute_validations',
+                'attribute' => 'validations',
                 'data' => \common\models\Validation::toList(),
-                'value' => $model->attribute_validations,
                 'options' => ['placeholder' => 'Select validations'],
                 'pluginOptions' => [
                     'multiple' => true,

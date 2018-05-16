@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\ProvidedServiceMatrixPricing;
+use common\models\ProvidedServiceCompositePricing;
 
 /**
  * ProvidedServiceMatrixPricingSearch represents the model behind the search form of `common\models\ProvidedServiceMatrixPricing`.
  */
-class ProvidedServiceMatrixPricingSearch extends ProvidedServiceMatrixPricing
+class ProvidedServiceCompositePricingSearch extends ProvidedServiceCompositePricing
 {
     /**
      * @inheritdoc
@@ -42,7 +42,7 @@ class ProvidedServiceMatrixPricingSearch extends ProvidedServiceMatrixPricing
      */
     public function search($params)
     {
-        $query = ProvidedServiceMatrixPricing::find();
+        $query = ProvidedServiceCompositePricing::find();
 
         // add conditions that should always apply here
 

@@ -9,7 +9,7 @@ use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\PricingAttributeParent;
 use common\models\ProvidedServiceBasePricing;
-use common\models\ProvidedServiceMatrixPricing;
+use common\models\ProvidedServiceCompositePricing;
 use common\models\Service;
 use RummyKhan\Collection\Collection;
 
@@ -100,17 +100,18 @@ class Matrix
         $this->service = $service;
         $this->priceGroupID = $priceGroupID;
 
-        $this->createMatrix();
-        $this->createNoImpactRows();
-        $this->createIndependentRows();
-        $this->updateIncrementalAttribute();
-        $this->writeHash();
+        $this->configureCompositeAttributes();
+        $this->configureNoImpactAttributes();
+        $this->configureIndependentAttributes();
+        $this->configureIncrementalAttributes();
+
+        $this->createHash();
     }
 
     /**
      * Create Matrix Clock using composite attributes
      */
-    private function createMatrix()
+    private function configureCompositeAttributes()
     {
         $priceType = PriceType::find()->where(['type' => PriceType::TYPE_COMPOSITE])->one();
 
@@ -131,6 +132,75 @@ class Matrix
         $this->matrixHeaders = array_keys($pricingAttributesGroup);
 
         $this->groups = array_values($pricingAttributesGroup);
+    }
+
+    /**
+     * Create No impact Row
+     */
+    private function configureNoImpactAttributes()
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_NO_IMPACT])->one();
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
+
+        $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
+
+        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
+
+        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
+
+        if (count($pricingAttributesGroup) === 0) {
+            $this->noImpactRows = [];
+            return false;
+        }
+
+        $this->noImpactRows = $pricingAttributesGroup;
+    }
+
+    /**
+     * @return bool
+     */
+    private function configureIndependentAttributes()
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INDEPENDENT])->one();
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
+
+        $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
+
+        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
+
+        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
+
+        if (count($pricingAttributesGroup) === 0) {
+            $this->independentRows = [];
+            return false;
+        }
+
+        $this->independentRows = $pricingAttributesGroup;
+    }
+
+    /**
+     * Update incremental attribute
+     */
+    private function configureIncrementalAttributes()
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INCREMENTAL])->one();
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
+
+        $this->incrementalAttributes = collect($pricingAttributes)->groupBy('attribute_name')->keys()->toArray();
+    }
+
+    /**
+     * Create Matrix
+     * @return bool
+     */
+    private function createMatrix()
+    {
+        if (count($this->attributeGroups) === 0) {
+            return false;
+        }
 
         foreach ($this->groups as $index => $group) {
             $this->rounds[$index] = 0;
@@ -167,52 +237,8 @@ class Matrix
             $this->matrixRows[] = $row;
             $this->rowIdentifiers[] = $this->makeIdentifiers($row);
         }
-    }
 
-    /**
-     * Create No impact Row
-     */
-    private function createNoImpactRows()
-    {
-        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_NO_IMPACT])->one();
-
-        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
-
-        $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
-
-        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
-
-        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
-
-        if (count($pricingAttributesGroup) === 0) {
-            $this->noImpactRows = [];
-            return false;
-        }
-
-        $this->noImpactRows = $pricingAttributesGroup;
-    }
-
-    /**
-     * @return bool
-     */
-    private function createIndependentRows()
-    {
-        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INDEPENDENT])->one();
-
-        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
-
-        $pricingAttributesGroup = collect($pricingAttributes)->groupBy('attribute_name')->toArray();
-
-        $attributes = collect($pricingAttributes)->pluck('service_attribute_id')->unique()->toArray();
-
-        $this->serviceAttributes = array_merge($this->serviceAttributes, $attributes);
-
-        if (count($pricingAttributesGroup) === 0) {
-            $this->independentRows = [];
-            return false;
-        }
-
-        $this->independentRows = $pricingAttributesGroup;
+        return true;
     }
 
     /**
@@ -328,7 +354,7 @@ class Matrix
     }
 
     /**
-     * Save matrix rows
+     * Delete existing configuration
      */
     public function deleteExistingConfiguration()
     {
@@ -337,6 +363,9 @@ class Matrix
         $this->deleteParents();
     }
 
+    /**
+     * save matrix rows
+     */
     public function saveMatrixRows()
     {
         foreach ($this->getMatrixRows() as $row) {
@@ -372,6 +401,9 @@ class Matrix
         return $data;
     }
 
+    /**
+     *  delete existing matrix
+     */
     protected function deleteExistingMatrix()
     {
         $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
@@ -379,13 +411,16 @@ class Matrix
         /** @var PricingAttributeParent $pricingAttributeParent */
         foreach ($pricingAttributeParents as $pricingAttributeParent) {
             // delete matrix prices
-            ProvidedServiceMatrixPricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+            ProvidedServiceCompositePricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
 
             // delete matrix rows
             PricingAttributeMatrix::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
         }
     }
 
+    /**
+     * delete existing prices
+     */
     protected function deleteExistingPrices()
     {
         $pricingAttributes = $this->service->getAllPricingAttributes();
@@ -400,10 +435,13 @@ class Matrix
         /** @var PricingAttributeParent $pricingAttributeParent */
         foreach ($pricingAttributeParents as $pricingAttributeParent) {
             // delete matrix prices
-            ProvidedServiceMatrixPricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
+            ProvidedServiceCompositePricing::deleteAll(['pricing_attribute_parent_id' => $pricingAttributeParent->id]);
         }
     }
 
+    /**
+     * delete parents
+     */
     protected function deleteParents()
     {
         $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
@@ -415,6 +453,10 @@ class Matrix
         }
     }
 
+    /**
+     * Delete area prices
+     * @param $area_id
+     */
     public function deleteAreaPrices($area_id)
     {
         $pricingAttributes = $this->service->getAllPricingAttributes();
@@ -445,32 +487,39 @@ class Matrix
 
 
             // delete matrices prices for this matrix
-            ProvidedServiceMatrixPricing::deleteAll([
+            ProvidedServiceCompositePricing::deleteAll([
                 'pricing_attribute_parent_id' => $pricingAttributeParent->id,
                 'provided_service_area_id' => $area_id
             ]);
         }
     }
 
-    protected function updateIncrementalAttribute()
-    {
-        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INCREMENTAL])->one();
-
-        $pricingAttributes = $this->service->getPricingAttributes($priceType, $this->priceGroupID);
-
-        $this->incrementalAttributes = collect($pricingAttributes)->groupBy('attribute_name')->keys()->toArray();
-    }
-
+    /**
+     * get row options
+     *
+     * @param $row
+     * @return string
+     */
     public static function getRowOptions($row)
     {
         return implode('_', static::getRowOptionsArray($row));
     }
 
+    /**
+     * get row options as array
+     * @param $row
+     * @return array
+     */
     public static function getRowOptionsArray($row)
     {
         return array_column($row, 'service_attribute_option_id');
     }
 
+    /**
+     * make identifiers of the matrix
+     * @param $row
+     * @return string
+     */
     public function makeIdentifiers($row)
     {
         $ids = collect($row)->pluck('service_attribute_option_id')->toArray();
@@ -478,24 +527,42 @@ class Matrix
         return implode('_', $ids);
     }
 
+    /**
+     * check if this matrix has the identifier
+     * @param $identifier
+     * @return bool
+     */
     public function hasIdentifier($identifier)
     {
         return in_array($identifier, $this->rowIdentifiers);
     }
 
-    public function writeHash()
+    /**
+     * create has for the matrix.
+     */
+    public function createHash()
     {
-        if(empty($this->rowIdentifiers)){
+        if (empty($this->rowIdentifiers)) {
             $this->rowIdentifiers = $this->serviceAttributes;
         }
         $this->hash = md5(implode('-', $this->rowIdentifiers));
     }
 
+    /**
+     * getter for matrix hash
+     * @return mixed
+     */
     public function getHash()
     {
         return $this->hash;
     }
 
+    /**
+     * Match the incoming hash with the matrix hash
+     *
+     * @param $hash
+     * @return bool
+     */
     public function isEqual($hash)
     {
         return $hash === $this->hash;

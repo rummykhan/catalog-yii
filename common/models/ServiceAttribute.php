@@ -94,7 +94,7 @@ class ServiceAttribute extends \yii\db\ActiveRecord
                     'thumb' => ['width' => 400, 'height' => 300],
                 ],
                 'filePath' => '@webroot/assets/service-attribute/images/[[pk]].[[extension]]',
-                'fileUrl' => '/assets/service/service-attribute/[[pk]].[[extension]]',
+                'fileUrl' => '/assets/service-attribute/images/[[pk]].[[extension]]',
                 'thumbPath' => '@webroot/assets/service-attribute/images/[[profile]]_[[pk]].[[extension]]',
                 'thumbUrl' => '/assets/service-attribute/images/[[profile]]_[[pk]].[[extension]]',
             ],

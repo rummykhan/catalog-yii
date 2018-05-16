@@ -15,19 +15,15 @@ $columns = count($attributeGroups) > 0 ? intval(10 / count($attributeGroups)) : 
 
 <?php if (count($attributeGroups) > 0) { ?>
 
-    <?php if (!empty($incremental)) { ?>
-        <div class="row">
-            <div class="col-md-12">
-                Price by <b><?= implode(',', $incremental) ?></b>
-            </div>
-        </div>
-    <?php } ?>
+
 
     <div class="row">
         <?php foreach ($attributeGroups as $title => $attributeGroup) { ?>
             <div class="col-md-<?= $columns ?>">
                 <div class="form-group">
-                    <label for=""><?= $title ?></label>
+                    <label for="">
+                        <?= $title ?>
+                    </label>
                     <?= Select2::widget([
                         'name' => $title,
                         'data' => collect($attributeGroup)->pluck('attribute_option_name', 'service_attribute_option_id')->toArray()
@@ -37,7 +33,12 @@ $columns = count($attributeGroups) > 0 ? intval(10 / count($attributeGroups)) : 
         <?php } ?>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="">Price</label>
+                <label for="">
+                    Price
+                    <?php if (!empty($incremental)) { ?>
+                        by <b><?= implode(',', $incremental) ?></b>
+                    <?php } ?>
+                </label>
                 <input type="text" class="form-control" disabled="disabled">
             </div>
         </div>

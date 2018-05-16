@@ -102,7 +102,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
                 </thead>
                 <tbody>
 
-                <?php foreach ($area->providedServiceMatrixPricings as $pricing) { ?>
+                <?php foreach ($area->providedServiceCompositePricings as $pricing) { ?>
                     <?php if(!$matrix->hasIdentifier($pricing->pricingAttributeParent->getOptionIdsFormattedName())) {continue;} ?>
                     <tr>
                         <?php foreach ($pricing->pricingAttributeParent->pricingAttributeMatrices as $pricingAttributeMatrix) { ?>

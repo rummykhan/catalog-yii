@@ -13,7 +13,6 @@ use yii\web\View;
 
 ?>
 
-
 <?= $this->render('price-matrix/dropdown/matrix', compact('matrixHeaders', 'matrixRows', 'attributeGroups', 'incremental')) ?>
 <?= $this->render('price-matrix/independent', compact('independentRows')) ?>
 <?= $this->render('price-matrix/no-impact', compact('noImpactRows')) ?>
