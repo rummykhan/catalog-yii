@@ -33,12 +33,12 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property int $field_type_id
  * @property int $order
  *
- * @property ServiceAttributeDepends[] $parental
- * @property ServiceAttributeDepends[] $dependants
  * @property Service $service
  * @property ServiceAttributeOption[] $serviceAttributeOptions
  * @property Validation[] $validations
  * @property PricingAttribute[] $pricingAttributes
+ * @property ServiceCompositeAttribute[] $serviceCompositeAttributes
+ * @property ServiceCompositeAttributeChild[] $serviceCompositeAttributeChildren
  */
 class ServiceAttribute extends \yii\db\ActiveRecord
 {
@@ -169,19 +169,6 @@ class ServiceAttribute extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getParental()
-    {
-        return $this->hasMany(ServiceAttributeDepends::className(), ['service_attribute_id' => 'id']);
-    }
-
-    public function getDependants()
-    {
-        return $this->hasMany(ServiceAttributeDepends::className(), ['depends_on_id' => 'id']);
-    }
-
-    /**
      * @return ActiveQuery
      */
     public function getValidations()
@@ -227,5 +214,21 @@ class ServiceAttribute extends \yii\db\ActiveRecord
         }
 
         return null;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceCompositeAttributes()
+    {
+        return $this->hasMany(ServiceCompositeAttribute::className(), ['service_attribute_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceCompositeAttributeChildren()
+    {
+        return $this->hasMany(ServiceCompositeAttributeChild::className(), ['service_attribute_id' => 'id']);
     }
 }

@@ -64,6 +64,8 @@ $this->params['breadcrumbs'][] = $this->title;
                             </tbody>
                         </table>
 
+                        <span class="help-block">Note: Options that are not-existing shall be added, duplicates shall be removed.</span>
+
                         <button class="btn btn-primary pull-right">Confirm Add</button>
 
                         <?php ActiveForm::end() ?>

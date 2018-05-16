@@ -240,16 +240,34 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-psbp-psa', 'provided_service_base_pricing', 'provided_service_area_id', 'provided_service_area', 'id');
         $this->addForeignKey('fk-psbp-sao', 'provided_service_base_pricing', 'service_attribute_option_id', 'service_attribute_option', 'id');
 
-        $this->createTable('service_attribute_depends', [
+        $this->createTable('service_composite_attribute_parent', [
             'id' => $this->primaryKey(),
-            'service_attribute_id' => $this->integer(),
-            'depends_on_id' => $this->integer(),
-            'service_attribute_option_id' => $this->integer()
+            'service_id' => $this->integer()
         ]);
 
-        $this->addForeignKey('fk-sad-sa', 'service_attribute_depends', 'service_attribute_id', 'service_attribute', 'id');
-        $this->addForeignKey('fk-sad-sado', 'service_attribute_depends', 'depends_on_id', 'service_attribute', 'id');
-        $this->addForeignKey('fk-sad-sao', 'service_attribute_depends', 'service_attribute_option_id', 'service_attribute_option', 'id');
+        $this->addForeignKey('fk-scap-s', 'service_composite_attribute_parent', 'service_id', 'service', 'id');
+
+        $this->createTable('service_composite_attribute', [
+            'id' => $this->primaryKey(),
+            'service_attribute_id' => $this->integer(),
+            'service_attribute_option_id' => $this->integer(),
+            'service_composite_attribute_parent_id' => $this->integer(),
+        ]);
+
+        $this->addForeignKey('fk-scca-sa', 'service_composite_attribute', 'service_attribute_id', 'service_attribute', 'id');
+        $this->addForeignKey('fk-scca-sao', 'service_composite_attribute', 'service_attribute_option_id', 'service_attribute_option', 'id');
+        $this->addForeignKey('fk-scca-scap', 'service_composite_attribute', 'service_composite_attribute_parent_id', 'service_composite_attribute_parent', 'id');
+
+        $this->createTable('service_composite_attribute_child', [
+           'id' => $this->primaryKey(),
+            'service_attribute_id' => $this->integer(),
+            'service_attribute_option_id' => $this->integer(),
+            'service_composite_attribute_parent_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-sccac-sa', 'service_composite_attribute_child', 'service_attribute_id', 'service_attribute', 'id');
+        $this->addForeignKey('fk-sccac-sao', 'service_composite_attribute_child', 'service_attribute_option_id', 'service_attribute_option', 'id');
+        $this->addForeignKey('fk-sccac-scap', 'service_composite_attribute_child', 'service_composite_attribute_parent_id', 'service_composite_attribute_parent', 'id');
 
         $this->createTable('service_city', [
             'id' => $this->primaryKey(),
@@ -354,9 +372,6 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-psmp-pap', 'provided_service_matrix_pricing');
         $this->dropForeignKey('fk-psbp-pa', 'provided_service_base_pricing');
         $this->dropForeignKey('fk-sa-uit', 'service_attribute');
-        $this->dropForeignKey('fk-sad-sa', 'service_attribute_depends');
-        $this->dropForeignKey('fk-sad-sado', 'service_attribute_depends');
-        $this->dropForeignKey('fk-sad-sao', 'service_attribute_depends');
         $this->dropForeignKey('fk-c-c', 'city');
         $this->dropForeignKey('fk-sc-c', 'service_city');
         $this->dropForeignKey('fk-sc-a', 'service_city');
@@ -374,6 +389,14 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-svva-sa', 'service_view_attribute');
         $this->dropForeignKey('fk-sal-sa', 'service_attribute_lang');
         $this->dropForeignKey('fk-saop-sao', 'service_attribute_option_lang');
+
+        $this->dropForeignKey('fk-scap-s', 'service_composite_attribute_parent');
+        $this->dropForeignKey('fk-scca-sa', 'service_composite_attribute');
+        $this->dropForeignKey('fk-scca-sao', 'service_composite_attribute');
+        $this->dropForeignKey('fk-scca-scap', 'service_composite_attribute');
+        $this->dropForeignKey('fk-sccac-sa', 'service_composite_attribute_child');
+        $this->dropForeignKey('fk-sccac-sao', 'service_composite_attribute_child');
+        $this->dropForeignKey('fk-sccac-scap', 'service_composite_attribute_child');
 
         $this->dropForeignKey('fk-ae-psa', 'availability_exception');
         $this->dropForeignKey('fk-gae-psa', 'global_availability_exception');
@@ -400,7 +423,6 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('pricing_attribute_matrix');
         $this->dropTable('provided_service_matrix_pricing');
         $this->dropTable('provided_service_base_pricing');
-        $this->dropTable('service_attribute_depends');
         $this->dropTable('country');
         $this->dropTable('city');
         $this->dropTable('service_city');
@@ -414,11 +436,17 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('service_attribute_lang');
         $this->dropTable('service_attribute_option_lang');
 
+        $this->dropTable('service_composite_attribute_parent');
+        $this->dropTable('service_composite_attribute');
+        $this->dropTable('service_composite_attribute_child');
+
         $this->dropTable('availability_exception');
         $this->dropTable('global_availability_exception');
         $this->dropTable('availability_rule');
         $this->dropTable('global_availability_rule');
         $this->dropTable('rule_value_type');
         $this->dropTable('rule_type');
+
+
     }
 }

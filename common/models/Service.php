@@ -32,6 +32,9 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property City[] $cities
  * @property PricingAttributeParent[] $pricingAttributeParents
  * @property ServiceView[] $serviceViews
+ * @property ServiceParentAttribute[] $serviceParentAttributes
+ * @property ServiceChildAttribute[] $serviceChildAttributes
+ * @property ServiceCompositeAttributeParent[] $serviceCompositeAttributeParents
  *
  * @method getImageFileUrl($attribute)
  * @method getThumbFileUrl($attribute)
@@ -319,8 +322,19 @@ class Service extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getServiceViews()
     {
         return $this->hasMany(ServiceView::className(), ['service_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceCompositeAttributeParents()
+    {
+        return $this->hasMany(ServiceCompositeAttributeParent::className(), ['service_id' => 'id']);
     }
 }

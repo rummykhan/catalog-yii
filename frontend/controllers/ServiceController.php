@@ -15,7 +15,6 @@ use common\models\PricingAttribute;
 use common\models\PricingAttributeGroup;
 use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
-use common\models\ServiceAttributeDepends;
 use common\models\ServiceAttributeOption;
 use common\models\ServiceCity;
 use common\models\ServiceView;
@@ -282,15 +281,6 @@ class ServiceController extends Controller
         if (Yii::$app->getRequest()->isPost) {
             $data = Yii::$app->getRequest()->post();
 
-            $attribute_id = Arr::get($data, 'depends_on_id');
-            $depends_on_id = Arr::get($data, 'attribute_id');
-            $option_id = Arr::get($data, 'option_id');
-
-            $dependency = new ServiceAttributeDepends();
-            $dependency->service_attribute_id = $attribute_id;
-            $dependency->depends_on_id = $depends_on_id;
-            $dependency->service_attribute_option_id = $option_id;
-            $dependency->save();
 
             Yii::$app->getSession()->addFlash('success', 'Dependency saved');
             return $this->redirect(Yii::$app->getRequest()->getReferrer());
@@ -304,11 +294,7 @@ class ServiceController extends Controller
 
     public function actionRemoveDependency($id)
     {
-        $dependency = ServiceAttributeDepends::findOne($id);
 
-        if ($dependency) {
-            $dependency->delete();
-        }
 
         return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }

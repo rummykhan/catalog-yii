@@ -6,6 +6,7 @@ use common\queries\NotDeletedQuery;
 use omgdef\multilingual\MultilingualBehavior;
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 /**
@@ -24,6 +25,9 @@ use yii\db\Expression;
  * @property boolean $deleted
  *
  * @property ServiceAttribute $serviceAttribute
+ *
+ * @property ServiceCompositeAttribute[] $serviceCompositeAttributes
+ * @property ServiceCompositeAttributeChild[] $serviceCompositeAttributeChildren
  */
 class ServiceAttributeOption extends \yii\db\ActiveRecord
 {
@@ -84,5 +88,21 @@ class ServiceAttributeOption extends \yii\db\ActiveRecord
     public function getServiceAttribute()
     {
         return $this->hasOne(ServiceAttribute::className(), ['id' => 'service_attribute_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceCompositeAttributes()
+    {
+        return $this->hasMany(ServiceCompositeAttribute::className(), ['service_attribute_option_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServiceCompositeAttributeChildren()
+    {
+        return $this->hasMany(ServiceCompositeAttributeChild::className(), ['service_attribute_option_id' => 'id']);
     }
 }

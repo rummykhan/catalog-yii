@@ -90,6 +90,18 @@ class CatalogSeederController extends Controller
                     ]
                 ]
             ],
+            [
+
+                'name' => 'Automotive',
+                'description' => $this->faker->text(500),
+                'services' => [
+                    [
+                        'name' => 'Tire Change',
+                        'description' => $this->faker->text(500),
+                        'mobile_description' => $this->faker->text(500),
+                    ]
+                ]
+            ],
         ];
 
         foreach ($graph as $item) {
