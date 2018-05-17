@@ -10,6 +10,7 @@ use common\models\PricingAttributeMatrix;
 use common\models\PricingAttributeParent;
 use common\models\ProvidedServiceIndependentPricing;
 use common\models\ProvidedServiceCompositePricing;
+use common\models\ProvidedServiceNoImpactPricing;
 use common\models\Service;
 use RummyKhan\Collection\Collection;
 
@@ -194,12 +195,12 @@ class Matrix
 
     /**
      * Create Matrix
-     * @return bool
+     * @return mixed
      */
     private function createMatrix()
     {
         if (count($this->attributeGroups) === 0) {
-            return false;
+            return $this;
         }
 
         foreach ($this->groups as $index => $group) {
@@ -238,7 +239,7 @@ class Matrix
             $this->rowIdentifiers[] = $this->makeIdentifiers($row);
         }
 
-        return true;
+        return $this;
     }
 
     /**
@@ -274,83 +275,6 @@ class Matrix
         }
 
         $this->rounds[$index] = $this->rounds[$index] + 1;
-    }
-
-    /**
-     * @return array
-     */
-    private function getGroups()
-    {
-        return $this->groups;
-    }
-
-    /**
-     * @return array
-     */
-    public function getNoImpactRows()
-    {
-        return $this->noImpactRows;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIndependentRows()
-    {
-        return $this->independentRows;
-    }
-
-    /**
-     * @param $index
-     * @return mixed|null
-     */
-    private function getGroup($index)
-    {
-        if (isset($this->groups[$index])) {
-            return $this->groups[$index];
-        }
-
-        return null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getMatrixHeaders()
-    {
-        return $this->matrixHeaders;
-    }
-
-    /**
-     * @return array
-     */
-    public function getMatrixRows()
-    {
-        return $this->matrixRows;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCompositeAttributes()
-    {
-        return $this->compositeAttributes;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIncrementalAttributes()
-    {
-        return $this->incrementalAttributes;
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getAttributesGroup()
-    {
-        return $this->attributeGroups;
     }
 
     /**
@@ -459,28 +383,86 @@ class Matrix
      */
     public function deleteAreaPrices($area_id)
     {
-        $pricingAttributes = $this->service->getAllPricingAttributes();
+        $this->deleteIndependentPrices($area_id);
+        $this->deleteNoImpactPrices($area_id);
+        $this->deleteCompositePrices($area_id);
+    }
+
+    public function deleteIndependentPrices($area_id)
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_INDEPENDENT])->one();
+
+        if (!$priceType) {
+            return false;
+        }
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType);
+
+        if (empty($pricingAttributes)) {
+            return false;
+        }
 
         /** @var PricingAttribute $pricingAttribute */
         foreach ($pricingAttributes as $pricingAttribute) {
 
-            if (!in_array($pricingAttribute->service_attribute_id, $this->serviceAttributes)) {
+            if (!in_array($pricingAttribute['service_attribute_id'], $this->serviceAttributes)) {
                 continue;
             }
 
             // delete all base pricing of this group only
             ProvidedServiceIndependentPricing::deleteAll([
-                'pricing_attribute_id' => $pricingAttribute->id,
+                'pricing_attribute_id' => $pricingAttribute['pricing_attribute_id'],
                 'provided_service_area_id' => $area_id
             ]);
         }
 
+        return true;
+    }
 
+    public function deleteNoImpactPrices($area_id)
+    {
+        $priceType = PriceType::find()->where(['type' => PriceType::TYPE_NO_IMPACT])->one();
+
+        if (!$priceType) {
+            return false;
+        }
+
+        $pricingAttributes = $this->service->getPricingAttributes($priceType);
+
+        if (empty($pricingAttributes)) {
+            return false;
+        }
+
+        /** @var PricingAttribute $pricingAttribute */
+        foreach ($pricingAttributes as $pricingAttribute) {
+
+            if (!in_array($pricingAttribute['service_attribute_id'], $this->serviceAttributes)) {
+                continue;
+            }
+
+            // delete all base pricing of this group only
+            ProvidedServiceNoImpactPricing::deleteAll([
+                'pricing_attribute_id' => $pricingAttribute['pricing_attribute_id'],
+                'provided_service_area_id' => $area_id
+            ]);
+        }
+
+        return true;
+    }
+
+    public function deleteCompositePrices($area_id)
+    {
         $pricingAttributeParents = PricingAttributeParent::find()->where(['service_id' => $this->service->id])->all();
+
+        if (empty($pricingAttributeParents)) {
+            return false;
+        }
+
 
         /** @var PricingAttributeParent $pricingAttributeParent */
         foreach ($pricingAttributeParents as $pricingAttributeParent) {
 
+            // if this attribute doesn't belongs to current matrix.
             if (!$this->hasIdentifier($pricingAttributeParent->getOptionIdsFormattedName())) {
                 continue;
             }
@@ -492,6 +474,8 @@ class Matrix
                 'provided_service_area_id' => $area_id
             ]);
         }
+
+        return true;
     }
 
     /**
@@ -534,6 +518,10 @@ class Matrix
      */
     public function hasIdentifier($identifier)
     {
+        if (count($this->matrixRows) === 0) {
+            $this->createMatrix();
+        }
+
         return in_array($identifier, $this->rowIdentifiers);
     }
 
@@ -566,5 +554,82 @@ class Matrix
     public function isEqual($hash)
     {
         return $hash === $this->hash;
+    }
+
+    /**
+     * @return array
+     */
+    private function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @return array
+     */
+    public function getNoImpactRows()
+    {
+        return $this->noImpactRows;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIndependentRows()
+    {
+        return $this->independentRows;
+    }
+
+    /**
+     * @param $index
+     * @return mixed|null
+     */
+    private function getGroup($index)
+    {
+        if (isset($this->groups[$index])) {
+            return $this->groups[$index];
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMatrixHeaders()
+    {
+        return $this->matrixHeaders;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMatrixRows()
+    {
+        return $this->matrixRows;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCompositeAttributes()
+    {
+        return $this->compositeAttributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIncrementalAttributes()
+    {
+        return $this->incrementalAttributes;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getAttributesGroup()
+    {
+        return $this->attributeGroups;
     }
 }

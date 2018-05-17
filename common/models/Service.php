@@ -243,6 +243,7 @@ class Service extends \yii\db\ActiveRecord
     {
         $query = (new Query())
             ->select([
+                new Expression('pricing_attribute.id as pricing_attribute_id'),
                 new Expression('service_attribute.id as service_attribute_id'),
                 new Expression('service_attribute.name attribute_name'),
                 new Expression('service_attribute_option.id service_attribute_option_id'),

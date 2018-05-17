@@ -8,7 +8,6 @@ use Yii;
  * This is the model class for table "provided_service_matrix_pricing".
  *
  * @property int $id
- * @property int $provided_service_id
  * @property int $pricing_attribute_parent_id
  * @property double $price
  * @property int $provided_service_area_id
@@ -35,11 +34,10 @@ class ProvidedServiceCompositePricing extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_id', 'pricing_attribute_parent_id'], 'integer'],
+            [['pricing_attribute_parent_id'], 'integer'],
             [['price'], 'number'],
             [['created_at', 'updated_at'], 'safe'],
             [['pricing_attribute_parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttributeParent::className(), 'targetAttribute' => ['pricing_attribute_parent_id' => 'id']],
-            [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
             [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
         ];
     }
@@ -51,7 +49,6 @@ class ProvidedServiceCompositePricing extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_id' => 'Provided Service ID',
             'pricing_attribute_parent_id' => 'Pricing Attribute Parent ID',
             'price' => 'Price',
             'created_at' => 'Created At',

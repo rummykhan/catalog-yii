@@ -277,7 +277,7 @@ class ProvidedServiceController extends Controller
         ]);
     }
 
-    public function actionSetPricing($id, $area, $type, $hash = null, $view = 1)
+    public function actionSetPricing($id, $area, $type, $hash = null)
     {
         $model = $this->findModel($id);
         $providedServiceType = ProvidedServiceType::find()
@@ -297,30 +297,25 @@ class ProvidedServiceController extends Controller
             throw new NotFoundHttpException();
         }
 
-        if (empty($view) || !in_array($view, range(1, 3))) {
-            $view = 1;
-        }
-
         if (Yii::$app->getRequest()->isPost) {
             $data = Yii::$app->getRequest()->post();
 
             $model->savePrices($data, $area, $hash);
 
             Yii::$app->getSession()->addFlash('success', 'Prices updated');
+
             return $this->redirect(Yii::$app->getRequest()->getReferrer());
         }
 
         $motherMatrix = new ServiceAttributeMatrix($model->service);
 
-        return $this->render('add-pricing', [
+        return $this->render('set-pricing', [
             'model' => $model,
             'service' => $model->service,
             'provider' => $model->provider,
             'area' => $area,
             'providedServiceType' => $providedServiceType,
-            'motherMatrix' => $motherMatrix,
-            'view' => $view,
-            'type' => $type,
+            'motherMatrix' => $motherMatrix
         ]);
     }
 

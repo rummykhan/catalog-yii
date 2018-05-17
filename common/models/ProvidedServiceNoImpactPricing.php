@@ -54,6 +54,7 @@ class ProvidedServiceNoImpactPricing extends \yii\db\ActiveRecord
             'service_attribute_option_id' => 'Service Attribute Option ID',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'active' => 'Is Active'
         ];
     }
 

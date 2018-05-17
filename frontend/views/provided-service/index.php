@@ -14,8 +14,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="provided-service-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <a href="<?= \yii\helpers\Url::to(['/provided-service/create', 'provider_id' => $searchModel->provider_id]) ?>"
            class="btn btn-success">Provide New Service</a>
