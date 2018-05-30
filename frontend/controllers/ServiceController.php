@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\forms\AddDependency;
 use common\forms\AddPricingAttribute;
 use common\forms\AddServiceViewAttribute;
 use common\forms\AttachAttribute;
@@ -18,6 +19,7 @@ use common\models\PricingAttributeMatrix;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeOption;
 use common\models\ServiceCity;
+use common\models\ServiceCompositeAttribute;
 use common\models\ServiceView;
 use common\models\ServiceViewAttribute;
 use frontend\helpers\FieldsConfigurationHelper;
@@ -28,6 +30,7 @@ use common\models\ServiceSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 use yii\web\UploadedFile;
 use yii\web\View;
 use yii\web\ViewAction;
@@ -309,8 +312,17 @@ class ServiceController extends Controller
         if (Yii::$app->getRequest()->isPost) {
             $data = Yii::$app->getRequest()->post();
 
+            $form = new AddDependency();
+            $form->service_id = $id;
+            $form->loadData($data);
 
-            Yii::$app->getSession()->addFlash('success', 'Dependency saved');
+            if ($form->attachDependency()) {
+                Yii::$app->getSession()->addFlash('success', 'Dependency saved');
+            } else {
+                dd($form->getErrors());
+                Yii::$app->getSession()->addFlash('error', 'Failed to save dependency');
+            }
+
             return $this->redirect(Yii::$app->getRequest()->getReferrer());
         }
 
@@ -521,5 +533,41 @@ class ServiceController extends Controller
         }
 
         return $this->redirect(['/service/view', 'id' => $service_id]);
+    }
+
+    public function actionGetChilds()
+    {
+        $service_id = Yii::$app->getRequest()->post('service_id');
+        $attribute_id = Yii::$app->getRequest()->post('attribute_id');
+        $option_id = Yii::$app->getRequest()->post('option_id');
+
+        $service = $this->findModel($service_id);
+
+        /** @var ServiceAttribute $attribute */
+        $attribute = $service->getServiceAttributes()->where(['id' => $attribute_id])->one();
+
+        if (!$attribute) {
+            throw new NotFoundHttpException();
+        }
+
+        $option = $attribute->getServiceAttributeOptions()->where(['id' => $option_id])->one();
+
+        if (!$option) {
+            throw new NotFoundHttpException();
+        }
+
+        // Here we know everything is correct.
+        $compositeAttribute = ServiceCompositeAttribute::find()
+            ->where(['service_attribute_id' => $attribute_id])
+            ->andWhere(['service_attribute_option_id' => $option_id])
+            ->one();
+
+        if (!$compositeAttribute || !$compositeAttribute->serviceCompositeAttributeParent) {
+            throw new NotFoundHttpException();
+        }
+
+        Yii::$app->getResponse()->format = Response::FORMAT_JSON;
+
+        return $compositeAttribute->serviceCompositeAttributeParent->getChildsList();
     }
 }

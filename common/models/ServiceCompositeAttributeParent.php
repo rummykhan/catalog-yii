@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use RummyKhan\Collection\Arr;
 use Yii;
 
 /**
@@ -68,5 +69,38 @@ class ServiceCompositeAttributeParent extends \yii\db\ActiveRecord
     public function getService()
     {
         return $this->hasOne(Service::className(), ['id' => 'service_id']);
+    }
+
+    public function getParentAttributeName()
+    {
+        $attribute = collect($this->getServiceCompositeAttributes()->with(['serviceAttribute', 'serviceAttributeOption'])->asArray()->all())
+            ->map(function($composite){
+               return 'Field: '.Arr::get($composite, 'serviceAttribute.name').', Val: '.Arr::get($composite, 'serviceAttributeOption.name');
+            })->toArray();
+
+        return implode(',', $attribute);
+    }
+
+    public function getChildAttributeName()
+    {
+        $childAttribute = collect($this->getServiceCompositeAttributeChildren()->with(['serviceAttribute', 'serviceAttributeOption'])->asArray()->one());
+
+        return Arr::get($childAttribute, 'serviceAttribute.name');
+    }
+
+    public function getChildsList()
+    {
+        $data = collect(
+            $this->getServiceCompositeAttributeChildren()->with(['serviceAttribute', 'serviceAttributeOption'])->asArray()->all()
+        )->map(function($child){
+            return [
+                'attribute_name' => Arr::get($child, 'serviceAttribute.name'),
+                'option_name' => Arr::get($child, 'serviceAttributeOption.name'),
+                'attribute_id' => Arr::get($child, 'service_attribute_id'),
+                'option_id' => Arr::get($child, 'service_attribute_option_id'),
+            ];
+        })->toArray();
+
+        return $data;
     }
 }

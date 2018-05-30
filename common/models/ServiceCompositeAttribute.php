@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use RummyKhan\Collection\Arr;
 use Yii;
 
 /**
@@ -74,5 +75,24 @@ class ServiceCompositeAttribute extends \yii\db\ActiveRecord
     public function getServiceAttributeOption()
     {
         return $this->hasOne(ServiceAttributeOption::className(), ['id' => 'service_attribute_option_id']);
+    }
+
+    public static function getOptions($id)
+    {
+        $data = collect(
+            static::find()
+                ->with(['serviceAttributeOption'])
+                ->where(['service_attribute_id' => $id])
+                ->asArray()
+                ->all()
+        )->map(function($option){
+            return [
+                'id' => $option['id'],
+                'option_id' => Arr::get($option, 'serviceAttributeOption.id'),
+                'option_name' => Arr::get($option, 'serviceAttributeOption.name'),
+            ];
+        })->toArray();
+
+        return $data;
     }
 }

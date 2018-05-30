@@ -106,6 +106,8 @@ class Matrix
         $this->configureIndependentAttributes();
         $this->configureIncrementalAttributes();
 
+        $this->createMatrix();
+
         $this->createHash();
     }
 

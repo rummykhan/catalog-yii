@@ -342,4 +342,19 @@ class Service extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ServiceCompositeAttributeParent::className(), ['service_id' => 'id']);
     }
+
+    public function getDependencyTable()
+    {
+        $query = (new Query())
+            ->select(['service_attribute.id','service_attribute.name'])
+            ->from('service_attribute')
+            ->join('inner join', 'service', 'service_attribute.service_id=service.id')
+            ->join('inner join', 'service_composite_attribute_parent', 'service.id=service_composite_attribute_parent.service_id')
+            ->join('inner join', 'service_composite_attribute', 'service_composite_attribute_parent.id=service_composite_attribute.service_composite_attribute_parent_id')
+            ->where(['service.id' => $this->id])
+            ->distinct();
+
+
+        return $query->all();
+    }
 }

@@ -331,6 +331,7 @@ class ProvidedService extends \yii\db\ActiveRecord
     public function saveMatrixPrice($matrix, $price, $area_id)
     {
         $parent_id = static::getParent($matrix, $this->service_id);
+
         if (empty($parent_id)) {
             return false;
         }
@@ -380,50 +381,36 @@ class ProvidedService extends \yii\db\ActiveRecord
 
     public static function getParent($matrix, $service_id)
     {
-        $parents = static::getServiceParentAttributePricingGroup($service_id);
+        $parent_id = static::getServiceParentAttributePricingGroup($matrix, $service_id);
 
-        if (count($parents) === 0) {
-            // add parent attribute and save it.
-            $parent = static::createPricingAttributeParent($matrix, $service_id);
-
-            return $parent ? $parent->id : null;
+        if(!empty($parent_id)){
+            return $parent_id;
         }
 
-        /** @var Collection $parent */
-        foreach ($parents as $id => $parent) {
+        $parent = static::createPricingAttributeParent($matrix, $service_id);
 
-            $found = [];
-            foreach ($matrix as $item) {
-                $found[] = null !== $parent->where('service_attribute_option_id', $item)->first();
-            }
-
-            $found = array_unique($found);
-
-            if (count($found) > 1) {
-                continue;
-            }
-
-            $found = Arr::first($found);
-
-            if ($found) {
-                return $id;
-            }
-        }
-
-        return null;
+        return $parent ? $parent->id : null;
     }
 
-    public static function getServiceParentAttributePricingGroup($service_id)
+    public static function getServiceParentAttributePricingGroup($matrix, $service_id)
     {
         $query = (new Query())
             ->select([
                 new Expression('pricing_attribute_matrix.pricing_attribute_parent_id'),
-                new Expression('pricing_attribute_matrix.service_attribute_option_id')
+                new Expression('count(pricing_attribute_matrix.service_attribute_option_id) as count')
             ])->from('pricing_attribute_matrix')
             ->join('inner join', 'pricing_attribute_parent', 'pricing_attribute_matrix.pricing_attribute_parent_id=pricing_attribute_parent.id')
-            ->where(['pricing_attribute_parent.service_id' => $service_id]);
+            ->where(['pricing_attribute_parent.service_id' => $service_id])
+            ->andWhere(['IN', 'pricing_attribute_matrix.service_attribute_option_id', $matrix])
+            ->having(['=', 'count', count($matrix)]);
 
-        return collect($query->all())->groupBy('pricing_attribute_parent_id');
+        $results = $query->one();
+
+        if (!$results) {
+            return null;
+        }
+
+        return $results['pricing_attribute_parent_id'];
     }
 
     public function getPriceOfMatrixRow($row, $area_id)
