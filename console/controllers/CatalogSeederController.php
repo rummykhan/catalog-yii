@@ -43,29 +43,29 @@ class CatalogSeederController extends Controller
             [
 
                 'name' => 'Home',
-                'description' => $this->faker->text(500),
+                'description' => $this->faker->text(100),
                 'sub' => [
                     [
                         'name' => 'Cleaning',
-                        'description' => $this->faker->text(500),
-                        'mobile_description' => $this->faker->text(500),
+                        'description' => $this->faker->text(100),
+                        'mobile_description' => $this->faker->text(100),
                         'services' => [
                             [
                                 'name' => 'House Cleaning',
-                                'description' => $this->faker->text(500),
-                                'mobile_description' => $this->faker->text(500),
+                                'description' => $this->faker->text(100),
+                                'mobile_description' => $this->faker->text(100),
                             ]
                         ]
                     ],
                     [
                         'name' => 'Moving',
-                        'description' => $this->faker->text(500),
-                        'mobile_description' => $this->faker->text(500),
+                        'description' => $this->faker->text(100),
+                        'mobile_description' => $this->faker->text(100),
                         'services' => [
                             [
                                 'name' => 'House Moving',
-                                'description' => $this->faker->text(500),
-                                'mobile_description' => $this->faker->text(500),
+                                'description' => $this->faker->text(100),
+                                'mobile_description' => $this->faker->text(100),
                             ]
                         ]
                     ],
@@ -74,17 +74,17 @@ class CatalogSeederController extends Controller
             [
 
                 'name' => 'Electronics',
-                'description' => $this->faker->text(500),
+                'description' => $this->faker->text(100),
                 'sub' => [
                     [
                         'name' => 'Mobile',
-                        'description' => $this->faker->text(500),
-                        'mobile_description' => $this->faker->text(500),
+                        'description' => $this->faker->text(100),
+                        'mobile_description' => $this->faker->text(100),
                         'services' => [
                             [
                                 'name' => 'IPhone X Repair',
-                                'description' => $this->faker->text(500),
-                                'mobile_description' => $this->faker->text(500),
+                                'description' => $this->faker->text(100),
+                                'mobile_description' => $this->faker->text(100),
                             ]
                         ]
                     ]
@@ -93,12 +93,12 @@ class CatalogSeederController extends Controller
             [
 
                 'name' => 'Automotive',
-                'description' => $this->faker->text(500),
+                'description' => $this->faker->text(100),
                 'services' => [
                     [
                         'name' => 'Tire Change',
-                        'description' => $this->faker->text(500),
-                        'mobile_description' => $this->faker->text(500),
+                        'description' => $this->faker->text(100),
+                        'mobile_description' => $this->faker->text(100),
                     ]
                 ]
             ],
