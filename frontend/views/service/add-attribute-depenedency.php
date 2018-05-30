@@ -75,11 +75,17 @@ $this->params['breadcrumbs'][] = $this->title;
             } ?>
 
             <div class="col-md-4">
+
                 <h4><?= $row['name'] ?></h4>
+
                 <ul class="list-group">
                     <?php foreach (ServiceCompositeAttribute::getOptions($row['id']) as $option) { ?>
+
+
                         <li class="list-group-item">
                             <a href="#" class="expand-child"
+                               data-attribute-name="<?= $row['name'] ?>"
+                               data-option-name="<?= $option['option_name'] ?>"
                                data-service-id="<?= $model->id ?>"
                                data-attribute-id="<?= $row['id'] ?>"
                                data-option-id="<?= $option['option_id'] ?>">
@@ -95,6 +101,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php } ?>
     </div>
 <?php } ?>
+
+<div class="modal fade" id="dependency-view" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <div class="modal-title">Modal title</div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <?php
@@ -183,15 +207,36 @@ $(dependsOnIdSelector).on('select2:select', function (e) {
     fetchOptions(data.id, $(dependsOnOptionsIdSelector));
 });
 
-function appendChilds(element, childs, attribute_id, option_id){
+function appendChilds(element, childs, attribute_id, option_id, attribute_name, option_name){
+    
+    if (childs.length === 0){
+        return true;
+    }
+    
+    var attributeTitle = "";
+    
+    var list = '<ul class="list-group">';
     $.each(childs, function(index, child){
-        var html = '<li class="list-group-item" style="padding-left:20px;">'+child.option_name+'</li>';
-       element.append(html);
+        attributeTitle = child.attribute_name;
+        list += '<li class="list-group-item" style="padding-left:20px;">'+child.option_name+'</li>';
     });
+    list += '</ul>';
+    
+    var title = "Attribute: <b>"+attribute_name + "</b>, Option <b>" + option_name + "</b> Will trigger";
+    
+    list = '<h4> Attribute: '+attributeTitle+'</h4>'  + list;
+    
+    
+    $('#dependency-view').find('.modal-body').empty();
+    $('#dependency-view').modal();
+    $('#dependency-view').find('.modal-body').append(list);
+    $('#dependency-view').find('.modal-title').empty();
+    $('#dependency-view').find('.modal-title').append(title);
+    
 }
 
 
-function fetchChilds(element, service_id, attribute_id, option_id){
+function fetchChilds(element, service_id, attribute_id, option_id, attribute_name, option_name){
     $.ajax({
         url: '/service/get-childs',
         data: {
@@ -201,7 +246,8 @@ function fetchChilds(element, service_id, attribute_id, option_id){
         },
         method: 'POST',
         success: function(data){
-            appendChilds(element, data, attribute_id, option_id);
+            console.log('data', data);
+            appendChilds(element, data, attribute_id, option_id, attribute_name, option_name);
         }
     })
 }
@@ -214,7 +260,9 @@ $('.expand-child').click(function(e){
         element,
         element.attr('data-service-id'),
         element.attr('data-attribute-id'), 
-        element.attr('data-option-id')
+        element.attr('data-option-id'),
+        element.attr('data-attribute-name'),
+        element.attr('data-option-name')
     );
 })
 
