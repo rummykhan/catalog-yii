@@ -10,10 +10,13 @@ namespace common\helpers;
 
 
 use common\models\PricingAttribute;
+use common\models\PricingAttributeGroup;
 use common\models\Service;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeOption;
 use common\models\ServiceAttributeValidation;
+use common\models\ServiceView;
+use common\models\ServiceViewAttribute;
 
 class ServiceCopier
 {
@@ -38,6 +41,12 @@ class ServiceCopier
         'validation' => []
     ];
 
+    /** @var array $attributesMap */
+    private $attributesMap = [];
+
+    /** @var array $optionsMap */
+    private $optionsMap = [];
+
     function __construct($model)
     {
         $this->model = $model;
@@ -54,7 +63,16 @@ class ServiceCopier
         ServiceAttributeValidation::deleteAll(['>', 'id', 12]);
         // ====== //
 
+        PricingAttributeGroup::deleteAll(['>', 'id', 3]);
+        // ====== //
+
         PricingAttribute::deleteAll(['>', 'id', 9]);
+        // ====== //
+
+        ServiceViewAttribute::deleteAll(['>', 'id', 5]);
+        // ====== //
+
+        ServiceView::deleteAll(['>', 'id', 3]);
         // ====== //
 
         $connection->createCommand('DELETE FROM service_attribute_lang where service_attribute_id > :service_attribute_id', [':service_attribute_id' => 9])
@@ -70,11 +88,11 @@ class ServiceCopier
 
     public function copy($name)
     {
-        //$this->cleanUp();
+        $this->cleanUp();
 
         $this->copyService($name);
         $this->copyServiceAttributes();
-
+        $this->createServiceViews();
 
         return $this->copiedModel;
     }
@@ -98,6 +116,8 @@ class ServiceCopier
             $newAttribute->service_id = $this->copiedModel->id;
             $newAttribute->save();
 
+            $this->attributesMap[$serviceAttribute->id] = $newAttribute->id;
+
             $this->logs['attributes'][] = $newAttribute;
 
             foreach ($serviceAttribute->serviceAttributeOptions as $serviceAttributeOption) {
@@ -107,9 +127,12 @@ class ServiceCopier
                 $newAttributeOption->save();
 
                 $this->logs['options'][] = $newAttributeOption;
+                $this->optionsMap[$serviceAttributeOption->id] = $newAttributeOption->id;
             }
 
+            /** @var PricingAttribute $pricingAttribute */
             foreach ($serviceAttribute->pricingAttributes as $pricingAttribute) {
+
                 $newPricingAttribute = new PricingAttribute();
                 $newPricingAttribute->setAttributes($pricingAttribute->getAttributes());
                 $newPricingAttribute->service_attribute_id = $newAttribute->id;
@@ -118,7 +141,7 @@ class ServiceCopier
                 $this->logs['pricing'][] = $newPricingAttribute;
             }
 
-            foreach ($serviceAttribute->validations as $validation){
+            foreach ($serviceAttribute->validations as $validation) {
                 $newValidation = new ServiceAttributeValidation();
                 $newValidation->service_attribute_id = $newAttribute->id;
                 $newValidation->validation_id = $validation->id;
@@ -126,6 +149,38 @@ class ServiceCopier
 
                 $this->logs['validation'][] = $newValidation;
             }
+        }
+    }
+
+    private function createServiceViews()
+    {
+        $views = [];
+        /** @var ServiceView $serviceView */
+        foreach ($this->model->serviceViews as $serviceView) {
+            $views[$serviceView->id] = [
+                'id' => $serviceView->id,
+                'name' => $serviceView->name,
+                'attributes' => []
+            ];
+            foreach ($serviceView->serviceViewAttributes as $serviceViewAttribute) {
+                $views[$serviceView->id]['attributes'][] = $serviceViewAttribute->service_attribute_id;
+            }
+        }
+
+        foreach ($views as $serviceView) {
+
+            $newServiceView = new ServiceView();
+            $newServiceView->name = $serviceView['name'];
+            $newServiceView->service_id = $this->copiedModel->id;
+            $newServiceView->save();
+
+            foreach ($serviceView['attributes'] as $attribute) {
+                $newServiceViewAttribute = new ServiceViewAttribute();
+                $newServiceViewAttribute->service_attribute_id = $this->attributesMap[$attribute];
+                $newServiceViewAttribute->service_view_id = $newServiceView->id;
+                $newServiceViewAttribute->save();
+            }
+
         }
     }
 }

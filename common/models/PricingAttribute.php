@@ -16,6 +16,7 @@ use Yii;
  * @property ServiceAttribute $serviceAttribute
  * @property ProvidedServiceIndependentPricing[] $providedServiceIndependentPricings
  * @property ProvidedServiceNoImpactPricing[] $providedServiceNoImpactPricings
+ * @property PricingAttributeGroup $pricingAttributeGroup
  */
 class PricingAttribute extends \yii\db\ActiveRecord
 {
@@ -59,6 +60,11 @@ class PricingAttribute extends \yii\db\ActiveRecord
     public function getPriceType()
     {
         return $this->hasOne(PriceType::className(), ['id' => 'price_type_id']);
+    }
+
+    public function getPricingAttributeGroup()
+    {
+        return $this->hasOne(PricingAttributeGroup::className(), ['id' => 'pricing_attribute_group_id']);
     }
 
     /**

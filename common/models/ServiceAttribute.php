@@ -234,4 +234,10 @@ class ServiceAttribute extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ServiceCompositeAttributeChild::className(), ['service_attribute_id' => 'id']);
     }
+
+    public function getServiceViewAttributes()
+    {
+        return $this->hasMany(ServiceViewAttribute::className(), ['service_attribute_id' => 'id']);
+    }
+
 }
