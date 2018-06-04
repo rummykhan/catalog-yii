@@ -70,7 +70,7 @@ class ServiceCopier
 
     public function copy($name)
     {
-        $this->cleanUp();
+        //$this->cleanUp();
 
         $this->copyService($name);
         $this->copyServiceAttributes();
