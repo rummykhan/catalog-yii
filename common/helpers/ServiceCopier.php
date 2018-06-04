@@ -15,6 +15,9 @@ use common\models\Service;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeOption;
 use common\models\ServiceAttributeValidation;
+use common\models\ServiceCompositeAttribute;
+use common\models\ServiceCompositeAttributeChild;
+use common\models\ServiceCompositeAttributeParent;
 use common\models\ServiceView;
 use common\models\ServiceViewAttribute;
 
@@ -75,6 +78,15 @@ class ServiceCopier
         ServiceView::deleteAll(['>', 'id', 3]);
         // ====== //
 
+        ServiceCompositeAttribute::deleteAll(['>', 'id', 6]);
+        // ====== //
+
+        ServiceCompositeAttributeChild::deleteAll(['>', 'id', 15]);
+        // ====== //
+
+        ServiceCompositeAttributeParent::deleteAll(['>', 'id', 6]);
+        // ====== //
+
         $connection->createCommand('DELETE FROM service_attribute_lang where service_attribute_id > :service_attribute_id', [':service_attribute_id' => 9])
             ->execute();
         ServiceAttribute::deleteAll(['>', 'id', 9]);
@@ -93,6 +105,7 @@ class ServiceCopier
         $this->copyService($name);
         $this->copyServiceAttributes();
         $this->createServiceViews();
+        $this->createDependencyAttribute();
 
         return $this->copiedModel;
     }
@@ -181,6 +194,57 @@ class ServiceCopier
                 $newServiceViewAttribute->save();
             }
 
+        }
+    }
+
+    private function createDependencyAttribute()
+    {
+        $dependency = [];
+
+        /** @var ServiceCompositeAttributeParent $parent */
+        foreach ($this->model->serviceCompositeAttributeParents as $parent) {
+
+            $dependency[$parent->id] = [
+                'attributes' => [],
+                'childs' => []
+            ];
+
+            foreach ($parent->serviceCompositeAttributes as $compositeAttribute) {
+                $dependency[$parent->id]['attributes'][] = [
+                    'service_attribute_id' => $compositeAttribute->service_attribute_id,
+                    'service_attribute_option_id' => $compositeAttribute->service_attribute_option_id,
+                ];
+            }
+
+            foreach ($parent->serviceCompositeAttributeChildren as $child) {
+                $dependency[$parent->id]['childs'][] = [
+                    'service_attribute_id' => $child->service_attribute_id,
+                    'service_attribute_option_id' => $child->service_attribute_option_id,
+                ];
+            }
+
+        }
+
+        foreach ($dependency as $item) {
+            $newParent = new ServiceCompositeAttributeParent();
+            $newParent->service_id = $this->copiedModel->id;
+            $newParent->save();
+
+            foreach ($item['attributes'] as $attribute) {
+                $newCompositeAttribute = new ServiceCompositeAttribute();
+                $newCompositeAttribute->service_attribute_id = $this->attributesMap[$attribute['service_attribute_id']];
+                $newCompositeAttribute->service_attribute_option_id = $this->optionsMap[$attribute['service_attribute_option_id']];
+                $newCompositeAttribute->service_composite_attribute_parent_id = $newParent->id;
+                $newCompositeAttribute->save();
+            }
+
+            foreach ($item['childs'] as $child) {
+                $newChildAttribute = new ServiceCompositeAttributeChild();
+                $newChildAttribute->service_attribute_id = $this->attributesMap[$child['service_attribute_id']];
+                $newChildAttribute->service_attribute_option_id = $this->optionsMap[$child['service_attribute_option_id']];
+                $newChildAttribute->service_composite_attribute_parent_id = $newParent->id;
+                $newChildAttribute->save();
+            }
         }
     }
 }
