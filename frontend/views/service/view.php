@@ -20,6 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Manage Price Groups', ['/service/set-pricing-groups', 'id' => $service->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Manage View Groups', ['/service/set-view-groups', 'id' => $service->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('View / Set Fields Dependency', ['/service/add-attribute-dependency', 'id' => $service->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Duplicate this service', ['/service/duplicate', 'id' => $service->id], ['class' => 'btn btn-default']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $service->id], [
             'class' => 'btn btn-danger',
             'data' => [

@@ -11,6 +11,7 @@ use common\forms\ImportOptionsFromExcel;
 use common\forms\UpdateAttribute;
 use common\helpers\MatrixHelper;
 use common\helpers\ServiceAttributeMatrix;
+use common\helpers\ServiceCopier;
 use common\models\FieldType;
 use common\models\PriceType;
 use common\models\PricingAttribute;
@@ -569,5 +570,22 @@ class ServiceController extends Controller
         Yii::$app->getResponse()->format = Response::FORMAT_JSON;
 
         return $compositeAttribute->serviceCompositeAttributeParent->getChildsList();
+    }
+
+    public function actionDuplicate($id)
+    {
+        $model = $this->findModel($id);
+
+        if(Yii::$app->getRequest()->isPost && !empty(Yii::$app->getRequest()->post('name'))){
+
+            /** @var Service $copiedModel */
+            $copiedModel = (new ServiceCopier($model))->copy(Yii::$app->getRequest()->post('name'));
+
+            return $this->redirect(['/service/view', 'id' => $copiedModel->id]);
+        }
+
+
+        return $this->render('duplicate', compact('model'));
+
     }
 }
