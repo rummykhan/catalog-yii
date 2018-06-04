@@ -383,7 +383,7 @@ class ProvidedService extends \yii\db\ActiveRecord
     {
         $parent_id = static::getServiceParentAttributePricingGroup($matrix, $service_id);
 
-        if(!empty($parent_id)){
+        if (!empty($parent_id)) {
             return $parent_id;
         }
 
@@ -402,15 +402,27 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->join('inner join', 'pricing_attribute_parent', 'pricing_attribute_matrix.pricing_attribute_parent_id=pricing_attribute_parent.id')
             ->where(['pricing_attribute_parent.service_id' => $service_id])
             ->andWhere(['IN', 'pricing_attribute_matrix.service_attribute_option_id', $matrix])
+            ->groupBy(['pricing_attribute_matrix.pricing_attribute_parent_id'])
             ->having(['=', 'count', count($matrix)]);
 
-        $results = $query->one();
+        $results = $query->all();
 
-        if (!$results) {
+        if (count($results) === 0) {
             return null;
         }
 
-        return $results['pricing_attribute_parent_id'];
+
+        foreach ($results as $index => $result) {
+            if ($index === 0) {
+                continue;
+            }
+
+            PricingAttributeMatrix::deleteAll([
+                'pricing_attribute_parent_id' => $result['pricing_attribute_parent_id']
+            ]);
+        }
+
+        return Arr::first($results)['pricing_attribute_parent_id'];
     }
 
     public function getPriceOfMatrixRow($row, $area_id)

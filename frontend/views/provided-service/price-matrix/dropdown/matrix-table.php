@@ -25,7 +25,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
 
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-hover">
+            <table class="table table-hover" id="price-table">
                 <thead>
                 <tr>
                     <?php foreach ($attributeGroups as $title => $attributeGroup) { ?>
@@ -64,3 +64,5 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
     </div>
 
 <?php } ?>
+
+

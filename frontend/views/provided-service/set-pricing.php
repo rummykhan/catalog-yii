@@ -6,6 +6,7 @@ use common\models\ProvidedServiceArea;
 use common\models\ProvidedServiceType;
 use common\models\Provider;
 use common\models\Service;
+use frontend\assets\DataTableAsset;
 use yii\helpers\Url;
 use yii\web\View;
 use yii\widgets\ActiveForm;
@@ -18,6 +19,8 @@ use yii\widgets\ActiveForm;
 /** @var $area ProvidedServiceArea */
 /** @var $providedServiceType ProvidedServiceType */
 /* @var $motherMatrix ServiceAttributeMatrix */
+
+DataTableAsset::register($this);
 
 $this->title = 'Add Pricing for ' . $area->name;
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
@@ -101,6 +104,20 @@ $('.disable-input').click(function(e){
 $.each($('.disable-input'), function(i, element){
     applySelection($(element));
 })
+
+JS;
+
+$this->registerJs($js);
+
+?>
+
+<?php
+
+$js = <<<JS
+
+$(document).ready( function () {
+    $('#price-table').DataTable();
+} );
 
 JS;
 
