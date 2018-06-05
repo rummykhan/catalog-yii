@@ -94,6 +94,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
                             </a>
 
+                            <a href="#" data-href="<?= Url::to(['/service/remove-attribute-dependency', 'id' => $model->id, 'attribute_id' => $row['id'], 'option_id' => $option['option_id']]) ?>"
+                               onclick="if(confirm('Are you sure')){window.location.href = $(this).attr('data-href');}"
+                               class="btn btn-danger btn-xs pull-right"><i class="glyphicon glyphicon-trash"></i></a>
+
                         </li>
                     <?php } ?>
                 </ul>

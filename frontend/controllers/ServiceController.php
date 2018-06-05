@@ -576,7 +576,7 @@ class ServiceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if(Yii::$app->getRequest()->isPost && !empty(Yii::$app->getRequest()->post('name'))){
+        if (Yii::$app->getRequest()->isPost && !empty(Yii::$app->getRequest()->post('name'))) {
 
             /** @var Service $copiedModel */
             $copiedModel = (new ServiceCopier($model))->copy(Yii::$app->getRequest()->post('name'));
@@ -584,8 +584,49 @@ class ServiceController extends Controller
             return $this->redirect(['/service/view', 'id' => $copiedModel->id]);
         }
 
-
         return $this->render('duplicate', compact('model'));
+    }
+
+    public function actionRemoveAttributeDependency($id, $attribute_id, $option_id)
+    {
+        $model = $this->findModel($id);
+
+        /** @var ServiceAttribute $serviceAttribute */
+        $serviceAttribute = $model->getServiceAttributes()->where(['id' => $attribute_id])->one();
+        if (!$serviceAttribute) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ServiceAttributeOption $serviceAttributeOption */
+        $serviceAttributeOption = $serviceAttribute->getServiceAttributeOptions()->where(['id' => $option_id])->one();
+        if (!$serviceAttributeOption) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var ServiceCompositeAttribute $compositeAttribute */
+        $compositeAttribute = $serviceAttribute->getServiceCompositeAttributes()
+            ->where(['service_attribute_option_id' => $option_id])
+            ->one();
+
+        if (!$compositeAttribute) {
+            throw new NotFoundHttpException();
+        }
+
+        if (!$compositeAttribute->serviceCompositeAttributeParent) {
+            $compositeAttribute->delete();
+            return $this->redirect(['/service/add-attribute-dependency', 'id' => $id]);
+        }
+
+        foreach ($compositeAttribute->serviceCompositeAttributeParent->serviceCompositeAttributeChildren as $child) {
+            $child->delete();
+        }
+
+        $compositeAttribute->delete();
+
+        $compositeAttribute->serviceCompositeAttributeParent->delete();
+
+        Yii::$app->getSession()->addFlash('success', 'Attribute dependency removed.');
+        return $this->redirect(['/service/add-attribute-dependency', 'id' => $id]);
 
     }
 }
