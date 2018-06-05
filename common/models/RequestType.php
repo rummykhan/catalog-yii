@@ -8,21 +8,22 @@ use Yii;
  * This is the model class for table "service_type".
  *
  * @property int $id
- * @property string $type
+ * @property string $name
  *
- * @property ProvidedServiceType[] $providedServiceTypes
+ * @property ProvidedRequestType[] $providedServiceTypes
  */
-class ServiceType extends \yii\db\ActiveRecord
+class RequestType extends \yii\db\ActiveRecord
 {
     const TYPE_IN_HOUSE = 'In House';
     const TYPE_COLLECT_AND_RETURN = 'Collect & Return';
+    const TYPE_WALK_IN = 'Walk In';
 
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'service_type';
+        return 'request_type';
     }
 
     /**
@@ -31,7 +32,7 @@ class ServiceType extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['type'], 'string', 'max' => 255],
+            [['name'], 'string', 'max' => 255],
         ];
     }
 
@@ -42,20 +43,17 @@ class ServiceType extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'type' => 'Type',
+            'name' => 'Type',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProvidedServiceTypes()
-    {
-        return $this->hasMany(ProvidedServiceType::className(), ['service_type_id' => 'id']);
     }
 
     public static function toList()
     {
-        return collect(static::find()->all())->pluck('type', 'id');
+        return collect(static::find()->all())->pluck('name', 'id');
+    }
+
+    public function getServiceRequestType()
+    {
+        return $this->hasMany(ServiceRequestType::className(), ['request_type_id' => 'id']);
     }
 }

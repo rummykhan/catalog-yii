@@ -3,8 +3,8 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\ServiceType;
-use common\models\ServiceTypeSearch;
+use common\models\RequestType;
+use common\models\RequestTypeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,7 +35,7 @@ class ServiceTypeController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new ServiceTypeSearch();
+        $searchModel = new RequestTypeSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -64,7 +64,7 @@ class ServiceTypeController extends Controller
      */
     public function actionCreate()
     {
-        $model = new ServiceType();
+        $model = new RequestType();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -113,12 +113,12 @@ class ServiceTypeController extends Controller
      * Finds the ServiceType model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return ServiceType the loaded model
+     * @return RequestType the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = ServiceType::findOne($id)) !== null) {
+        if (($model = RequestType::findOne($id)) !== null) {
             return $model;
         }
 

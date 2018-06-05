@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\ProvidedServiceCoverage */
+/* @var $model common\models\ServiceAreaCoverage */
 
 $this->title = $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Provided Service Coverages', 'url' => ['index']];

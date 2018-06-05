@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\ProvidedServiceCoverageSearch */
+/* @var $model common\models\ServiceAreaCoverageSearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

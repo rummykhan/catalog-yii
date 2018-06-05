@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\ServiceType;
+use common\models\RequestType;
 
 /**
  * ServiceTypeSearch represents the model behind the search form of `common\models\ServiceType`.
  */
-class ServiceTypeSearch extends ServiceType
+class RequestTypeSearch extends RequestType
 {
     /**
      * @inheritdoc
@@ -41,7 +41,7 @@ class ServiceTypeSearch extends ServiceType
      */
     public function search($params)
     {
-        $query = ServiceType::find();
+        $query = RequestType::find();
 
         // add conditions that should always apply here
 

@@ -9,15 +9,12 @@
 namespace console\controllers;
 
 
-use common\models\Attribute;
-use common\models\AttributeOption;
 use common\models\City;
 use common\models\Country;
 use common\models\FieldType;
 use common\models\InputType;
-use common\models\AttributeType;
 use common\models\PriceType;
-use common\models\ServiceType;
+use common\models\RequestType;
 use common\models\UserInputType;
 use common\models\Validation;
 use common\models\ValidationOption;
@@ -153,6 +150,11 @@ class AttributeSeederController extends Controller
     {
         $this->stdout('Seeding countries', Console::FG_GREEN);
         $this->stdout("\n");
+
+        if (City::find()->count() > 0) {
+            City::deleteAll();
+        }
+
         if (Country::find()->count() > 0) {
             Country::deleteAll();
         }
@@ -205,16 +207,18 @@ class AttributeSeederController extends Controller
     {
         $this->stdout('Seeding service type', Console::FG_GREEN);
         $this->stdout("\n");
-        if (ServiceType::find()->count() > 0) {
-            ServiceType::deleteAll();
+        if (RequestType::find()->count() > 0) {
+            RequestType::deleteAll();
         }
 
         $options = [
-            ServiceType::TYPE_IN_HOUSE, ServiceType::TYPE_COLLECT_AND_RETURN
+            RequestType::TYPE_IN_HOUSE,
+            RequestType::TYPE_COLLECT_AND_RETURN,
+            RequestType::TYPE_WALK_IN
         ];
         foreach ($options as $option) {
-            $attributeOption = new ServiceType();
-            $attributeOption->type = $option;
+            $attributeOption = new RequestType();
+            $attributeOption->name = $option;
             $attributeOption->save();
         }
     }

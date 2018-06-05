@@ -10,7 +10,7 @@ namespace common\forms;
 
 
 use common\models\ProvidedService;
-use common\models\ProvidedServiceType;
+use common\models\ProvidedRequestType;
 use yii\base\Model;
 
 class AddType extends Model
@@ -53,7 +53,7 @@ class AddType extends Model
 
     public function attachServiceType($service_type)
     {
-        $type = ProvidedServiceType::find()
+        $type = ProvidedRequestType::find()
             ->where(['provided_service_id' => $this->provided_service_id])
             ->andWhere(['service_type_id' => $service_type])
             ->one();
@@ -62,7 +62,7 @@ class AddType extends Model
             return false;
         }
 
-        $type = new ProvidedServiceType();
+        $type = new ProvidedRequestType();
         $type->provided_service_id = $this->provided_service->id;
         $type->service_type_id = $service_type;
         $type->save();

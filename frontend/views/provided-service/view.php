@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="provided-service-view">
 
     <p>
-        <?php if ($model->getProvidedServiceTypes()->count() > 0) { ?>
+        <?php if ($model->getProvidedRequestTypes()->count() > 0) { ?>
             <a href="<?= Url::to(['/provided-service/view-coverage-areas', 'id' => $model->id]) ?>"
                class="btn btn-primary">
                 View / Set Coverage Areas
@@ -23,49 +23,49 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php } ?>
     </p>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            [
-                'label' => 'Service',
-                'value' => function ($model) {
-                    /**@var $model \common\models\ProvidedService */
-                    return $model->service->name;
-                }
-            ],
-            [
-                'label' => 'Service Type',
-                'value' => function ($model) {
-                    /**@var $model \common\models\ProvidedService */
-                    return implode(',', collect($model->getProvidedServiceTypes()->select(['type'])->asArray()->all())->pluck('type')->toArray());
-                }
-            ],
-            'created_at',
-            'updated_at',
-        ],
-    ]) ?>
+    <div class="row">
+        <div class="col-md-6">
+            <?= DetailView::widget([
+                'model' => $model,
+                'attributes' => [
+                    'id',
+                    [
+                        'label' => 'Service',
+                        'value' => function ($model) {
+                            /**@var $model \common\models\ProvidedService */
+                            return $model->service->name;
+                        }
+                    ],
+                    'created_at',
+                    'updated_at',
+                ],
+            ]) ?>
+
+
+            <?php \yii\widgets\ActiveForm::begin(['method' => 'POST', 'action' => ['/provided-service/update', 'id' => $model->id]]) ?>
+
+            <?php foreach ($model->service->getActiveRequestTypes() as $serviceType) { ?>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <input type="checkbox"
+                            <?= $model->getProvidedRequestTypes()
+                                ->andWhere(['service_request_type_id' => $serviceType->request_type_id])
+                                ->count() > 0 ? 'checked' : '' ?>
+                               name="service_type[<?= $serviceType->id ?>]"
+                               value="<?= $serviceType->id ?>">
+                        <?= $serviceType->requestType->name ?>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <button class="btn btn-primary">Submit</button>
+
+            <?php \yii\widgets\ActiveForm::end() ?>
+
+        </div>
+    </div>
 
     <br>
-
-    <?php \yii\widgets\ActiveForm::begin(['method' => 'POST', 'action' => ['/provided-service/update', 'id' => $model->id]]) ?>
-
-    <?php foreach (\common\models\ServiceType::find()->all() as $serviceType) { ?>
-
-        <div class="form-group">
-            <input type="checkbox"
-                   <?= \common\models\ProvidedServiceType::find()
-                       ->where(['provided_service_id' => $model->id])
-                       ->andWhere(['service_type_id' => $serviceType->id])
-                       ->andWhere(['deleted' => false])
-                       ->count() > 0 ? 'checked' : '' ?>
-                   name="service_type[<?= $serviceType->id ?>]"
-                   value="<?= $serviceType->id ?>"> <?= $serviceType->type ?>
-        </div>
-    <?php } ?>
-
-    <button class="btn btn-primary">Submit</button>
-
-    <?php \yii\widgets\ActiveForm::end() ?>
 
 </div>

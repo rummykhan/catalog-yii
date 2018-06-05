@@ -1,6 +1,6 @@
 <?php
 
-use common\models\ServiceType;
+use common\models\RequestType;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -17,7 +17,7 @@ use kartik\select2\Select2;
 /* @var $noImpactRows array */
 /* @var $independentRows array */
 /** @var $area \common\models\ProvidedServiceArea */
-/** @var $providedServiceType \common\models\ProvidedServiceType */
+/** @var $providedServiceType \common\models\ProvidedRequestType */
 
 
 $this->title = 'Add Pricing for ' . $area->name;

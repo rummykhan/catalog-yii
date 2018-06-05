@@ -13,9 +13,9 @@ use common\models\GlobalAvailabilityException;
 use common\models\GlobalAvailabilityRule;
 use common\models\ProvidedServiceArea;
 use common\models\ProvidedServiceAreaSearch;
-use common\models\ProvidedServiceType;
+use common\models\ProvidedRequestType;
 use common\models\Provider;
-use common\models\ServiceType;
+use common\models\RequestType;
 use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\ProvidedService;
@@ -111,50 +111,48 @@ class ProvidedServiceController extends Controller
         $serviceTypes = Yii::$app->getRequest()->post('service_type');
         $providedService = $this->findModel($id);
 
-        //dd($providedService, $serviceTypes);
-
-        /** @var ServiceType $serviceType */
-        foreach (ServiceType::find()->all() as $serviceType) {
+        /** @var RequestType $serviceType */
+        foreach ($providedService->service->getActiveRequestTypes() as $serviceType) {
 
             // if service type is checked
             if (isset($serviceTypes[$serviceType->id])) {
 
                 // if not attached..
 
-                $providedServiceType = ProvidedServiceType::find()
+                $providedRequestType = ProvidedRequestType::find()
                     ->where(['provided_service_id' => $id])
-                    ->andWhere(['service_type_id' => $serviceType->id])
+                    ->andWhere(['service_request_type_id' => $serviceType->id])
                     ->andWhere(['deleted' => false])
                     ->one();
 
-                // attach it
-
-                if ($providedServiceType) {
+                if ($providedRequestType) {
                     continue;
                 }
 
-                $providedServiceType = new ProvidedServiceType();
-                $providedServiceType->provided_service_id = $providedService->id;
-                $providedServiceType->service_type_id = $serviceType->id;
-                $providedServiceType->save();
+                // attach it
+
+                $providedRequestType = new ProvidedRequestType();
+                $providedRequestType->provided_service_id = $providedService->id;
+                $providedRequestType->service_request_type_id = $serviceType->id;
+                $providedRequestType->save();
                 continue;
             }
 
 
             // if service type is not checked..
 
-            $providedServiceType = ProvidedServiceType::find()
+            $providedRequestType = ProvidedRequestType::find()
                 ->where(['provided_service_id' => $id])
-                ->andWhere(['service_type_id' => $serviceType->id])
+                ->andWhere(['service_request_type_id' => $serviceType->id])
                 ->andWhere(['deleted' => false])
                 ->one();
 
-            if (!$providedServiceType) {
+            if (!$providedRequestType) {
                 continue;
             }
 
-            $providedServiceType->deleted = true;
-            $providedServiceType->save();
+            $providedRequestType->deleted = true;
+            $providedRequestType->save();
             // remove it.
         }
 
@@ -239,7 +237,7 @@ class ProvidedServiceController extends Controller
         if (empty($type)) {
             $serviceType = $providedService->getProvidedServiceTypes()->one();
         } else {
-            $serviceType = ServiceType::findOne($type);
+            $serviceType = RequestType::findOne($type);
         }
 
         $area = ProvidedServiceArea::find()->where(['id' => $area])->one();
@@ -280,7 +278,7 @@ class ProvidedServiceController extends Controller
     public function actionSetPricing($id, $area, $type, $hash = null)
     {
         $model = $this->findModel($id);
-        $providedServiceType = ProvidedServiceType::find()
+        $providedServiceType = ProvidedRequestType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
             ->andWhere(['deleted' => false])
@@ -322,7 +320,7 @@ class ProvidedServiceController extends Controller
     public function actionSetDropdownPricing($id, $area, $type, $view = 3)
     {
         $model = $this->findModel($id);
-        $providedServiceType = ProvidedServiceType::find()
+        $providedServiceType = ProvidedRequestType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
             ->andWhere(['deleted' => false])
@@ -352,7 +350,7 @@ class ProvidedServiceController extends Controller
     public function actionSetAvailability($id, $area, $type)
     {
         $model = $this->findModel($id);
-        $providedServiceType = ProvidedServiceType::find()
+        $providedServiceType = ProvidedRequestType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
             ->andWhere(['deleted' => false])
@@ -387,7 +385,7 @@ class ProvidedServiceController extends Controller
     public function actionAddGlobalRules($id, $area, $type)
     {
         $model = $this->findModel($id);
-        $providedServiceType = ProvidedServiceType::find()
+        $providedServiceType = ProvidedRequestType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
             ->andWhere(['deleted' => false])
@@ -432,7 +430,7 @@ class ProvidedServiceController extends Controller
     public function actionAddDateRule($id, $type, $area)
     {
         $model = $this->findModel($id);
-        $providedServiceType = ProvidedServiceType::find()
+        $providedServiceType = ProvidedRequestType::find()
             ->where(['provided_service_id' => $model->id])
             ->andWhere(['service_type_id' => $type])
             ->andWhere(['deleted' => false])

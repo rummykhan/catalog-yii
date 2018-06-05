@@ -3,7 +3,7 @@
 use common\helpers\ServiceAttributeMatrix;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceArea;
-use common\models\ProvidedServiceType;
+use common\models\ProvidedRequestType;
 use common\models\Provider;
 use common\models\Service;
 use frontend\assets\DataTableAsset;
@@ -17,7 +17,7 @@ use yii\widgets\ActiveForm;
 /* @var $provider Provider */
 /* @var $service Service */
 /** @var $area ProvidedServiceArea */
-/** @var $providedServiceType ProvidedServiceType */
+/** @var $providedServiceType ProvidedRequestType */
 /* @var $motherMatrix ServiceAttributeMatrix */
 
 DataTableAsset::register($this);

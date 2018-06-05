@@ -1,6 +1,6 @@
 <?php
 
-use common\models\ServiceType;
+use common\models\RequestType;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;

@@ -24,7 +24,7 @@ use yii\db\Query;
  *
  * @property Provider $provider
  * @property Service $service
- * @property ProvidedServiceType[] $providedServiceTypes
+ * @property ProvidedRequestType[] $providedServiceTypes
  */
 class ProvidedService extends \yii\db\ActiveRecord
 {
@@ -89,22 +89,6 @@ class ProvidedService extends \yii\db\ActiveRecord
     public function getService()
     {
         return $this->hasOne(Service::className(), ['id' => 'service_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getProvidedServiceTypes()
-    {
-        return $this->hasMany(ServiceType::className(), ['id' => 'service_type_id'])
-            ->viaTable('provided_service_type', ['provided_service_id' => 'id']);
-    }
-
-    public function getProvidedServiceTypesList()
-    {
-        return collect(
-            $this->getProvidedServiceTypes()->asArray()->all()
-        )->pluck('type', 'id');
     }
 
     public function getUnProvidedServicesList()
@@ -450,14 +434,23 @@ class ProvidedService extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return ProvidedServiceType[]
+     * @return ProvidedRequestType[]
      */
-    public function getUnDeletedServiceTypes()
+    public function getUnDeletedRequestTypes()
     {
-        return ProvidedServiceType::find()
+        return ProvidedRequestType::find()
             ->where(['provided_service_id' => $this->id])
             ->andWhere(['deleted' => false])
             ->all();
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getProvidedRequestTypes()
+    {
+        return $this->hasMany(ProvidedRequestType::className(), ['provided_service_id' => 'id'])
+            ->andWhere(['provided_request_type.deleted' => false]);
     }
 
     public function getPriceOfNoImpactRow($service_attribute_option_id, $area_id)

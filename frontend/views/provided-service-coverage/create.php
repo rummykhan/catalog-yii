@@ -4,7 +4,7 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $model common\models\ProvidedServiceCoverage */
+/* @var $model common\models\ServiceAreaCoverage */
 
 $this->title = 'Create Provided Service Coverage';
 $this->params['breadcrumbs'][] = ['label' => 'Provided Service Coverages', 'url' => ['index']];

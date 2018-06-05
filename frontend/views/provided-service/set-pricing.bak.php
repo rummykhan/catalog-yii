@@ -3,7 +3,7 @@
 use common\helpers\ServiceAttributeMatrix;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceArea;
-use common\models\ProvidedServiceType;
+use common\models\ProvidedRequestType;
 use common\models\Provider;
 use common\models\Service;
 use yii\helpers\Url;
@@ -17,7 +17,7 @@ use yii\widgets\ActiveForm;
 /* @var $service Service */
 /* @var $type string */
 /** @var $area ProvidedServiceArea */
-/** @var $providedServiceType ProvidedServiceType */
+/** @var $providedServiceType ProvidedRequestType */
 /* @var $motherMatrix ServiceAttributeMatrix */
 
 $this->title = 'Add Pricing for ' . $area->name;

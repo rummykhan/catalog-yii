@@ -105,6 +105,10 @@ class ServiceController extends Controller
 
             $model->attachCities($cities);
 
+            $requestTypes = Yii::$app->getRequest()->post('request_types');
+
+            $model->attachRequestTypes($requestTypes);
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -132,6 +136,10 @@ class ServiceController extends Controller
             ServiceCity::deleteAll(['service_id' => $model->id]);
 
             $model->attachCities($cities);
+
+            $requestTypes = Yii::$app->getRequest()->post('request_types');
+
+            $model->updateRequestTypes($requestTypes);
 
             return $this->redirect(['view', 'id' => $model->id]);
         }

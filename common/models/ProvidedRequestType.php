@@ -9,21 +9,21 @@ use Yii;
  *
  * @property int $id
  * @property int $provided_service_id
- * @property int $service_type_id
+ * @property int $service_request_type_id
  * @property boolean $deleted
  *
  * @property ProvidedServiceArea[] $providedServiceAreas
- * @property ServiceType $serviceType
+ * @property RequestType $serviceType
  * @property ProvidedService $providedService
  */
-class ProvidedServiceType extends \yii\db\ActiveRecord
+class ProvidedRequestType extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'provided_service_type';
+        return 'provided_request_type';
     }
 
     /**
@@ -32,9 +32,9 @@ class ProvidedServiceType extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_id', 'service_type_id'], 'integer'],
+            [['provided_service_id', 'service_request_type_id'], 'integer'],
             ['deleted', 'boolean'],
-            [['service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceType::className(), 'targetAttribute' => ['service_type_id' => 'id']],
+            [['service_request_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => RequestType::className(), 'targetAttribute' => ['service_request_type_id' => 'id']],
             [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
         ];
     }
@@ -47,7 +47,7 @@ class ProvidedServiceType extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'provided_service_id' => 'Provided Service ID',
-            'service_type_id' => 'Service Type ID',
+            'service_request_type_id' => 'Service Type ID',
         ];
     }
 
@@ -57,14 +57,6 @@ class ProvidedServiceType extends \yii\db\ActiveRecord
     public function getProvidedServiceAreas()
     {
         return $this->hasMany(ProvidedServiceArea::className(), ['provided_service_type_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getServiceType()
-    {
-        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
     }
 
     /**

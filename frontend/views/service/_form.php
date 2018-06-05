@@ -30,7 +30,7 @@ use yii\widgets\ActiveForm;
         <div class="col-md-6">
 
             <div class="form-group">
-                <label for="">Select Category</label>
+                <label for="">Select category</label>
                 <?= Select2::widget([
                     'model' => $model,
                     'attribute' => 'category_id',
@@ -41,12 +41,26 @@ use yii\widgets\ActiveForm;
             </div>
 
             <div class="form-group">
-                <label for="">Select Cities</label>
+                <label for="">Select cities</label>
                 <?= Select2::widget([
                     'name' => 'cities',
                     'data' => \common\models\City::toList(),
                     'value' => collect($model->getCities()->asArray()->all())->pluck('id', 'id')->toArray(),
                     'options' => ['placeholder' => 'Select city'],
+                    'pluginOptions' => [
+                        'multiple' => true,
+                        'allowClear' => true
+                    ]
+                ]) ?>
+            </div>
+
+            <div class="form-group">
+                <label for="">Select request types</label>
+                <?= Select2::widget([
+                    'name' => 'request_types',
+                    'data' => \common\models\RequestType::toList(),
+                    'value' => $model->getActiveRequestTypesList(),
+                    'options' => ['placeholder' => 'Select request type'],
                     'pluginOptions' => [
                         'multiple' => true,
                         'allowClear' => true

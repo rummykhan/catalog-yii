@@ -10,8 +10,8 @@ namespace common\forms;
 
 
 use common\models\ProvidedServiceArea;
-use common\models\ProvidedServiceCoverage;
-use common\models\ProvidedServiceType;
+use common\models\ServiceAreaCoverage;
+use common\models\ProvidedRequestType;
 use RummyKhan\Collection\Arr;
 use yii\base\Model;
 
@@ -31,7 +31,7 @@ class AddCoverageArea extends Model
     public $provided_service_area;
 
     /**
-     * @var ProvidedServiceType $provided_service_type
+     * @var ProvidedRequestType $provided_service_type
      */
     public $provided_service_type;
 
@@ -50,7 +50,7 @@ class AddCoverageArea extends Model
             return false;
         }
 
-        $this->provided_service_type = ProvidedServiceType::find()
+        $this->provided_service_type = ProvidedRequestType::find()
             ->where(['provided_service_id' => $this->provided_service_id])
             ->andWhere(['service_type_id' => $this->service_type])
             ->one();
@@ -82,7 +82,7 @@ class AddCoverageArea extends Model
 
     protected function deleteAllCoverageAreas()
     {
-        /** @var ProvidedServiceCoverage $providedServiceCoverage */
+        /** @var ServiceAreaCoverage $providedServiceCoverage */
         foreach ($this->provided_service_area->providedServiceCoverages as $providedServiceCoverage) {
             $providedServiceCoverage->delete();
         }
@@ -103,7 +103,7 @@ class AddCoverageArea extends Model
             return false;
         }
 
-        $providedServiceCoverage = new ProvidedServiceCoverage();
+        $providedServiceCoverage = new ServiceAreaCoverage();
         $providedServiceCoverage->lat = $lat;
         $providedServiceCoverage->lng = $long;
         $providedServiceCoverage->radius = $radius;

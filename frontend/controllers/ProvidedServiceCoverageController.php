@@ -3,14 +3,14 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\ProvidedServiceCoverage;
-use common\models\ProvidedServiceCoverageSearch;
+use common\models\ServiceAreaCoverage;
+use common\models\ServiceAreaCoverageSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ProvidedServiceCoverageController implements the CRUD actions for ProvidedServiceCoverage model.
+ * ProvidedServiceCoverageController implements the CRUD actions for ServiceAreaCoverage model.
  */
 class ProvidedServiceCoverageController extends Controller
 {
@@ -30,12 +30,12 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Lists all ProvidedServiceCoverage models.
+     * Lists all ServiceAreaCoverage models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new ProvidedServiceCoverageSearch();
+        $searchModel = new ServiceAreaCoverageSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +45,7 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Displays a single ProvidedServiceCoverage model.
+     * Displays a single ServiceAreaCoverage model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,13 +58,13 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Creates a new ProvidedServiceCoverage model.
+     * Creates a new ServiceAreaCoverage model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new ProvidedServiceCoverage();
+        $model = new ServiceAreaCoverage();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -76,7 +76,7 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Updates an existing ProvidedServiceCoverage model.
+     * Updates an existing ServiceAreaCoverage model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -96,7 +96,7 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Deletes an existing ProvidedServiceCoverage model.
+     * Deletes an existing ServiceAreaCoverage model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -110,15 +110,15 @@ class ProvidedServiceCoverageController extends Controller
     }
 
     /**
-     * Finds the ProvidedServiceCoverage model based on its primary key value.
+     * Finds the ServiceAreaCoverage model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return ProvidedServiceCoverage the loaded model
+     * @return ServiceAreaCoverage the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = ProvidedServiceCoverage::findOne($id)) !== null) {
+        if (($model = ServiceAreaCoverage::findOne($id)) !== null) {
             return $model;
         }
 

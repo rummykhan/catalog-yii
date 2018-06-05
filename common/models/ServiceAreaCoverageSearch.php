@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\ProvidedServiceCoverage;
+use common\models\ServiceAreaCoverage;
 
 /**
- * ProvidedServiceCoverageSearch represents the model behind the search form of `common\models\ProvidedServiceCoverage`.
+ * ServiceAreaCoverageSearch represents the model behind the search form of `common\models\ServiceAreaCoverage`.
  */
-class ProvidedServiceCoverageSearch extends ProvidedServiceCoverage
+class ServiceAreaCoverageSearch extends ServiceAreaCoverage
 {
     /**
      * @inheritdoc
@@ -41,7 +41,7 @@ class ProvidedServiceCoverageSearch extends ProvidedServiceCoverage
      */
     public function search($params)
     {
-        $query = ProvidedServiceCoverage::find();
+        $query = ServiceAreaCoverage::find();
 
         // add conditions that should always apply here
 

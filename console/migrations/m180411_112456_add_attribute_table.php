@@ -189,30 +189,49 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-pam-pap', 'pricing_attribute_matrix', 'pricing_attribute_parent_id', 'pricing_attribute_parent', 'id');
         $this->addForeignKey('fk-pam-sao', 'pricing_attribute_matrix', 'service_attribute_option_id', 'service_attribute_option', 'id');
 
-        $this->createTable('service_type', [
+        $this->createTable('request_type', [
             'id' => $this->primaryKey(),
-            'type' => $this->string()
+            'name' => $this->string()
         ]);
 
-        $this->createTable('provided_service_type', [
+        $this->createTable('service_request_type', [
+            'id' => $this->primaryKey(),
+            'service_id' => $this->integer(),
+            'request_type_id' => $this->integer(),
+            'deleted' => $this->boolean()->defaultValue(false),
+        ]);
+
+        $this->addForeignKey('fk-srt-s', 'service_request_type', 'service_id', 'service', 'id');
+        $this->addForeignKey('fk-srt-rt', 'service_request_type', 'request_type_id', 'request_type', 'id');
+
+        $this->createTable('provided_request_type', [
             'id' => $this->primaryKey(),
             'provided_service_id' => $this->integer(),
-            'service_type_id' => $this->integer(),
+            'service_request_type_id' => $this->integer(),
             'deleted' => $this->boolean()->defaultValue(false)
         ]);
 
-        $this->addForeignKey('fk-pst-ps', 'provided_service_type', 'provided_service_id', 'provided_service', 'id');
-        $this->addForeignKey('fk-pst-st', 'provided_service_type', 'service_type_id', 'service_type', 'id');
+        $this->addForeignKey('fk-pst-ps', 'provided_request_type', 'provided_service_id', 'provided_service', 'id');
+        $this->addForeignKey('fk-pst-srt', 'provided_request_type', 'service_request_type_id', 'service_request_type', 'id');
+
+        $this->createTable('service_area', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(),
+            'city_id' => $this->integer(),
+            'provider_id' => $this->integer()
+        ]);
+
+        $this->addForeignKey('fk-sa-c', 'service_area', 'city_id', 'city', 'id');
+        $this->addForeignKey('fk-sa-p', 'service_area', 'provider_id', 'provider', 'id');
 
         $this->createTable('provided_service_area', [
             'id' => $this->primaryKey(),
-            'provided_service_type_id' => $this->integer(),
-            'name' => $this->string(),
-            'city_id' => $this->integer()
+            'provided_request_type_id' => $this->integer(),
+            'service_area_id' => $this->integer(),
         ]);
 
-        $this->addForeignKey('fk-psa-pst', 'provided_service_area', 'provided_service_type_id', 'provided_service_type', 'id');
-        $this->addForeignKey('fk-psa-c', 'provided_service_area', 'city_id', 'city', 'id');
+        $this->addForeignKey('fk-psa-pst', 'provided_service_area', 'provided_request_type_id', 'provided_request_type', 'id');
+        $this->addForeignKey('fk-psa-sa', 'provided_service_area', 'service_area_id', 'service_area', 'id');
 
         $this->createTable('provided_service_composite_pricing', [
             'id' => $this->primaryKey(),
@@ -272,7 +291,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-scca-scap', 'service_composite_attribute', 'service_composite_attribute_parent_id', 'service_composite_attribute_parent', 'id');
 
         $this->createTable('service_composite_attribute_child', [
-           'id' => $this->primaryKey(),
+            'id' => $this->primaryKey(),
             'service_attribute_id' => $this->integer(),
             'service_attribute_option_id' => $this->integer(),
             'service_composite_attribute_parent_id' => $this->integer()
@@ -292,15 +311,15 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-sc-a', 'service_city', 'service_id', 'service', 'id');
 
 
-        $this->createTable('provided_service_coverage', [
+        $this->createTable('service_area_coverage', [
             'id' => $this->primaryKey(),
-            'provided_service_area_id' => $this->integer(),
+            'service_area_id' => $this->integer(),
             'lat' => $this->string(),
             'lng' => $this->string(),
             'radius' => $this->decimal(),
         ]);
 
-        $this->addForeignKey('fk-psc-psa', 'provided_service_coverage', 'provided_service_area_id', 'provided_service_area', 'id');
+        $this->addForeignKey('fk-sac-sa', 'service_area_coverage', 'service_area_id', 'service_area', 'id');
 
 
         $this->createTable('rule_type', [
@@ -388,13 +407,13 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-c-c', 'city');
         $this->dropForeignKey('fk-sc-c', 'service_city');
         $this->dropForeignKey('fk-sc-a', 'service_city');
-        $this->dropForeignKey('fk-pst-ps', 'provided_service_type');
-        $this->dropForeignKey('fk-pst-st', 'provided_service_type');
-        $this->dropForeignKey('fk-psc-psa', 'provided_service_coverage');
+        $this->dropForeignKey('fk-pst-ps', 'provided_request_type');
+        $this->dropForeignKey('fk-pst-srt', 'provided_request_type');
+        $this->dropForeignKey('fk-sac-sa', 'service_area_coverage');
         $this->dropForeignKey('fk-psbp-psa', 'provided_service_independent_pricing');
         $this->dropForeignKey('fk-psmp-psa', 'provided_service_composite_pricing');
         $this->dropForeignKey('fk-psa-pst', 'provided_service_area');
-        $this->dropForeignKey('fk-psa-c', 'provided_service_area');
+        $this->dropForeignKey('fk-psa-sa', 'provided_service_area');
         $this->dropForeignKey('fk-sa-ft', 'service_attribute');
         $this->dropForeignKey('fk-psbp-sao', 'provided_service_independent_pricing');
         $this->dropForeignKey('fk-psnip-pa', 'provided_service_no_impact_pricing');
@@ -413,6 +432,12 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-sccac-sa', 'service_composite_attribute_child');
         $this->dropForeignKey('fk-sccac-sao', 'service_composite_attribute_child');
         $this->dropForeignKey('fk-sccac-scap', 'service_composite_attribute_child');
+
+        $this->dropForeignKey('fk-sa-c', 'service_area');
+        $this->dropForeignKey('fk-sa-p', 'service_area');
+
+        $this->dropForeignKey('fk-srt-s', 'service_request_type');
+        $this->dropForeignKey('fk-srt-rt', 'service_request_type');
 
         $this->dropForeignKey('fk-ae-psa', 'availability_exception');
         $this->dropForeignKey('fk-gae-psa', 'global_availability_exception');
@@ -444,9 +469,11 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('city');
         $this->dropTable('service_city');
         $this->dropTable('provided_service_area');
-        $this->dropTable('service_type');
-        $this->dropTable('provided_service_type');
-        $this->dropTable('provided_service_coverage');
+        $this->dropTable('request_type');
+        $this->dropTable('service_request_type');
+        $this->dropTable('provided_request_type');
+        $this->dropTable('service_area');
+        $this->dropTable('service_area_coverage');
         $this->dropTable('field_type');
         $this->dropTable('service_view');
         $this->dropTable('service_view_attribute');

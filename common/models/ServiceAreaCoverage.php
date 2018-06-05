@@ -15,7 +15,7 @@ use Yii;
  *
  * @property ProvidedServiceArea $providedServiceArea
  */
-class ProvidedServiceCoverage extends \yii\db\ActiveRecord
+class ServiceAreaCoverage extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc

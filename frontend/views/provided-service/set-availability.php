@@ -2,7 +2,7 @@
 
 use common\helpers\AvailabilityHelper;
 use common\models\RuleValueType;
-use common\models\ServiceType;
+use common\models\RequestType;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -20,7 +20,7 @@ use yii\bootstrap\Modal;
 /* @var $matrixRows array */
 /* @var $noImpactRows array */
 /** @var $area \common\models\ProvidedServiceArea */
-/** @var $providedServiceType \common\models\ProvidedServiceType */
+/** @var $providedServiceType \common\models\ProvidedRequestType */
 /** @var $globalRules array */
 /** @var $localRules array */
 

@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= Select2::widget([
                 'model' => $model,
                 'attribute' => 'service_types',
-                'data' => \common\models\ServiceType::toList(),
+                'data' => \common\models\RequestType::toList(),
                 'value' => $model->service_types,
                 'options' => ['placeholder' => 'Select service type'],
                 'pluginOptions' => [

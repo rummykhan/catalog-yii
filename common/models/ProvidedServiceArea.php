@@ -9,18 +9,18 @@ use Yii;
  * This is the model class for table "provided_service_area".
  *
  * @property int $id
- * @property int $provided_service_type_id
+ * @property int $provided_request_type_id
  * @property string $name
  * @property int $city_id
  *
  * @property City $city
- * @property ProvidedServiceType $providedServiceType
+ * @property ProvidedRequestType $providedServiceType
  *
  * @property ProvidedServiceIndependentPricing[] $providedServiceIndependentPricings
  * @property ProvidedServiceNoImpactPricing[] $providedServiceNoImpactPricings
  * @property ProvidedServiceCompositePricing[] $providedServiceCompositePricings
  *
- * @property ProvidedServiceCoverage[] $providedServiceCoverages
+ * @property ServiceAreaCoverage[] $providedServiceCoverages
  * @property GlobalAvailabilityRule[] $globalAvailabilityRules
  * @property AvailabilityRule[] $availabilityRules
  * @property GlobalAvailabilityException[] $globalAvailabilityExceptions
@@ -42,10 +42,8 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_type_id', 'city_id'], 'integer'],
-            [['name'], 'string', 'max' => 255],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
-            [['provided_service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceType::className(), 'targetAttribute' => ['provided_service_type_id' => 'id']],
+            [['provided_request_type_id'], 'integer'],
+            [['provided_request_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedRequestType::className(), 'targetAttribute' => ['provided_request_type_id' => 'id']],
         ];
     }
 
@@ -56,7 +54,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_type_id' => 'Provided Service Type ID',
+            'provided_request_type_id' => 'Provided Service Type ID',
             'name' => 'Name',
             'city_id' => 'City ID',
         ];
@@ -65,17 +63,9 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCity()
+    public function getProvidedRequestType()
     {
-        return $this->hasOne(City::className(), ['id' => 'city_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProvidedServiceType()
-    {
-        return $this->hasOne(ProvidedServiceType::className(), ['id' => 'provided_service_type_id']);
+        return $this->hasOne(ProvidedRequestType::className(), ['id' => 'provided_request_type_id']);
     }
 
     /**
@@ -99,7 +89,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceCoverages()
     {
-        return $this->hasMany(ProvidedServiceCoverage::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ServiceAreaCoverage::className(), ['provided_service_area_id' => 'id']);
     }
 
     /**

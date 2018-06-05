@@ -1,6 +1,6 @@
 <?php
 
-use common\models\ServiceType;
+use common\models\RequestType;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -8,7 +8,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model \common\forms\AddCoverageArea */
 /* @var $providedService common\models\ProvidedService */
-/* @var $serviceType ServiceType */
+/* @var $serviceType RequestType */
 
 $this->title = 'Add Coverage';
 $this->params['breadcrumbs'][] = ['label' => $providedService->provider->username, 'url' => ['/provider/view', 'id' => $providedService->provider_id]];
@@ -50,7 +50,7 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
         <div class="col-md-6">
             <br>
             <div class="btn-group">
-                <?php foreach ($providedService->getUnDeletedServiceTypes() as $providedServiceType) { ?>
+                <?php foreach ($providedService->getUnDeletedRequestTypes() as $providedServiceType) { ?>
                     <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $providedServiceType->serviceType->id]) ?>"
                        class="btn <?= $providedServiceType->serviceType->id == $serviceType->id ? 'btn-primary' : 'btn-default' ?>">
                         <?= $providedServiceType->serviceType->type ?>

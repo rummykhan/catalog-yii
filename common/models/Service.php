@@ -157,6 +157,15 @@ class Service extends \yii\db\ActiveRecord
             ->viaTable('service_city', ['service_id' => 'id']);
     }
 
+    /**
+     * @return ActiveQuery
+     */
+    public function getRequestTypes()
+    {
+        return $this->hasMany(RequestType::className(), ['id' => 'request_type_id'])
+            ->viaTable('service_request_type', ['service_id' => 'id']);
+    }
+
     public function getCitiesList()
     {
         $query = (new Query())
@@ -346,7 +355,7 @@ class Service extends \yii\db\ActiveRecord
     public function getDependencyTable()
     {
         $query = (new Query())
-            ->select(['service_attribute.id','service_attribute.name'])
+            ->select(['service_attribute.id', 'service_attribute.name'])
             ->from('service_attribute')
             ->join('inner join', 'service', 'service_attribute.service_id=service.id')
             ->join('inner join', 'service_composite_attribute_parent', 'service.id=service_composite_attribute_parent.service_id')
@@ -356,5 +365,110 @@ class Service extends \yii\db\ActiveRecord
 
 
         return $query->all();
+    }
+
+    /**
+     * @param $requestTypes array
+     * @return mixed
+     */
+    public function attachRequestTypes($requestTypes)
+    {
+        if (empty($requestTypes)) {
+            return null;
+        }
+
+        foreach ($requestTypes as $requestType) {
+
+            $attachedRequestType = $this->getRequestTypes()->where(['id' => $requestType])->one();
+
+            if ($attachedRequestType) {
+                continue;
+            }
+
+            $newRequestType = new ServiceRequestType();
+            $newRequestType->service_id = $this->id;
+            $newRequestType->request_type_id = $requestType;
+            $newRequestType->save(true);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $requestTypes array
+     * @return mixed
+     */
+    public function updateRequestTypes($requestTypes)
+    {
+        if (empty($requestTypes)) {
+            // remove all
+        }
+
+        $existing = collect(
+            ServiceRequestType::find()
+                ->where(['deleted' => false])
+                ->andWhere(['service_id' => $this->id])
+                ->asArray()
+                ->all()
+        )->pluck('request_type_id')->toArray();
+
+        $new = $requestTypes;
+
+        $toAdd = array_diff($new, $existing);
+        $toRemove = array_diff($existing, $new);
+
+        foreach ($toAdd as $item) {
+
+
+            $found = ServiceRequestType::find()
+                ->where(['service_id' => $this->id])
+                ->andWhere(['request_type_id' => $item])
+                ->one();
+
+            if ($found) {
+
+                $found->deleted = false;
+                $found->save();
+                continue;
+            }
+
+            $found = new ServiceRequestType();
+            $found->service_id = $this->id;
+            $found->request_type_id = $item;
+            $found->save();
+        }
+
+        foreach ($toRemove as $item) {
+            $found = ServiceRequestType::find()
+                ->where(['service_id' => $this->id])
+                ->andWhere(['request_type_id' => $item])
+                ->one();
+
+            if (!$found) {
+                continue;
+            }
+
+            $found->deleted = true;
+            $found->save();
+        }
+    }
+
+    public function getActiveRequestTypes()
+    {
+        return ServiceRequestType::find()
+            ->where(['service_id' => $this->id])
+            ->andWhere(['deleted' => false])
+            ->all();
+    }
+
+    public function getActiveRequestTypesList()
+    {
+        return collect(
+            ServiceRequestType::find()
+                ->where(['service_id' => $this->id])
+                ->andWhere(['deleted' => false])
+                ->asArray()
+                ->all()
+        )->pluck('request_type_id')->toArray();
     }
 }
