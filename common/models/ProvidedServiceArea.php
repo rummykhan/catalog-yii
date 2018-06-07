@@ -6,7 +6,7 @@ use common\helpers\AvailabilityHelper;
 use Yii;
 
 /**
- * This is the model class for table "provided_service_area".
+ * This is the model class for table "provided_service_type".
  *
  * @property int $id
  * @property int $provided_request_type_id
@@ -31,7 +31,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'provided_service_area';
+        return 'provided_service_type';
     }
 
     /**
@@ -75,7 +75,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceIndependentPricings()
     {
-        return $this->hasMany(ProvidedServiceIndependentPricing::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ProvidedServiceIndependentPricing::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -83,7 +83,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceNoImpactPricings()
     {
-        return $this->hasMany(ProvidedServiceNoImpactPricing::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ProvidedServiceNoImpactPricing::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -91,7 +91,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceCoverages()
     {
-        return $this->hasMany(ServiceAreaCoverage::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ServiceAreaCoverage::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -99,7 +99,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceCompositePricings()
     {
-        return $this->hasMany(ProvidedServiceCompositePricing::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(ProvidedServiceCompositePricing::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -107,7 +107,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getGlobalAvailabilityRules()
     {
-        return $this->hasMany(GlobalAvailabilityRule::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(GlobalAvailabilityRule::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -115,7 +115,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getAvailabilityRules()
     {
-        return $this->hasMany(AvailabilityRule::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(AvailabilityRule::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -123,7 +123,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getGlobalAvailabilityExceptions()
     {
-        return $this->hasMany(GlobalAvailabilityException::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(GlobalAvailabilityException::className(), ['provided_service_type_id' => 'id']);
     }
 
     /**
@@ -131,7 +131,7 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
      */
     public function getAvailabilityExceptions()
     {
-        return $this->hasMany(AvailabilityException::className(), ['provided_service_area_id' => 'id']);
+        return $this->hasMany(AvailabilityException::className(), ['provided_service_type_id' => 'id']);
     }
 
     public function getGlobalRules()

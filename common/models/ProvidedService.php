@@ -188,7 +188,7 @@ class ProvidedService extends \yii\db\ActiveRecord
                 ->andWhere(['provided_service_independent_pricing.service_attribute_option_id' => $service_attribute_option_id])
                 ->andWhere(['service_attribute_option.deleted' => false])
                 ->andWhere(['service_attribute.deleted' => false])
-                ->andWhere(['provided_service_independent_pricing.provided_service_area_id' => $area_id]);
+                ->andWhere(['provided_service_independent_pricing.provided_service_type_id' => $area_id]);
 
             $result = $query->one();
 
@@ -214,7 +214,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             }
 
             $basePricing->service_attribute_option_id = $service_attribute_option_id;
-            $basePricing->provided_service_area_id = $area_id;
+            $basePricing->provided_service_type_id = $area_id;
             $basePricing->pricing_attribute_id = $pricingAttribute['id'];
             $basePricing->base_price = $price;
             $basePricing->save();
@@ -267,7 +267,7 @@ class ProvidedService extends \yii\db\ActiveRecord
                 ->andWhere(['provided_service_no_impact_pricing.service_attribute_option_id' => $service_attribute_option_id])
                 ->andWhere(['service_attribute_option.deleted' => false])
                 ->andWhere(['service_attribute.deleted' => false])
-                ->andWhere(['provided_service_no_impact_pricing.provided_service_area_id' => $area_id]);
+                ->andWhere(['provided_service_no_impact_pricing.provided_service_type_id' => $area_id]);
 
             $result = $query->one();
 
@@ -293,7 +293,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             }
 
             $basePricing->service_attribute_option_id = $service_attribute_option_id;
-            $basePricing->provided_service_area_id = $area_id;
+            $basePricing->provided_service_type_id = $area_id;
             $basePricing->pricing_attribute_id = $pricingAttribute['id'];
             $basePricing->save();
         }
@@ -326,7 +326,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             return false;
         }
 
-        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_area_id' => $area_id])->one();
+        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_type_id' => $area_id])->one();
 
         if (!$matrixPricing) {
             $matrixPricing = new ProvidedServiceCompositePricing();
@@ -334,7 +334,7 @@ class ProvidedService extends \yii\db\ActiveRecord
 
         $matrixPricing->pricing_attribute_parent_id = $parent->id;
         $matrixPricing->price = $price;
-        $matrixPricing->provided_service_area_id = $area_id;
+        $matrixPricing->provided_service_type_id = $area_id;
 
         if (empty($price)) {
             $matrixPricing->delete();
@@ -424,7 +424,7 @@ class ProvidedService extends \yii\db\ActiveRecord
         }
 
         /** @var ProvidedServiceCompositePricing $matrixPricing */
-        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_area_id' => $area_id])->one();
+        $matrixPricing = $parent->getProvidedServiceCompositePricing()->where(['provided_service_type_id' => $area_id])->one();
 
         if (!$matrixPricing) {
             return null;
@@ -469,7 +469,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->andWhere(['provided_service_independent_pricing.service_attribute_option_id' => $service_attribute_option_id])
             ->andWhere(['service_attribute_option.deleted' => false])
             ->andWhere(['service_attribute.deleted' => false])
-            ->andWhere(['provided_service_independent_pricing.provided_service_area_id' => $area_id]);
+            ->andWhere(['provided_service_independent_pricing.provided_service_type_id' => $area_id]);
 
         $results = $query->one();
 
@@ -496,7 +496,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->andWhere(['provided_service_independent_pricing.service_attribute_option_id' => $service_attribute_option_id])
             ->andWhere(['service_attribute_option.deleted' => false])
             ->andWhere(['service_attribute.deleted' => false])
-            ->andWhere(['provided_service_independent_pricing.provided_service_area_id' => $area_id]);
+            ->andWhere(['provided_service_independent_pricing.provided_service_type_id' => $area_id]);
 
         $results = $query->one();
 
@@ -548,7 +548,7 @@ class ProvidedService extends \yii\db\ActiveRecord
             ->andWhere(['provided_service_no_impact_pricing.service_attribute_option_id' => $service_attribute_option_id])
             ->andWhere(['service_attribute_option.deleted' => false])
             ->andWhere(['service_attribute.deleted' => false])
-            ->andWhere(['provided_service_no_impact_pricing.provided_service_area_id' => $area_id]);
+            ->andWhere(['provided_service_no_impact_pricing.provided_service_type_id' => $area_id]);
 
         return !!$query->one();
     }

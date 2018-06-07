@@ -18,7 +18,7 @@ class ServiceAreaCoverageSearch extends ServiceAreaCoverage
     public function rules()
     {
         return [
-            [['id', 'provided_service_area_id'], 'integer'],
+            [['id', 'provided_service_type_id'], 'integer'],
             [['lat', 'lng'], 'safe'],
         ];
     }
@@ -60,7 +60,7 @@ class ServiceAreaCoverageSearch extends ServiceAreaCoverage
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'provided_service_area_id' => $this->provided_service_area_id,
+            'provided_service_type_id' => $this->provided_service_type_id,
         ]);
 
         $query->andFilterWhere(['like', 'lat', $this->lat])

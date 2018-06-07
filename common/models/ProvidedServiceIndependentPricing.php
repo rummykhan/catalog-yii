@@ -10,7 +10,7 @@ use Yii;
  * @property int $id
  * @property int $pricing_attribute_id
  * @property double $base_price
- * @property int $provided_service_area_id
+ * @property int $provided_service_type_id
  * @property int $service_attribute_option_id
  * @property string $created_at
  * @property string $updated_at
@@ -39,7 +39,7 @@ class ProvidedServiceIndependentPricing extends \yii\db\ActiveRecord
             [['base_price'], 'number'],
             [['created_at', 'updated_at'], 'safe'],
             [['pricing_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttribute::className(), 'targetAttribute' => ['pricing_attribute_id' => 'id']],
-            [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
+            [['provided_service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_type_id' => 'id']],
             [['service_attribute_option_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttributeOption::className(), 'targetAttribute' => ['service_attribute_option_id' => 'id']],
         ];
     }
@@ -71,6 +71,6 @@ class ProvidedServiceIndependentPricing extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceArea()
     {
-        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_area_id']);
+        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_type_id']);
     }
 }

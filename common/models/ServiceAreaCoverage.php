@@ -46,7 +46,7 @@ class ServiceAreaCoverage extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_area_id' => 'Provided Service Area ID',
+            'provided_service_type_id' => 'Provided Service Area ID',
             'lat' => 'Lat',
             'lng' => 'Lng',
         ];

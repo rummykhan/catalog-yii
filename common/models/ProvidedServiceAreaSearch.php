@@ -49,7 +49,7 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
     {
         $query = (new Query())
             ->select([
-                'provided_service_area.id',
+                'provided_service_type.id',
                 new Expression('service_area.id as service_area_id'),
                 new Expression('city.name as city'),
                 new Expression('request_type.name as request_type'),
@@ -59,8 +59,8 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
                 new Expression('provided_request_type.id as provided_request_type'),
             ])
             ->from('service_area')
-            ->join('inner join', 'provided_service_area', 'service_area.id=provided_service_area.id')
-            ->join('inner join', 'provided_request_type', 'provided_service_area.provided_request_type_id=provided_request_type.id')
+            ->join('inner join', 'provided_service_type', 'service_area.id=provided_service_type.id')
+            ->join('inner join', 'provided_request_type', 'provided_service_type.provided_request_type_id=provided_request_type.id')
             ->join('inner join', 'city', 'service_area.city_id=city.id')
             ->join('inner join', 'service_request_type', 'provided_request_type.service_request_type_id=service_request_type.id')
             ->join('inner join', 'request_type', 'service_request_type.request_type_id=request_type.id')
