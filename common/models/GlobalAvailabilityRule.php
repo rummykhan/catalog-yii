@@ -85,11 +85,11 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $area ProvidedServiceArea
      * @param $rules Collection
+     * @param $provider_id integer
      * @throws NotFoundHttpException
      */
-    public static function addRules($area, $rules)
+    public static function addRules($rules, $provider_id)
     {
         // delete existing rules..
         GlobalAvailabilityRule::deleteAll([
