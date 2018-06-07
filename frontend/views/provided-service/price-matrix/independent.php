@@ -8,7 +8,7 @@ use yii\widgets\ActiveForm;
 /* @var $matrix \common\helpers\Matrix */
 /* @var $this View */
 /* @var $model ProvidedService */
-/* @var $area ProvidedServiceArea */
+/* @var $providedServiceArea ProvidedServiceArea */
 /* @var $type string */
 
 ?>
@@ -34,13 +34,13 @@ use yii\widgets\ActiveForm;
                                 <div class="input-group">
                             <span class="input-group-addon">
                               <input type="checkbox" class="disable-input"
-                                  <?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ? 'checked="checked"' : '' ?> >
+                                  <?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $providedServiceArea->id) ? 'checked="checked"' : '' ?> >
                             </span>
                                     <input
                                             type="number"
                                             class="form-control"
                                             name="independent_price[<?= $column['service_attribute_option_id'] ?>]"
-                                            value="<?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $area->id) ?>"
+                                            value="<?= $model->getPriceOfIndependentRow($column['service_attribute_option_id'], $providedServiceArea->id) ?>"
                                     >
                                 </div>
                             </td>

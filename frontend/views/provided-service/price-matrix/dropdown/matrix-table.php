@@ -10,7 +10,7 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $model ProvidedService */
 /* @var $type string */
-/* @var $area ProvidedServiceArea */
+/* @var $providedServiceArea ProvidedServiceArea */
 /* @var $matrix \common\helpers\Matrix */
 
 $attributeGroups = $matrix->getAttributesGroup();
@@ -21,7 +21,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
 
 ?>
 
-<?php if (count($area->providedServiceCompositePricings) > 0) { ?>
+<?php if (count($providedServiceArea->providedServiceCompositePricings) > 0) { ?>
 
     <div class="row">
         <div class="col-md-12">
@@ -36,7 +36,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
                 </thead>
                 <tbody>
 
-                <?php foreach ($area->providedServiceCompositePricings as $pricing) { ?>
+                <?php foreach ($providedServiceArea->providedServiceCompositePricings as $pricing) { ?>
                     <?php if (!$matrix->hasIdentifier($pricing->pricingAttributeParent->getOptionIdsFormattedName())) {
                         continue;
                     } ?>

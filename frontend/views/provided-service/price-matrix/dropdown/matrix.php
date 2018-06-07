@@ -1,5 +1,6 @@
 <?php
 
+use common\models\ProvidedRequestType;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceArea;
 use RummyKhan\Collection\Arr;
@@ -10,8 +11,9 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $model ProvidedService */
 /* @var $type string */
-/* @var $area ProvidedServiceArea */
+/* @var $providedServiceArea ProvidedServiceArea */
 /* @var $matrix \common\helpers\Matrix */
+/** @var $providedRequestType ProvidedRequestType */
 
 $attributeGroups = $matrix->getAttributesGroup();
 
@@ -26,8 +28,8 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
     <?php ActiveForm::begin([
         'action' => [
             '/provided-service/set-dropdown-pricing',
-            'id' => $model->id,
-            'area' => $area->id,
+            'id' => $providedRequestType->id,
+            'area' => $providedServiceArea->id,
             'type' => $type
         ],
         'method' => 'POST'

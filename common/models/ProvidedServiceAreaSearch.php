@@ -23,7 +23,7 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
     public function rules()
     {
         return [
-            [['provided_service_type_id'], 'integer'],
+            [['provided_request_type_id'], 'integer'],
             [['name'], 'safe'],
             [['city'], 'safe'],
         ];
@@ -50,17 +50,21 @@ class ProvidedServiceAreaSearch extends ProvidedServiceArea
         $query = (new Query())
             ->select([
                 'provided_service_area.id',
+                new Expression('service_area.id as service_area_id'),
                 new Expression('city.name as city'),
-                'service_type.type',
-                new Expression('service_type.id service_type_id'),
-                'provided_service_area.name',
-                new Expression('provided_service_type.provided_service_id'),
+                new Expression('request_type.name as request_type'),
+                new Expression('request_type.id as request_type_id'),
+                'service_area.name',
+                new Expression('provided_request_type.provided_service_id'),
+                new Expression('provided_request_type.id as provided_request_type'),
             ])
-            ->from('provided_service_area')
-            ->join('inner join', 'provided_service_type', 'provided_service_area.provided_service_type_id=provided_service_type.id')
-            ->join('inner join', 'city', 'provided_service_area.city_id=city.id')
-            ->join('inner join', 'service_type', 'provided_service_type.service_type_id=service_type.id')
-            ->andWhere(['provided_service_type.provided_service_id' => $this->provided_service_id]);
+            ->from('service_area')
+            ->join('inner join', 'provided_service_area', 'service_area.id=provided_service_area.id')
+            ->join('inner join', 'provided_request_type', 'provided_service_area.provided_request_type_id=provided_request_type.id')
+            ->join('inner join', 'city', 'service_area.city_id=city.id')
+            ->join('inner join', 'service_request_type', 'provided_request_type.service_request_type_id=service_request_type.id')
+            ->join('inner join', 'request_type', 'service_request_type.request_type_id=request_type.id')
+            ->andWhere(['provided_request_type.provided_service_id' => $this->provided_service_id]);
 
         // add conditions that should always apply here
 

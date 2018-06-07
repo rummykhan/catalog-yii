@@ -226,7 +226,7 @@ class ProvidedServiceController extends Controller
     {
         $providedService = $this->findModel($id);
 
-        if (count($providedService->providedServiceTypes) === 0) {
+        if (count($providedService->providedRequestTypes) === 0) {
             return $this->redirect(['/provided-service/add-type', 'id' => $id]);
         }
         // check service request types
@@ -235,23 +235,27 @@ class ProvidedServiceController extends Controller
 
 
         if (empty($type)) {
-            $serviceType = $providedService->getProvidedServiceTypes()->one();
+            $providedRequestType = $providedService->getProvidedRequestTypes()->one();
         } else {
-            $serviceType = RequestType::findOne($type);
+            $providedRequestType = ProvidedRequestType::findOne($type);
         }
 
-        $area = ProvidedServiceArea::find()->where(['id' => $area])->one();
+        /** @var ProvidedServiceArea $providedServiceArea */
+        $providedServiceArea = ProvidedServiceArea::find()->where(['id' => $area])->one();
 
         $model = new AddCoverageArea();
 
         $coveredAreas = [];
 
-        if ($area) {
-            $model->area_id = $area->id;
-            $model->city_id = $area->city_id;
-            $model->area_name = $area->name;
+        if ($providedServiceArea) {
+            $model->provided_service_area_id = $providedServiceArea->id;
+        }
 
-            $coveredAreas = $area->providedServiceCoverages;
+        if ($providedServiceArea && $providedServiceArea->serviceArea) {
+            $model->city_id = $providedServiceArea->serviceArea->city_id;
+            $model->area_name = $providedServiceArea->serviceArea->name;
+
+            $coveredAreas = $providedServiceArea->serviceArea->serviceAreaCoverages;
         }
 
         if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
@@ -259,39 +263,44 @@ class ProvidedServiceController extends Controller
             return $this->redirect([
                 '/provided-service/view-coverage-areas',
                 'id' => $providedService->id,
-                'type' => $serviceType->id,
+                'type' => $providedRequestType->id,
                 'area' => $model->provided_service_area->id
             ]);
         }
 
-        $model->service_type = $serviceType->id;
+        $model->provided_request_type_id = $providedRequestType->id;
         $model->provided_service_id = $id;
 
         return $this->render('add-coverage', [
             'providedService' => $providedService,
             'model' => $model,
-            'serviceType' => $serviceType,
+            'providedRequestType' => $providedRequestType,
             'coveredAreas' => $coveredAreas
         ]);
     }
 
-    public function actionSetPricing($id, $area, $type, $hash = null)
+    public function actionSetPricing($id, $area, $hash = null)
     {
-        $model = $this->findModel($id);
-        $providedServiceType = ProvidedRequestType::find()
-            ->where(['provided_service_id' => $model->id])
-            ->andWhere(['service_type_id' => $type])
+        /** @var ProvidedRequestType $providedRequestType */
+        $providedRequestType = ProvidedRequestType::find()
+            ->andWhere(['id' => $id])
             ->andWhere(['deleted' => false])
             ->one();
 
-        if (!$providedServiceType) {
+        if (!$providedRequestType) {
             throw new NotFoundHttpException();
         }
 
-        /** @var ProvidedServiceArea $area */
-        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+        $model = $providedRequestType->providedService;
 
-        if (!$area) {
+        if (count($providedRequestType->providedServiceAreas) === 0) {
+            throw new NotFoundHttpException("No areas set");
+        }
+
+        /** @var ProvidedServiceArea $providedServiceArea */
+        $providedServiceArea = $providedRequestType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$providedServiceArea     ) {
             throw new NotFoundHttpException();
         }
 
@@ -311,57 +320,59 @@ class ProvidedServiceController extends Controller
             'model' => $model,
             'service' => $model->service,
             'provider' => $model->provider,
-            'area' => $area,
-            'providedServiceType' => $providedServiceType,
+            'providedServiceArea' => $providedServiceArea,
+            'providedRequestType' => $providedRequestType,
             'motherMatrix' => $motherMatrix
         ]);
     }
 
     public function actionSetDropdownPricing($id, $area, $type, $view = 3)
     {
-        $model = $this->findModel($id);
-        $providedServiceType = ProvidedRequestType::find()
-            ->where(['provided_service_id' => $model->id])
-            ->andWhere(['service_type_id' => $type])
+        /** @var ProvidedRequestType $providedRequestType */
+        $providedRequestType = ProvidedRequestType::find()
+            ->andWhere(['id' => $id])
             ->andWhere(['deleted' => false])
             ->one();
 
-        if (!$providedServiceType) {
+        if (!$providedRequestType) {
             throw new NotFoundHttpException();
         }
 
-        /** @var ProvidedServiceArea $area */
-        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+        $model = $providedRequestType->providedService;
 
-        if (!$area) {
+        /** @var ProvidedServiceArea $area */
+        $providedServiceArea = $providedRequestType->getProvidedServiceAreas()->where(['id' => $area])->one();
+
+        if (!$providedServiceArea) {
             throw new NotFoundHttpException();
         }
 
         $matrix = Yii::$app->getRequest()->post('attribute');
         $price = Yii::$app->getRequest()->post('price');
 
-        $model->saveMatrixPrice($matrix, $price, $area->id);
+        $model->saveMatrixPrice($matrix, $price, $providedServiceArea->id);
 
         return $this->redirect(['/provided-service/set-pricing',
-            'id' => $id, 'area' => $area->id, 'type' => $type, 'view' => $view
+            'id' => $id, 'area' => $providedServiceArea->id, 'type' => $type, 'view' => $view
         ]);
     }
 
-    public function actionSetAvailability($id, $area, $type)
+    public function actionSetAvailability($id, $area)
     {
-        $model = $this->findModel($id);
-        $providedServiceType = ProvidedRequestType::find()
-            ->where(['provided_service_id' => $model->id])
-            ->andWhere(['service_type_id' => $type])
+        /** @var ProvidedRequestType $providedRequestType */
+        $providedRequestType = ProvidedRequestType::find()
+            ->andWhere(['id' => $id])
             ->andWhere(['deleted' => false])
             ->one();
 
-        if (!$providedServiceType) {
+        if (!$providedRequestType) {
             throw new NotFoundHttpException();
         }
 
+        $model = $providedRequestType->providedService;
+
         /** @var ProvidedServiceArea $area */
-        $area = $providedServiceType->getProvidedServiceAreas()->where(['id' => $area])->one();
+        $area = $providedRequestType->getProvidedServiceAreas()->where(['id' => $area])->one();
 
         if (!$area) {
             throw new NotFoundHttpException();
@@ -372,11 +383,11 @@ class ProvidedServiceController extends Controller
 
         return $this->render('set-availability', [
             'model' => $model,
-            'providedServiceType' => $providedServiceType,
+            'providedRequestType' => $providedRequestType,
             'area' => $area,
             'service' => $model->service,
             'provider' => $model->provider,
-            'type' => $type,
+            'type' => $providedRequestType,
             'globalRules' => $globalRules,
             'localRules' => $localRules,
         ]);

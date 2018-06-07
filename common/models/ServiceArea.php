@@ -16,6 +16,7 @@ use Yii;
  * @property Provider $provider
  * @property City $city
  * @property ServiceAreaCoverage[] $serviceAreaCoverages
+ *
  */
 class ServiceArea extends \yii\db\ActiveRecord
 {

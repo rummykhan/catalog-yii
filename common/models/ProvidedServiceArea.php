@@ -10,17 +10,15 @@ use Yii;
  *
  * @property int $id
  * @property int $provided_request_type_id
- * @property string $name
- * @property int $city_id
+ * @property int $service_area_id
  *
- * @property City $city
- * @property ProvidedRequestType $providedServiceType
+ * @property ProvidedRequestType $providedRequestType
+ * @property ServiceArea $serviceArea
  *
  * @property ProvidedServiceIndependentPricing[] $providedServiceIndependentPricings
  * @property ProvidedServiceNoImpactPricing[] $providedServiceNoImpactPricings
  * @property ProvidedServiceCompositePricing[] $providedServiceCompositePricings
  *
- * @property ServiceAreaCoverage[] $providedServiceCoverages
  * @property GlobalAvailabilityRule[] $globalAvailabilityRules
  * @property AvailabilityRule[] $availabilityRules
  * @property GlobalAvailabilityException[] $globalAvailabilityExceptions
@@ -42,8 +40,9 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_request_type_id'], 'integer'],
+            [['provided_request_type_id', 'service_area_id'], 'integer'],
             [['provided_request_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedRequestType::className(), 'targetAttribute' => ['provided_request_type_id' => 'id']],
+            [['service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceArea::className(), 'targetAttribute' => ['service_area_id' => 'id']],
         ];
     }
 
@@ -55,8 +54,6 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'provided_request_type_id' => 'Provided Service Type ID',
-            'name' => 'Name',
-            'city_id' => 'City ID',
         ];
     }
 
@@ -66,6 +63,11 @@ class ProvidedServiceArea extends \yii\db\ActiveRecord
     public function getProvidedRequestType()
     {
         return $this->hasOne(ProvidedRequestType::className(), ['id' => 'provided_request_type_id']);
+    }
+
+    public function getServiceArea()
+    {
+        return $this->hasOne(ServiceArea::className(), ['id' => 'service_area_id']);
     }
 
     /**

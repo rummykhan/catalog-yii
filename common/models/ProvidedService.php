@@ -24,7 +24,7 @@ use yii\db\Query;
  *
  * @property Provider $provider
  * @property Service $service
- * @property ProvidedRequestType[] $providedServiceTypes
+ * @property ProvidedRequestType[] $providedRequestTypes
  */
 class ProvidedService extends \yii\db\ActiveRecord
 {

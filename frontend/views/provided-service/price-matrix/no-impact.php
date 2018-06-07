@@ -8,7 +8,7 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $matrix \common\helpers\Matrix */
 /* @var $model ProvidedService */
-/* @var $area ProvidedServiceArea */
+/* @var $providedServiceArea ProvidedServiceArea */
 /* @var $type string */
 
 ?>
@@ -37,7 +37,7 @@ use yii\widgets\ActiveForm;
                                     <span class="input-group-addon">
                                         <input name="no_impact_price[<?= $value['service_attribute_option_id'] ?>]"
                                                type="checkbox"
-                                            <?= $model->isNoImpactOptionEnabled($area->id, $value['service_attribute_option_id']) ? 'checked="checked"' : '' ?>>
+                                            <?= $model->isNoImpactOptionEnabled($providedServiceArea->id, $value['service_attribute_option_id']) ? 'checked="checked"' : '' ?>>
                                     </span>
                                 </div>
                             </td>

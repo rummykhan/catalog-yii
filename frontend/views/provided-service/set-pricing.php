@@ -16,34 +16,33 @@ use yii\widgets\ActiveForm;
 /* @var $model ProvidedService */
 /* @var $provider Provider */
 /* @var $service Service */
-/** @var $area ProvidedServiceArea */
-/** @var $providedServiceType ProvidedRequestType */
+/** @var $providedServiceArea ProvidedServiceArea */
+/** @var $providedRequestType ProvidedRequestType */
 /* @var $motherMatrix ServiceAttributeMatrix */
 
 DataTableAsset::register($this);
 
-$this->title = 'Add Pricing for ' . $area->name;
+$this->title = 'Add Pricing for ' . $providedServiceArea->serviceArea->name;
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = ['label' => $providedServiceType->serviceType->type];
+$this->params['breadcrumbs'][] = ['label' => $providedRequestType->getRequestTypeLabel()];
 $this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
-
-$type = $providedServiceType->id;
+$type = $providedRequestType->id;
 
 ?>
 
 <?php foreach ($motherMatrix->getMatrices() as $index => $matrix) { ?>
 
-    <?= $this->render('price-matrix/dropdown/matrix', compact('matrix', 'model', 'area', 'type', 'matrix')) ?>
+    <?= $this->render('price-matrix/dropdown/matrix', compact('matrix', 'providedRequestType', 'providedServiceArea', 'type', 'matrix')) ?>
 
     <?php ActiveForm::begin([
         'action' => [
             '/provided-service/set-pricing',
-            'id' => $model->id,
-            'area' => $area->id,
+            'id' => $providedRequestType->id,
+            'area' => $providedServiceArea->id,
             'type' => $type,
             'hash' => $matrix->getHash(),
         ],
@@ -51,11 +50,11 @@ $type = $providedServiceType->id;
         'options' => ['name' => md5(uniqid('f-', true))]
     ]) ?>
 
-    <?= $this->render('price-matrix/dropdown/matrix-table', compact('matrix', 'area')) ?>
+    <?= $this->render('price-matrix/dropdown/matrix-table', compact('matrix', 'providedServiceArea')) ?>
 
-    <?= $this->render('price-matrix/independent', compact('matrix', 'model', 'area')) ?>
+    <?= $this->render('price-matrix/independent', compact('matrix', 'model', 'providedServiceArea')) ?>
 
-    <?= $this->render('price-matrix/no-impact', compact('matrix', 'model', 'area')) ?>
+    <?= $this->render('price-matrix/no-impact', compact('matrix', 'model', 'providedServiceArea')) ?>
 
     <div class="row">
         <div class="col-md-6 text-right">

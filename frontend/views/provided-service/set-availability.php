@@ -20,17 +20,17 @@ use yii\bootstrap\Modal;
 /* @var $matrixRows array */
 /* @var $noImpactRows array */
 /** @var $area \common\models\ProvidedServiceArea */
-/** @var $providedServiceType \common\models\ProvidedRequestType */
+/** @var $providedRequestType \common\models\ProvidedRequestType */
 /** @var $globalRules array */
 /** @var $localRules array */
 
 AvailabilityAsset::register($this);
 
-$this->title = 'Add Availability for ' . $area->name;
+$this->title = 'Add Availability for ' . $area->serviceArea->name;
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $model->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $service->name, 'url' => ['/provided-service/view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = ['label' => $providedServiceType->serviceType->type];
+$this->params['breadcrumbs'][] = ['label' => $providedRequestType->getRequestTypeLabel()];
 $this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = $this->title;
 

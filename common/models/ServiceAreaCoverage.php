@@ -8,10 +8,11 @@ use Yii;
  * This is the model class for table "provided_service_coverage".
  *
  * @property int $id
- * @property int $provided_service_area_id
+ * @property int $service_area_id
  * @property string $lat
  * @property string $lng
  * @property double $radius
+ * @property string $coordinates
  *
  * @property ProvidedServiceArea $providedServiceArea
  */
@@ -22,7 +23,7 @@ class ServiceAreaCoverage extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'provided_service_coverage';
+        return 'service_area_coverage';
     }
 
     /**
@@ -31,9 +32,9 @@ class ServiceAreaCoverage extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_area_id'], 'integer'],
+            [['service_area_id'], 'integer'],
             [['lat', 'lng'], 'string', 'max' => 255],
-            [['provided_service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_area_id' => 'id']],
+            [['service_area_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceArea::className(), 'targetAttribute' => ['service_area_id' => 'id']],
             [['radius'], 'double']
         ];
     }
@@ -54,9 +55,9 @@ class ServiceAreaCoverage extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceArea()
+    public function getServiceArea()
     {
-        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_area_id']);
+        return $this->hasOne(ServiceArea::className(), ['id' => 'service_area_id']);
     }
 
     public function getCoordinates()

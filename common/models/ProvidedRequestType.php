@@ -13,7 +13,7 @@ use Yii;
  * @property boolean $deleted
  *
  * @property ProvidedServiceArea[] $providedServiceAreas
- * @property RequestType $serviceType
+ * @property ServiceRequestType $serviceRequestType
  * @property ProvidedService $providedService
  */
 class ProvidedRequestType extends \yii\db\ActiveRecord
@@ -56,7 +56,7 @@ class ProvidedRequestType extends \yii\db\ActiveRecord
      */
     public function getProvidedServiceAreas()
     {
-        return $this->hasMany(ProvidedServiceArea::className(), ['provided_service_type_id' => 'id']);
+        return $this->hasMany(ProvidedServiceArea::className(), ['provided_request_type_id' => 'id']);
     }
 
     /**
@@ -65,5 +65,15 @@ class ProvidedRequestType extends \yii\db\ActiveRecord
     public function getProvidedService()
     {
         return $this->hasOne(ProvidedService::className(), ['id' => 'provided_service_id']);
+    }
+
+    public function getServiceRequestType()
+    {
+        return $this->hasOne(ServiceRequestType::className(), ['id' => 'service_request_type_id']);
+    }
+
+    public function getRequestTypeLabel()
+    {
+        return $this->serviceRequestType->requestType->name;
     }
 }

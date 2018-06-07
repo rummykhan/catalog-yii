@@ -8,13 +8,13 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model \common\forms\AddCoverageArea */
 /* @var $providedService common\models\ProvidedService */
-/* @var $serviceType RequestType */
+/* @var $providedRequestType \common\models\ProvidedRequestType */
 
 $this->title = 'Add Coverage';
 $this->params['breadcrumbs'][] = ['label' => $providedService->provider->username, 'url' => ['/provider/view', 'id' => $providedService->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => 'Provided Services', 'url' => ['/provided-service/index', 'provider_id' => $providedService->provider_id]];
 $this->params['breadcrumbs'][] = ['label' => $providedService->service->name, 'url' => ['/provided-service/view', 'id' => $providedService->id]];
-$this->params['breadcrumbs'][] = ['label' => $serviceType->type];
+$this->params['breadcrumbs'][] = ['label' => $providedRequestType->serviceRequestType->requestType->name];
 $this->params['breadcrumbs'][] = ['label' => 'Coverage Areas', 'url' => ['/provided-service/view-coverage-areas', 'id' => $providedService->id]];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -26,7 +26,7 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
 
 
 <div class="provider-update">
-    <?php $form = ActiveForm::begin(['action' => ['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $serviceType->id]]) ?>
+    <?php $form = ActiveForm::begin(['action' => ['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $providedRequestType->id]]) ?>
 
     <div class="row">
         <div class="col-md-3">
@@ -50,10 +50,10 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
         <div class="col-md-6">
             <br>
             <div class="btn-group">
-                <?php foreach ($providedService->getUnDeletedRequestTypes() as $providedServiceType) { ?>
-                    <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $providedServiceType->serviceType->id]) ?>"
-                       class="btn <?= $providedServiceType->serviceType->id == $serviceType->id ? 'btn-primary' : 'btn-default' ?>">
-                        <?= $providedServiceType->serviceType->type ?>
+                <?php foreach ($providedService->getUndeletedRequestTypes() as $requestType) { ?>
+                    <a href="<?= Url::to(['/provided-service/add-coverage-area', 'id' => $providedService->id, 'type' => $requestType->id]) ?>"
+                       class="btn <?= $requestType->id == $providedRequestType->id ? 'btn-primary' : 'btn-default' ?>">
+                        <?= $requestType->serviceRequestType->requestType->name ?>
                     </a>
                 <?php } ?>
             </div>
@@ -69,9 +69,9 @@ $this->registerJsFile("https://maps.googleapis.com/maps/api/js?v=3.exp&libraries
         </div>
 
         <?= $form->field($model, 'coverage_areas', ['template' => '{input}'])->hiddenInput() ?>
-        <?= $form->field($model, 'service_type', ['template' => '{input}'])->hiddenInput() ?>
+        <?= $form->field($model, 'provided_request_type_id', ['template' => '{input}'])->hiddenInput() ?>
         <?= $form->field($model, 'provided_service_id', ['template' => '{input}'])->hiddenInput() ?>
-        <?= $form->field($model, 'area_id', ['template' => '{input}'])->hiddenInput() ?>
+        <?= $form->field($model, 'provided_service_area_id', ['template' => '{input}'])->hiddenInput() ?>
 
         <br><br>
         <?= Html::submitButton('Update Areas', ['class' => 'btn btn-primary']) ?>

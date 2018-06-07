@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 use common\models\ProvidedServiceAreaSearch;
 
 /* @var $this yii\web\View */
-/* @var $model \common\forms\AddCoverageArea */
+/* @var $model \common\models\ProvidedService */
 /* @var $type string */
 /** @var ActiveDataProvider $dataProvider */
 /** @var ProvidedServiceAreaSearch $searchModel */
@@ -39,23 +39,24 @@ $service = $model->service;
                 return Html::a($model['name'], [
                     '/provided-service/add-coverage-area',
                     'id' => $model['provided_service_id'],
-                    'type' => $model['service_type_id'],
+                    'type' => $model['request_type_id'],
                     'area' => $model['id']
                 ]);
             },
             'format' => 'html'
         ],
         'city',
-        'type',
+        'request_type',
         [
             'label' => 'Actions',
             'value' => function ($model) {
+
                 $buttons = Html::a('Set Pricing', [
-                    '/provided-service/set-pricing', 'id' => $model['provided_service_id'], 'area' => $model['id'], 'type' => $model['service_type_id']
+                    '/provided-service/set-pricing', 'id' => $model['provided_request_type'], 'area' => $model['id']
                 ], ['class' => 'btn btn-primary btn-sm']);
 
-                $buttons .= Html::a('Set Availability', [
-                    '/provided-service/set-availability', 'id' => $model['provided_service_id'], 'area' => $model['id'], 'type' => $model['service_type_id']
+                $buttons .= ' '.Html::a('Set Availability', [
+                    '/provided-service/set-availability', 'id' => $model['provided_request_type'], 'area' => $model['id']
                 ], ['class' => 'btn btn-primary btn-sm']);
 
                 return $buttons;
