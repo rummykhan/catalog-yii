@@ -10,7 +10,7 @@ use yii\web\NotFoundHttpException;
  * This is the model class for table "global_availability_rule".
  *
  * @property int $id
- * @property int $provided_service_type_id
+ * @property int $calendar_id
  * @property int $start_time
  * @property int $end_time
  * @property int $rule_value
@@ -20,7 +20,7 @@ use yii\web\NotFoundHttpException;
  *
  * @property RuleValueType $ruleValueType
  * @property RuleType $ruleType
- * @property ProvidedServiceArea $providedServiceArea
+ * @property Calendar $calendar
  */
 class GlobalAvailabilityRule extends \yii\db\ActiveRecord
 {
@@ -38,10 +38,10 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_type_id', 'start_time', 'end_time', 'rule_value', 'rule_value_type_id', 'rule_type_id'], 'integer'],
+            [['start_time', 'end_time', 'rule_value', 'rule_value_type_id', 'rule_type_id'], 'integer'],
             [['day'], 'string', 'max' => 255],
             [['rule_value_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => RuleValueType::className(), 'targetAttribute' => ['rule_value_type_id' => 'id']],
-            [['provided_service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_type_id' => 'id']],
+            [['calendar_id'], 'exist', 'skipOnError' => true, 'targetClass' => Calendar::className(), 'targetAttribute' => ['calendar_id' => 'id']],
             ['rule_type_id', 'exist', 'skipOnError' => true, 'targetClass' => RuleType::className(), 'targetAttribute' => ['rule_type_id' => 'id']]
         ];
     }
@@ -53,7 +53,7 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_type_id' => 'Provided Service Area ID',
+            'calendar_id' => 'Calendar ID',
             'start_time' => 'Start Time',
             'end_time' => 'End Time',
             'rule_value' => 'Rule Value',
@@ -74,9 +74,9 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceArea()
+    public function getCalendar()
     {
-        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_type_id']);
+        return $this->hasOne(Calendar::className(), ['id' => 'calendar_id']);
     }
 
     public function getRuleType()
@@ -86,14 +86,14 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
 
     /**
      * @param $rules Collection
-     * @param $provider_id integer
+     * @param $calendar_id integer
      * @throws NotFoundHttpException
      */
-    public static function addRules($rules, $provider_id)
+    public static function addRules($rules, $calendar_id)
     {
         // delete existing rules..
         GlobalAvailabilityRule::deleteAll([
-            'provided_service_type_id' => $area->id
+            'calendar_id' => $calendar_id
         ]);
 
         foreach ($rules as $rule) {
@@ -106,10 +106,11 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
                 ->where(['name' => $rule['update_as']])
                 ->one();
 
-            $availabilityRule = $area->getGlobalAvailabilityRules()
+            $availabilityRule = GlobalAvailabilityRule::find()
                 ->where(['start_time' => $rule['start_time']])
                 ->andWhere(['end_time' => $rule['end_time']])
                 ->andWhere(['day' => $rule['day']])
+                ->andWhere(['calendar_id' => $calendar_id])
                 ->one();
 
             if ($availabilityRule) {
@@ -117,7 +118,7 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
             }
 
             $availabilityRule = new GlobalAvailabilityRule();
-            $availabilityRule->provided_service_type_id = $area->id;
+            $availabilityRule->calendar_id = $calendar_id;
             $availabilityRule->start_time = $rule['start_time'];
             $availabilityRule->end_time = $rule['end_time'];
             $availabilityRule->day = $rule['day'];
@@ -130,7 +131,6 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
                 $availabilityRule->rule_value_type_id = $ruleValueType->id;
             }
 
-            $availabilityRule->provided_service_type_id = $area->id;
             $availabilityRule->rule_value = $rule['value'];
             $availabilityRule->save();
         }

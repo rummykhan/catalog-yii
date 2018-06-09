@@ -8,12 +8,12 @@ use Yii;
  * This is the model class for table "global_availability_exception".
  *
  * @property int $id
- * @property int $provided_service_type_id
+ * @property int $calendar_id
  * @property int $start_time
  * @property int $end_time
  * @property string $day
  *
- * @property ProvidedServiceArea $providedServiceArea
+ * @property Calendar $providedServiceArea
  */
 class GlobalAvailabilityException extends \yii\db\ActiveRecord
 {
@@ -31,9 +31,9 @@ class GlobalAvailabilityException extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_type_id', 'start_time', 'end_time'], 'integer'],
+            [['calendar_id', 'start_time', 'end_time'], 'integer'],
             [['day'], 'string', 'max' => 255],
-            [['provided_service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_type_id' => 'id']],
+            [['calendar_id'], 'exist', 'skipOnError' => true, 'targetClass' => Calendar::className(), 'targetAttribute' => ['calendar_id' => 'id']],
         ];
     }
 
@@ -44,7 +44,7 @@ class GlobalAvailabilityException extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_type_id' => 'Provided Service Area ID',
+            'calendar_id' => 'Calendar ID',
             'start_time' => 'Start Time',
             'end_time' => 'End Time',
             'day' => 'Day',
@@ -54,28 +54,29 @@ class GlobalAvailabilityException extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceArea()
+    public function getCalendar()
     {
-        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_type_id']);
+        return $this->hasOne(Calendar::className(), ['id' => 'calendar_id']);
     }
 
     /**
-     * @param $area ProvidedServiceArea
      * @param $rules array
+     * @param $calendar_id integer
      */
-    public static function addRules($area, $rules)
+    public static function addRules($rules, $calendar_id)
     {
         // delete existing rules..
         GlobalAvailabilityException::deleteAll([
-            'provided_service_type_id' => $area->id
+            'calendar_id' => $calendar_id
         ]);
 
         foreach ($rules as $rule) {
 
-            $availabilityRule = $area->getGlobalAvailabilityExceptions()
+            $availabilityRule = GlobalAvailabilityException::find()
                 ->where(['start_time' => $rule['start_time']])
                 ->andWhere(['end_time' => $rule['end_time']])
                 ->andWhere(['day' => $rule['day']])
+                ->andWhere(['calendar_id' => $calendar_id])
                 ->one();
 
             if ($availabilityRule) {
@@ -86,7 +87,7 @@ class GlobalAvailabilityException extends \yii\db\ActiveRecord
             $availabilityRule->start_time = $rule['start_time'];
             $availabilityRule->end_time = $rule['end_time'];
             $availabilityRule->day = $rule['day'];
-            $availabilityRule->provided_service_type_id = $area->id;
+            $availabilityRule->calendar_id = $calendar_id;
             $availabilityRule->save();
         }
     }

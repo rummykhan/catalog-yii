@@ -12,7 +12,6 @@ use Yii;
  * @property int $service_request_type_id
  * @property boolean $deleted
  *
- * @property ProvidedServiceArea[] $providedServiceAreas
  * @property ServiceRequestType $serviceRequestType
  * @property ProvidedService $providedService
  */
@@ -34,7 +33,7 @@ class ProvidedRequestType extends \yii\db\ActiveRecord
         return [
             [['provided_service_id', 'service_request_type_id'], 'integer'],
             ['deleted', 'boolean'],
-            [['service_request_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => RequestType::className(), 'targetAttribute' => ['service_request_type_id' => 'id']],
+            [['service_request_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceRequestType::className(), 'targetAttribute' => ['service_request_type_id' => 'id']],
             [['provided_service_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedService::className(), 'targetAttribute' => ['provided_service_id' => 'id']],
         ];
     }
@@ -49,14 +48,6 @@ class ProvidedRequestType extends \yii\db\ActiveRecord
             'provided_service_id' => 'Provided Service ID',
             'service_request_type_id' => 'Service Type ID',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProvidedServiceAreas()
-    {
-        return $this->hasMany(ProvidedServiceArea::className(), ['provided_request_type_id' => 'id']);
     }
 
     /**

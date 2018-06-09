@@ -16,7 +16,8 @@ class AvailabilityAsset extends AssetBundle
     ];
 
     public $js = [
-        'plugins/availability/availability.js'
+        'plugins/availability/availability.js',
+        'plugins/availability/provider-calendar.js',
     ];
 
     public $depends = [

@@ -11,6 +11,7 @@ use Yii;
  * @property int $service_attribute_id
  * @property int $price_type_id
  * @property int $pricing_attribute_group_id
+ * @property int $service_id
  *
  * @property PriceType $priceType
  * @property ServiceAttribute $serviceAttribute
@@ -34,11 +35,12 @@ class PricingAttribute extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_attribute_id', 'price_type_id'], 'integer'],
+            [['service_attribute_id', 'price_type_id', 'service_id'], 'integer'],
             [['price_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => PriceType::className(), 'targetAttribute' => ['price_type_id' => 'id']],
             [['service_attribute_id'], 'exist', 'skipOnError' => true, 'targetClass' => ServiceAttribute::className(), 'targetAttribute' => ['service_attribute_id' => 'id']],
             [['pricing_attribute_group_id'], 'integer'],
             [['pricing_attribute_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => PricingAttributeGroup::className(), 'targetAttribute' => ['pricing_attribute_group_id' => 'id']],
+            [['service_id'], 'exist', 'skipOnError' => true, 'targetClass' => Service::className(), 'targetAttribute' => ['service_id' => 'id']]
         ];
     }
 
@@ -51,6 +53,7 @@ class PricingAttribute extends \yii\db\ActiveRecord
             'id' => 'ID',
             'service_attribute_id' => 'Service Attribute ID',
             'price_type_id' => 'Price Type ID',
+            'service_id' => 'Service ID'
         ];
     }
 
@@ -89,5 +92,10 @@ class PricingAttribute extends \yii\db\ActiveRecord
     public function getProvidedServiceNoImpactPricings()
     {
         return $this->hasMany(ProvidedServiceNoImpactPricing::className(), ['pricing_attribute_id' => 'id']);
+    }
+
+    public function getService()
+    {
+        return $this->hasOne(Service::className(), ['id' => 'service_id']);
     }
 }
