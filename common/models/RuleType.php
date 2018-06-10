@@ -18,6 +18,9 @@ class RuleType extends \yii\db\ActiveRecord
     const TYPE_INCREASE = 'Increase';
     const TYPE_DECREASE = 'Decrease';
 
+    const TYPE_AVAILABLE = 'Available';
+    const TYPE_NOT_AVAILABLE = 'Not Available';
+
     /**
      * @inheritdoc
      */

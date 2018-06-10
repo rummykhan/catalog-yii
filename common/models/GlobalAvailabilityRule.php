@@ -92,9 +92,7 @@ class GlobalAvailabilityRule extends \yii\db\ActiveRecord
     public static function addRules($rules, $calendar_id)
     {
         // delete existing rules..
-        GlobalAvailabilityRule::deleteAll([
-            'calendar_id' => $calendar_id
-        ]);
+
 
         foreach ($rules as $rule) {
 

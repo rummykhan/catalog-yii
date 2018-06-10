@@ -9,12 +9,12 @@ use yii\web\NotFoundHttpException;
  * This is the model class for table "availability_exception".
  *
  * @property int $id
- * @property int $provided_service_type_id
+ * @property int $calendar_id
  * @property int $start_time
  * @property int $end_time
  * @property string $date
  *
- * @property ProvidedServiceArea $providedServiceArea
+ * @property Calendar $calendar
  */
 class AvailabilityException extends \yii\db\ActiveRecord
 {
@@ -32,9 +32,9 @@ class AvailabilityException extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['provided_service_type_id', 'start_time', 'end_time'], 'integer'],
+            [['calendar_id', 'start_time', 'end_time'], 'integer'],
             [['date'], 'string', 'max' => 255],
-            [['provided_service_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ProvidedServiceArea::className(), 'targetAttribute' => ['provided_service_type_id' => 'id']],
+            [['calendar_id'], 'exist', 'skipOnError' => true, 'targetClass' => Calendar::className(), 'targetAttribute' => ['calendar_id' => 'id']],
         ];
     }
 
@@ -45,7 +45,7 @@ class AvailabilityException extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'provided_service_type_id' => 'Provided Service Area ID',
+            'calendar_id' => 'Calendar ID',
             'start_time' => 'Start Time',
             'end_time' => 'End Time',
             'date' => 'Date',
@@ -55,31 +55,25 @@ class AvailabilityException extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceArea()
+    public function getCalendar()
     {
-        return $this->hasOne(ProvidedServiceArea::className(), ['id' => 'provided_service_type_id']);
+        return $this->hasOne(Calendar::className(), ['id' => 'calendar_id']);
     }
 
     /**
-     * @param $area ProvidedServiceArea
      * @param $rules array
-     * @param $date string
+     * @param $calendar_id string
      * @throws NotFoundHttpException
      */
-    public static function addRules($area, $rules, $date)
+    public static function addRules($rules, $calendar_id)
     {
-        // delete existing rules..
-        AvailabilityException::deleteAll([
-            'provided_service_type_id' => $area->id,
-            'date' => $date,
-        ]);
-
         foreach ($rules as $rule) {
 
-            $availabilityRule = $area->getAvailabilityRules()
+            $availabilityRule = AvailabilityException::find()
                 ->where(['start_time' => $rule['start_time']])
                 ->andWhere(['end_time' => $rule['end_time']])
                 ->andWhere(['date' => $rule['date']])
+                ->andWhere(['calendar_id' => $calendar_id])
                 ->one();
 
 
@@ -87,12 +81,12 @@ class AvailabilityException extends \yii\db\ActiveRecord
                 continue;
             }
 
-            $availabilityRule = new AvailabilityException();
-            $availabilityRule->start_time = $rule['start_time'];
-            $availabilityRule->end_time = $rule['end_time'];
-            $availabilityRule->date = date('Y-m-d', strtotime($rule['date']));
-            $availabilityRule->provided_service_type_id = $area->id;
-            $availabilityRule->save();
+            $availabilityException = new AvailabilityException();
+            $availabilityException->start_time = $rule['start_time'];
+            $availabilityException->end_time = $rule['end_time'];
+            $availabilityException->date = date('Y-m-d', strtotime($rule['date']));
+            $availabilityException->calendar_id = $calendar_id;
+            $availabilityException->save();
         }
     }
 }

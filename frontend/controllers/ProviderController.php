@@ -3,6 +3,8 @@
 namespace frontend\controllers;
 
 use common\forms\AddCalendar;
+use common\models\Calendar;
+use common\models\CalendarSearch;
 use common\models\GlobalAvailabilityException;
 use common\models\GlobalAvailabilityRule;
 use RummyKhan\Collection\Arr;
@@ -129,24 +131,59 @@ class ProviderController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionCalendar($provider_id)
+    public function actionAvailability($provider_id)
     {
         $model = $this->findModel($provider_id);
 
-        return $this->render('calendar/index', compact('model'));
+        $searchModel = new CalendarSearch();
+        $searchModel->provider_id = $provider_id;
+        $dataProvider = $searchModel->search(Yii::$app->getRequest()->getQueryParams());
+
+        return $this->render('calendar/index', compact('model', 'searchModel', 'dataProvider'));
     }
 
-    public function actionAddCalendar($provider_id)
+    public function actionCalendar($provider_id, $calendar_id = null)
     {
         $provider = $this->findModel($provider_id);
+        $calendar = $provider->getCalendars()->where(['id' => $calendar_id])->one();
         $model = new AddCalendar();
         $model->providerId = $provider_id;
 
-        if($model->load(Yii::$app->getRequest()->post()) && $model->add()){
-            dd('added');
+        if ($calendar) {
+            $model->calendarId = $calendar->id;
+        }
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $calendar = $model->update()) {
+
+            return $this->redirect(['/provider/calendar', 'provider_id' => $provider_id, 'calendar_id' => $calendar->id]);
+        }
+
+        if ($calendar) {
+            $model->name = $calendar->name;
+            $model->dateRules = json_encode($calendar->getLocalRules());
+            $model->globalRules = json_encode($calendar->getGlobalRules());
         }
 
 
         return $this->render('calendar/add', compact('provider', 'model'));
+    }
+
+    public function actionDeleteCalendar($provider_id, $calendar_id)
+    {
+        $provider = $this->findModel($provider_id);
+
+        /** @var Calendar $calendar */
+        $calendar = $provider->getCalendars()->where(['id' => $calendar_id])->one();
+
+        if(!$calendar){
+            throw new NotFoundHttpException();
+        }
+
+
+        $calendar->deleted = true;
+        $calendar->save();
+
+        Yii::$app->getSession()->addFlash('message', 'Calendar deleted successfully!');
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 }

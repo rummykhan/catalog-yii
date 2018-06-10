@@ -15,6 +15,8 @@ use yii\db\Expression;
  * @property string $email
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property Calendar[] $calendars
  */
 class Provider extends \yii\db\ActiveRecord
 {
@@ -64,5 +66,10 @@ class Provider extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    public function getCalendars()
+    {
+        return $this->hasMany(Calendar::className(), ['provider_id' => 'id']);
     }
 }

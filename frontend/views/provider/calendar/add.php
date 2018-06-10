@@ -22,9 +22,32 @@ AvailabilityAsset::register($this);
 $this->title = "Add Calendar";
 $this->params['breadcrumbs'][] = ['label' => 'Providers', 'url' => ['/provider/index']];
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $provider->id]];
+$this->params['breadcrumbs'][] = ['label' => 'Calendars', 'url' => ['/provider/availability', 'provider_id' => $provider->id]];
 $this->params['breadcrumbs'][] = ['label' => $this->title];
 
 ?>
+
+<?php
+
+$css = <<<CSS
+    .availability > li > a, .availability > li > span {
+        position: relative;
+        float: left;
+        padding: 5px 10px;
+        margin-left: -1px;
+        line-height: 1.42857143;
+        color: #337ab7;
+        text-decoration: none;
+        background-color: #fff;
+        border: 1px solid #ddd;
+    }
+CSS;
+
+$this->registerCss($css);
+
+?>
+
+
     <div class="row">
         <div class="col-md-8">
             <div id="year-calendar"></div>
@@ -39,8 +62,8 @@ $this->params['breadcrumbs'][] = ['label' => $this->title];
             <?= $form->field($model, 'dateRules', ['template' => "{input}"])->hiddenInput() ?>
 
             <div class="form-group">
-                <button class="btn btn-primary">Save</button>
-                <button class="btn btn-primary" id="add-availability-rule">Add Availability Rule</button>
+                <button class="btn btn-primary"><?= !empty($model->calendarId) ? 'Update' : 'Save' ?></button>
+                <button type="button" class="btn btn-primary" id="add-availability-rule">Add Availability Rule</button>
             </div>
 
             <div class="row">
@@ -365,22 +388,31 @@ $this->params['breadcrumbs'][] = ['label' => $this->title];
         </div>
     </div>
 
+    <hr>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h4>Availability</h4>
+            <ul class="pagination availability" id="date-availability-hours">
+            </ul>
+        </div>
+    </div>
+
 <?php Modal::end() ?>
 
 <?php
 
 //TODO: Fix the below line to support the udpate
-$globalRules = [];
-$localRules = [];
+$globalRules = json_decode($model->globalRules, true);
+$localRules = json_decode($model->dateRules, true);
 
 $startDate = date('Y-m-d');
-$endDate = date('Y-12-31', strtotime('+1 years', strtotime($startDate)));
 $endDate = date('Y-12-31');
+
 $globalRulesJson = json_encode($globalRules);
 $localRulesJson = json_encode($localRules);
 
-$dateRulesSelector = Html::getInputId($model, 'dateRules');
 $globalRulesSelector = Html::getInputId($model, 'globalRules');
+$dateRulesSelector = Html::getInputId($model, 'dateRules');
 
 $js = <<<JS
     
@@ -402,8 +434,8 @@ $js = <<<JS
        GlobalModal: '#global-modal',
        GlobalRulesListTitle: '#global-rules-list-title',
        GlobalRulesList: '#global-rules-list',
-       GlobalRuleRemoveSelector: '.delete-global-rule',
        GlobalAvailabilityRules: JSON.parse('{$globalRulesJson}'),
+       GlobalRulesInputSelector: '#{$globalRulesSelector}',
        /*   =======================================================  */
        
        DateRuleTypeSelector: '#date-rule-type',
@@ -415,14 +447,14 @@ $js = <<<JS
        DateRuleUpdateAsSelector: '#date-rule-update-as',
        DateRuleUpdatePriceSelector: '#date-rule-updated-price',
        DateRuleModalDateSelector: '#date-rule-modal-date',
-       DateRulesSelector: '#date-rules',
        DateRulesDateSelector: '#date-rules-date',
        DateRuleAvailabilityHoursSelector: '#date-availability-hours',
        DateRuleAppliedRules: '#date-applied-rules',
        DateAvailabilityRules: JSON.parse('{$localRulesJson}'),
        DateRulesListTitle: '#date-rules-list-title',
        DateRulesList: '#date-rules-list',
-       DateRuleRemoveSelector: '.delete-date-rule',
+       DateRuleAddSelector: '#add-date-rule',
+       DateRulesInputSelector: '#{$dateRulesSelector}',
        /*   =======================================================  */
     });
 JS;

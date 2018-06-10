@@ -20,7 +20,7 @@
 
             that.refreshRulesDisplay(this.options.GlobalAvailabilityRules);
 
-            $('#year-calendar').calendar({
+            that.yearCalendar = $('#year-calendar').calendar({
                 startYear: moment().format('Y'),
                 minDate: that.options.startDateMoment.toDate(),
                 maxDate: that.options.endDateMoment.toDate(),
@@ -65,6 +65,7 @@
             this.onGlobalAvailabilitySelection();
             this.onGlobalRuleSelection();
             this.onGlobalRuleDelete();
+            this.onDateRuleDelete();
         },
 
         _initializeOptions: function (opt) {
@@ -88,8 +89,10 @@
                 GlobalModal: null,
                 GlobalRulesListTitle: null,
                 GlobalRulesList: null,
-                GlobalRuleRemoveSelector: null,
+                GlobalRuleRemoveSelector: '.delete-global-rule',
+                GlobalRuleRemoveClass: 'delete-global-rule',
                 GlobalAvailabilityRules: [],
+                GlobalRulesInputSelector: null,
 
                 // Date Availability Type Selectors
                 DateRuleTypeSelector: null,
@@ -101,20 +104,28 @@
                 DateRuleUpdateAsSelector: null,
                 DateRuleUpdatePriceSelector: null,
                 DateRuleModalDateSelector: null,
-                DateRulesSelector: null,
                 DateRulesDateSelector: null,
                 DateRuleAvailabilityHoursSelector: null,
                 DateRulesListTitle: null,
                 DateRulesList: null,
                 DateRuleAppliedRules: [],
                 DateAvailabilityRules: [],
-                DateRuleRemoveSelector: null,
+                DateRuleRemoveSelector: '.delete-date-rule',
+                DateRuleRemoveClass: 'delete-date-rule',
+                DateRuleAddSelector: null,
+                DateRulesInputSelector: null,
             }, opt);
 
             this.options.startDateMoment = moment(this.options.startDate, 'YYYY-MM-DD');
             this.options.endDateMoment = moment(this.options.endDate, 'YYYY-MM-DD');
 
             for (var option in this.options) {
+
+                if((option === 'DateAvailabilityRules' || option === 'GlobalAvailabilityRules') && this.options[option] === null){
+                    this.options[option] = [];
+                    continue;
+                }
+
                 if (this.options[option] === null) {
                     throw new Error(option + ' value cannot be null');
                 }
@@ -141,7 +152,6 @@
             $(this.options.DateRulesDateSelector).val(momentDate.format('YYYY-MM-DD'));
             this.refreshDateRuleTableDisplay(this.options.DateAvailabilityRules);
             this.showDateAvailability(rules);
-            //showDateAppliedRules(rules);
         },
 
 
@@ -172,6 +182,7 @@
                             price_type: $(that.options.GlobalRulePriceTypeSelector).val(),
                             update_as: $(that.options.GlobalRuleUpdateAsSelector).val(),
                             value: $(that.options.GlobalRuleUpdatePriceSelector).val(),
+                            year: that.yearCalendar.getYear(),
                         });
                         that.refreshRulesDisplay(that.options.GlobalAvailabilityRules);
                     }
@@ -185,7 +196,7 @@
                 $(that.options.GlobalRuleUpdateAsSelector).val('').trigger('change');
                 $(that.options.GlobalRuleUpdatePriceSelector).val('');
 
-                $('#availability-rules').val(JSON.stringify(that.options.GlobalAvailabilityRules));
+                that.updateGlobalInput();
             });
 
         },
@@ -224,7 +235,7 @@
 
         onAddingDateRule: function () {
             var that = this;
-            $('#add-date-rule').click(function (e) {
+            $(that.options.DateRuleAddSelector).click(function (e) {
                 var type = $(that.options.DateRuleTypeSelector).val();
 
                 if (!type) {
@@ -238,7 +249,7 @@
                 }
 
                 if (that.options.DateAvailabilityRules.length > 0) {
-                    $(that.options.DateRulesSelector).val(JSON.stringify(that.options.DateAvailabilityRules));
+                    that.updateDateInput();
                 }
             });
         },
@@ -251,6 +262,7 @@
                 var id = element.attr('data-id');
                 that.options.GlobalAvailabilityRules = that.removeRuleByIdentifier(that.options.GlobalAvailabilityRules, id);
                 that.refreshRulesDisplay(that.options.GlobalAvailabilityRules);
+                that.updateGlobalInput();
             });
         },
 
@@ -260,7 +272,8 @@
                 var element = $(this);
                 var id = element.attr('data-id');
                 that.options.DateAvailabilityRules = that.removeRuleByIdentifier(that.options.DateAvailabilityRules, id);
-                that.refreshDateRuleTableDisplay(that.options.DateAvailabilityRules);
+                that.refreshDateRulesList(that.options.DateAvailabilityRules);
+                that.updateDateInput();
             });
         },
 
@@ -281,7 +294,7 @@
 
                 var tableRow =
                     '<tr>' +
-                    '<td><button class="btn btn-danger btn-xs delete-global-rule" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button></td>' +
+                    '<td><button class="btn btn-danger btn-xs ' + that.options.GlobalRuleRemoveClass + '" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button></td>' +
                     '<td>' + value.type + '</td>' +
                     '<td>' + value.day + '</td>' +
                     '<td>' + value.start_time + '</td>' +
@@ -294,8 +307,8 @@
 
                 var ruleListItem =
                     '<li class="list-group-item">' +
-                    '<button class="btn btn-danger btn-xs delete-global-rule" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> ' +
-                    value.type + ' ON ' + value.day + ' Day(s) From ' + value.start_time + ' To ' + value.end_time +
+                    '<button class="btn btn-danger btn-xs ' + that.options.GlobalRuleRemoveClass + '" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> ' +
+                    value.type + ' on <b>all ' + value.day + ' </b> from <b>' + value.start_time + '</b> to ' + value.end_time +
                     '</li>';
 
                 globalRulesList.append(ruleListItem);
@@ -328,18 +341,16 @@
             var that = this;
             $(that.options.DateRulesTableSelector).empty();
 
-            var dateRulesList = $(that.options.DateRulesList);
-            dateRulesList.empty();
-
             rules = _.filter(rules, {date: $(that.options.DateRuleModalDateSelector).text()}) || [];
 
 
+            // in the modal display date rules
             $.each(rules, function (index, value) {
 
                 var identifier = value.start_time + value.end_time + 'Available' + $(that.options.DateRuleModalDateSelector).text();
 
                 var tableRow = '<tr>' +
-                    '<td><button class="btn btn-danger btn-xs delete-date-rule" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> </td>' +
+                    '<td><button class="btn btn-danger btn-xs ' + that.options.DateRuleRemoveClass + '" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> </td>' +
                     '<td>' + value.type + '</td>' +
                     '<td>' + value.start_time + '</td>' +
                     '<td>' + value.end_time + '</td>' +
@@ -349,11 +360,26 @@
                     '</tr>';
 
                 $(that.options.DateRulesTableSelector).append(tableRow);
+            });
+        },
+
+
+        // add to the date rules list..
+        refreshDateRulesList: function (rules) {
+            var that = this;
+
+            var dateRulesList = $(that.options.DateRulesList);
+            dateRulesList.empty();
+
+            // on the list display the all rules
+            $.each(rules, function (index, value) {
+
+                var identifier = value.start_time + value.end_time + value.type + value.date;
 
                 var ruleListItem =
                     '<li class="list-group-item">' +
-                    '<button class="btn btn-danger btn-xs delete-date-rule" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> ' +
-                    value.type + ' on ' + value.date + ' Day, from ' + value.start_time + ' to ' + value.end_time +
+                    '<button class="btn btn-danger btn-xs ' + that.options.DateRuleRemoveClass + '" style="margin-right:10px;" data-id="' + identifier + '"><i class="glyphicon glyphicon-trash"></i></button> ' +
+                    value.type + ' on ' + value.date + ', from ' + value.start_time + ' to ' + value.end_time +
                     '</li>';
 
                 dateRulesList.append(ruleListItem);
@@ -361,7 +387,7 @@
             });
 
             var dateRulesListTitle = $(that.options.DateRulesListTitle);
-            // TODO: we have to remove the both bodies and instead we should show and hide the list titles in the new format
+
             if (rules.length > 0) {
                 dateRulesListTitle.removeClass('hidden');
             } else {
@@ -369,6 +395,7 @@
             }
         },
 
+        // refresh date controls
         refreshDateControls: function () {
             var that = this;
             $(that.options.DateRuleStartTimeSelector).val('').trigger('change');
@@ -379,6 +406,7 @@
             $(that.options.DateRuleTypeSelector).val('').trigger('change');
         },
 
+        // add date availability rules
         addDateAvailableRule: function () {
             var that = this;
             var startTime = $(that.options.DateRuleStartTimeSelector).val();
@@ -388,7 +416,7 @@
             var value = $(that.options.DateRuleUpdatePriceSelector).val();
 
             if (!!startTime && !!endTime) {
-                var identifier = startTime + endTime + 'Available' + $(DateRuleModalDateSelector).text();
+                var identifier = startTime + endTime + 'Available' + $(that.options.DateRuleModalDateSelector).text();
                 var obj = {
                     start_time: startTime,
                     end_time: endTime,
@@ -412,6 +440,7 @@
             }
 
             that.refreshDateRuleTableDisplay(that.options.DateAvailabilityRules);
+            that.refreshDateRulesList(that.options.DateAvailabilityRules);
             that.refreshDateControls();
         },
 
@@ -443,12 +472,18 @@
             }
 
             that.refreshDateRuleTableDisplay(that.options.DateAvailabilityRules);
+            that.refreshDateRulesList(that.options.DateAvailabilityRules);
             that.refreshDateControls();
         },
 
         showDateAvailability: function (rules) {
             var that = this;
             $(that.options.DateRuleAvailabilityHoursSelector).empty();
+
+            if (!rules) {
+                return true;
+            }
+
             rules = JSON.parse(rules);
 
             for (var i = 0; i <= 23; i++) {
@@ -461,7 +496,7 @@
                     elementClass = 'disabled';
                 }
 
-                var elementHtml = '<li class="' + elementClass + '"><a href="#">' + i + ' <span class="sr-only">' + i + '</span></a></li>';
+                var elementHtml = '<li class="' + elementClass + '"><a>' + i + ' <span class="sr-only">' + i + '</span></a></li>';
 
                 $(that.options.DateRuleAvailabilityHoursSelector).append(elementHtml);
             }
@@ -471,6 +506,16 @@
             return rules.filter(function (rule) {
                 return rule.identifier !== id;
             });
+        },
+
+        updateGlobalInput: function(){
+            var that = this;
+            $(that.options.GlobalRulesInputSelector).val(JSON.stringify(that.options.GlobalAvailabilityRules));
+        },
+
+        updateDateInput: function(){
+            var that = this;
+            $(that.options.DateRulesInputSelector).val(JSON.stringify(that.options.DateAvailabilityRules));
         }
     };
 

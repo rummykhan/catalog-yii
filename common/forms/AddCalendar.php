@@ -24,29 +24,32 @@ class AddCalendar extends Model
     public $globalRules;
     public $dateRules;
     public $providerId;
+    public $calendarId;
 
     public function rules()
     {
         return [
             [['name', 'globalRules', 'dateRules'], 'safe'],
             ['name', 'required'],
-            ['providerId', 'exist', 'targetClass' => Provider::className(), 'targetAttribute' => ['providerId' => 'id']]
+            ['providerId', 'exist', 'targetClass' => Provider::className(), 'targetAttribute' => ['providerId' => 'id']],
+            ['calendarId', 'exist', 'targetClass' => Calendar::className(), 'targetAttribute' => ['calendarId' => 'id']]
         ];
     }
 
-    public function add()
+    /**
+     * @return bool|Calendar
+     */
+    public function update()
     {
         if (!$this->validate()) {
             return false;
         }
 
-        dd($this);
-
         $transaction = Yii::$app->getDb()->beginTransaction();
 
         try {
 
-            $calendar = $this->createCalendar();
+            $calendar = $this->getCalendar();
 
             $calendar->addGlobalRule(json_decode($this->globalRules, true));
             $calendar->addLocalRule(json_decode($this->dateRules, true));
@@ -60,16 +63,22 @@ class AddCalendar extends Model
             return false;
         }
 
-        return true;
+
+        return $calendar;
     }
 
     /**
      * @return Calendar
      */
-    private function createCalendar()
+    private function getCalendar()
     {
-        $calendar = new Calendar();
-        $calendar->provider_id = $this->providerId;
+        if (!empty($this->calendarId)) {
+            $calendar = Calendar::findOne($this->calendarId);
+        } else {
+            $calendar = new Calendar();
+            $calendar->provider_id = $this->providerId;
+        }
+
         $calendar->name = $this->name;
         $calendar->save();
 

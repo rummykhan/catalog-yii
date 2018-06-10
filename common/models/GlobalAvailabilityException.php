@@ -65,11 +65,6 @@ class GlobalAvailabilityException extends \yii\db\ActiveRecord
      */
     public static function addRules($rules, $calendar_id)
     {
-        // delete existing rules..
-        GlobalAvailabilityException::deleteAll([
-            'calendar_id' => $calendar_id
-        ]);
-
         foreach ($rules as $rule) {
 
             $availabilityRule = GlobalAvailabilityException::find()
