@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use frontend\controllers\ProvidedServiceAreaController;
+use RummyKhan\Collection\Arr;
 use Yii;
 
 /**
@@ -57,14 +59,6 @@ class ServiceArea extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProvidedServiceAreas()
-    {
-        return $this->hasMany(ProvidedServiceArea::className(), ['service_area_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getProvider()
     {
         return $this->hasOne(Provider::className(), ['id' => 'provider_id']);
@@ -84,5 +78,46 @@ class ServiceArea extends \yii\db\ActiveRecord
     public function getServiceAreaCoverages()
     {
         return $this->hasMany(ServiceAreaCoverage::className(), ['service_area_id' => 'id']);
+    }
+
+    /**
+     * Delete all coverages in a service area
+     */
+    public function deleteAllAreas()
+    {
+        ServiceAreaCoverage::deleteAll(['service_area_id' => $this->id]);
+    }
+
+    /**
+     * @param $areas array
+     */
+    public function addAreas($areas)
+    {
+        foreach ($areas as $area) {
+            $this->addArea($area);
+        }
+    }
+
+    public function addArea($area)
+    {
+        $coordinates = Arr::get($area, 'coordinates');
+        $radius = Arr::get($area, 'radius');
+
+        if (empty($coordinates) || empty($radius)) {
+            return false;
+        }
+
+        @list($lat, $long) = explode(',', $coordinates);
+
+        if (empty($lat) || empty($long)) {
+            return false;
+        }
+
+        $providedServiceCoverage = new ServiceAreaCoverage();
+        $providedServiceCoverage->lat = $lat;
+        $providedServiceCoverage->lng = $long;
+        $providedServiceCoverage->radius = $radius;
+        $providedServiceCoverage->service_area_id = $this->id;
+        $providedServiceCoverage->save();
     }
 }

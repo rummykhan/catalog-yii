@@ -14,7 +14,7 @@ use Yii;
  * @property double $radius
  * @property string $coordinates
  *
- * @property ProvidedServiceArea $providedServiceArea
+ * @property ServiceArea $serviceArea
  */
 class ServiceAreaCoverage extends \yii\db\ActiveRecord
 {

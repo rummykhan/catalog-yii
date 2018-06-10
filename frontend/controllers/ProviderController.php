@@ -3,10 +3,12 @@
 namespace frontend\controllers;
 
 use common\forms\AddCalendar;
+use common\forms\AddCoverageArea;
 use common\models\Calendar;
 use common\models\CalendarSearch;
 use common\models\GlobalAvailabilityException;
 use common\models\GlobalAvailabilityRule;
+use common\models\ServiceArea;
 use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\Provider;
@@ -175,7 +177,7 @@ class ProviderController extends Controller
         /** @var Calendar $calendar */
         $calendar = $provider->getCalendars()->where(['id' => $calendar_id])->one();
 
-        if(!$calendar){
+        if (!$calendar) {
             throw new NotFoundHttpException();
         }
 
@@ -185,5 +187,39 @@ class ProviderController extends Controller
 
         Yii::$app->getSession()->addFlash('message', 'Calendar deleted successfully!');
         return $this->redirect(Yii::$app->getRequest()->getReferrer());
+    }
+
+    public function actionServiceArea($provider_id)
+    {
+        $model = $this->findModel($provider_id);
+
+
+        return $this->render('service-area/index', compact('model'));
+    }
+
+    public function actionCuServiceArea($provider_id, $area_id = null)
+    {
+        $provider = $this->findModel($provider_id);
+        /** @var ServiceArea $serviceArea */
+        $serviceArea = $provider->getServiceAreas()->where(['id' => $area_id])->one();
+
+        $model = new AddCoverageArea();
+        $model->provider_id = $provider_id;
+
+        if ($serviceArea) {
+            $model->service_area_id = $serviceArea->id;
+        }
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $area = $model->createOrUpdate()) {
+            return $this->redirect(['/provider/cu-service-area', 'provider_id' => $area->provider_id, 'area_id' => $area->id]);
+        }
+
+
+        $coveredAreas = [];
+        if ($serviceArea) {
+            $coveredAreas = $serviceArea->getServiceAreaCoverages()->all();
+        }
+
+        return $this->render('service-area/cu', compact('provider', 'model', 'coveredAreas'));
     }
 }

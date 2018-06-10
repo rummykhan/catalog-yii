@@ -72,4 +72,9 @@ class Provider extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Calendar::className(), ['provider_id' => 'id']);
     }
+
+    public function getServiceAreas()
+    {
+        return $this->hasMany(ServiceArea::className(), ['provider_id' => 'id']);
+    }
 }
