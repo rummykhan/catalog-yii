@@ -4,6 +4,7 @@ namespace common\models;
 
 use omgdef\multilingual\MultilingualBehavior;
 use omgdef\multilingual\MultilingualQuery;
+use RummyKhan\Collection\Arr;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -27,6 +28,7 @@ use yiidreamteam\upload\ImageUploadBehavior;
  *
  * @property Category $parent
  * @property Category[] $categories
+ * @property City[] $cities
  *
  * @method getThumbFileUrl($attribute)
  * @method getImageFileUrl($attribute)
@@ -147,5 +149,56 @@ class Category extends \yii\db\ActiveRecord
     {
         return $this->hasMany(City::className(), ['id' => 'city_id'])
             ->viaTable('category_city', ['category_id' => 'id']);
+    }
+
+    public function getSelectedCities()
+    {
+        return collect($this->getCities()->asArray()->all())->pluck('name', 'id')->toArray();
+    }
+
+    public function getSelectedCountry()
+    {
+        if (count($this->cities) === 0) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = Arr::first($this->cities);
+
+        return $city->country_id;
+    }
+
+    public function getSelectedCountryCities()
+    {
+        if (count($this->cities) === 0) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = Arr::first($this->cities);
+
+        return collect($city->country->getCities()->asArray()->all())->pluck('name', 'id')->toArray();
+    }
+
+    public function updateCities($cities)
+    {
+        // remove previous
+        // add these..
+
+        CategoryCity::deleteAll(['category_id' => $this->id]);
+
+        if (empty($cities)) {
+            return false;
+        }
+
+        foreach ($cities as $city) {
+            $categoryCity = new CategoryCity();
+            $categoryCity->category_id = $this->id;
+            $categoryCity->city_id = $city;
+            $categoryCity->save();
+        }
+
+        return true;
+
     }
 }

@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\ServiceAreaCoverage;
 use common\models\ServiceAreaCoverageSearch;
@@ -12,21 +13,22 @@ use yii\filters\VerbFilter;
 /**
  * ProvidedServiceCoverageController implements the CRUD actions for ServiceAreaCoverage model.
  */
-class ProvidedServiceCoverageController extends Controller
+class ProvidedServiceCoverageController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

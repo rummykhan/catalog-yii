@@ -30,7 +30,7 @@ class CategoryCity extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['city_id', 'service_id'], 'integer'],
+            [['city_id', 'category_id'], 'integer'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::className(), 'targetAttribute' => ['city_id' => 'id']],
         ];

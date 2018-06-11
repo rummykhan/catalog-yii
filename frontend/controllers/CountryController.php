@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\Country;
 use common\models\CountrySearch;
@@ -12,21 +13,23 @@ use yii\filters\VerbFilter;
 /**
  * CountryController implements the CRUD actions for Country model.
  */
-class CountryController extends Controller
+class CountryController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

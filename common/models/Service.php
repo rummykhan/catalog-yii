@@ -4,6 +4,7 @@ namespace common\models;
 
 use omgdef\multilingual\MultilingualBehavior;
 use omgdef\multilingual\MultilingualQuery;
+use RummyKhan\Collection\Arr;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -155,6 +156,35 @@ class Service extends \yii\db\ActiveRecord
     {
         return $this->hasMany(City::className(), ['id' => 'city_id'])
             ->viaTable('service_city', ['service_id' => 'id']);
+    }
+
+    public function getSelectedCities()
+    {
+        return collect($this->getCities()->asArray()->all())->pluck('name', 'id')->toArray();
+    }
+
+    public function getSelectedCountry()
+    {
+        if (count($this->cities) === 0) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = Arr::first($this->cities);
+
+        return $city->country_id;
+    }
+
+    public function getSelectedCountryCities()
+    {
+        if (count($this->cities) === 0) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = Arr::first($this->cities);
+
+        return collect($city->country->getCities()->asArray()->all())->pluck('name', 'id')->toArray();
     }
 
     /**
@@ -412,7 +442,7 @@ class Service extends \yii\db\ActiveRecord
                 ->all()
         )->pluck('request_type_id')->toArray();
 
-        $new = $requestTypes;
+        $new = !empty($requestTypes) ? $requestTypes : [];
 
         $toAdd = array_diff($new, $existing);
         $toRemove = array_diff($existing, $new);

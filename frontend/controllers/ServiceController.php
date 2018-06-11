@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use common\forms\AddDependency;
 use common\forms\AddPricingAttribute;
 use common\forms\AddServiceViewAttribute;
@@ -39,21 +40,22 @@ use yii\web\ViewAction;
 /**
  * ServiceController implements the CRUD actions for Service model.
  */
-class ServiceController extends Controller
+class ServiceController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

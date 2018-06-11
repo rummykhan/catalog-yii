@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\Category;
 use common\models\CategorySearch;
@@ -12,21 +13,22 @@ use yii\filters\VerbFilter;
 /**
  * CategoryController implements the CRUD actions for Category model.
  */
-class CategoryController extends Controller
+class CategoryController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**
@@ -67,6 +69,11 @@ class CategoryController extends Controller
         $model = new Category();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            $cities = Yii::$app->getRequest()->post('cities');
+
+            $model->updateCities($cities);
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -87,6 +94,12 @@ class CategoryController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            $cities = Yii::$app->getRequest()->post('cities');
+
+            $model->updateCities($cities);
+
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

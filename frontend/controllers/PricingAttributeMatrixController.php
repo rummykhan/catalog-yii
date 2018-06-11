@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\PricingAttributeMatrix;
 use common\models\PricingAttributeMatrixSearch;
@@ -12,21 +13,23 @@ use yii\filters\VerbFilter;
 /**
  * PricingAttributeMatrixController implements the CRUD actions for PricingAttributeMatrix model.
  */
-class PricingAttributeMatrixController extends Controller
+class PricingAttributeMatrixController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

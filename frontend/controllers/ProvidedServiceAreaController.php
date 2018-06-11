@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\ProvidedServiceArea;
 use common\models\ProvidedServiceAreaSearch;
@@ -12,21 +13,22 @@ use yii\filters\VerbFilter;
 /**
  * ProvidedServiceAreaController implements the CRUD actions for ProvidedServiceArea model.
  */
-class ProvidedServiceAreaController extends Controller
+class ProvidedServiceAreaController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\InputType;
 use common\models\InputTypeSearch;
@@ -12,21 +13,23 @@ use yii\filters\VerbFilter;
 /**
  * InputTypeController implements the CRUD actions for InputType model.
  */
-class InputTypeController extends Controller
+class InputTypeController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

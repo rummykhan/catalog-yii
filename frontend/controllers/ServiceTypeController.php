@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\RequestType;
 use common\models\RequestTypeSearch;
@@ -12,21 +13,22 @@ use yii\filters\VerbFilter;
 /**
  * ServiceTypeController implements the CRUD actions for ServiceType model.
  */
-class ServiceTypeController extends Controller
+class ServiceTypeController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

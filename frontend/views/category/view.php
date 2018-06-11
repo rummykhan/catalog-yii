@@ -53,6 +53,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->parent->name;
                 }
             ],
+            [
+                'label' => 'Cities',
+                'value' => implode(',', $model->getSelectedCities()),
+            ],
             'created_at',
             'updated_at',
         ],

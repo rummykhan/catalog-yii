@@ -1,14 +1,14 @@
-<?php
+d<?php
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use common\forms\AttachOption;
 use common\forms\AttachValidation;
 use common\models\Service;
 use common\models\ServiceAttribute;
 use common\models\ServiceAttributeValidation;
 use Yii;
-use common\models\Attribute;
 use common\models\AttributeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -18,20 +18,22 @@ use yii\web\Response;
 /**
  * AttributeController implements the CRUD actions for Attribute model.
  */
-class AttributeController extends Controller
+class AttributeController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                 ],
             ],
-        ];
+        ]);
     }
 
     /**
@@ -232,7 +234,7 @@ class AttributeController extends Controller
 
         $service = Service::findOne(Yii::$app->getRequest()->post('service_id'));
 
-        if(!$service){
+        if (!$service) {
             return [];
         }
 

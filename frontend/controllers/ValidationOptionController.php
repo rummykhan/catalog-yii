@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use Yii;
 use common\models\ValidationOption;
 use common\models\ValidationOptionSearch;
@@ -12,21 +13,22 @@ use yii\filters\VerbFilter;
 /**
  * ValidationOptionController implements the CRUD actions for ValidationOption model.
  */
-class ValidationOptionController extends Controller
+class ValidationOptionController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

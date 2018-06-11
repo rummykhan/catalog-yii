@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use common\models\Attribute;
 use common\models\Service;
 use Yii;
@@ -14,21 +15,23 @@ use yii\filters\VerbFilter;
 /**
  * AttributeOptionController implements the CRUD actions for AttributeOption model.
  */
-class AttributeOptionController extends Controller
+class AttributeOptionController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**

@@ -50,4 +50,14 @@ class Country extends \yii\db\ActiveRecord
     {
         return $this->hasMany(City::className(), ['country_id' => 'id']);
     }
+
+    public static function toList()
+    {
+        return collect(static::find()->asArray()->all())->pluck('name', 'id')->toArray();
+    }
+
+    public static function createMap()
+    {
+        return static::find()->with(['cities'])->asArray()->all();
+    }
 }

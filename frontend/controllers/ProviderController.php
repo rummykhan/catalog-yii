@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\AuthReqWebController;
 use common\forms\AddCalendar;
 use common\forms\AddCoverageArea;
 use common\models\Calendar;
@@ -21,21 +22,22 @@ use yii\filters\VerbFilter;
 /**
  * ProviderController implements the CRUD actions for Provider model.
  */
-class ProviderController extends Controller
+class ProviderController extends AuthReqWebController
 {
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
-        return [
+        $behaviors = parent::behaviors();
+        return array_merge($behaviors, [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-        ];
+        ]);
     }
 
     /**
