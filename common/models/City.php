@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "city".
@@ -13,6 +14,9 @@ use Yii;
  *
  * @property Country $country
  * @property ServiceCity[] $serviceCities
+ * @property CategoryCity[] $categoryCities
+ * @property Category[] $categories
+ * @property Service[] $services
  */
 class City extends \yii\db\ActiveRecord
 {
@@ -64,8 +68,34 @@ class City extends \yii\db\ActiveRecord
         return $this->hasMany(ServiceCity::className(), ['city_id' => 'id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoryCities()
+    {
+        return $this->hasMany(CategoryCity::className(), ['city_id' => 'id']);
+    }
+
     public static function toList()
     {
         return collect(static::find()->all())->pluck('name', 'id')->toArray();
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCategories()
+    {
+        return $this->hasMany(Category::className(), ['id' => 'category_id'])
+            ->viaTable('category_city', ['city_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getServices()
+    {
+        return $this->hasMany(Service::className(), ['id' => 'service_id'])
+            ->viaTable('service_city', ['city_id' => 'id']);
     }
 }

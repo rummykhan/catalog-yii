@@ -7,6 +7,7 @@ use omgdef\multilingual\MultilingualQuery;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 use yiidreamteam\upload\ImageUploadBehavior;
 
@@ -137,5 +138,14 @@ class Category extends \yii\db\ActiveRecord
     public static function toList()
     {
         return collect(static::find()->asArray()->all())->pluck('name', 'id')->toArray();
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCities()
+    {
+        return $this->hasMany(City::className(), ['id' => 'city_id'])
+            ->viaTable('category_city', ['category_id' => 'id']);
     }
 }

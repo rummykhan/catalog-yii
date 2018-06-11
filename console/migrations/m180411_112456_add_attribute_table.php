@@ -327,6 +327,15 @@ class m180411_112456_add_attribute_table extends Migration
         $this->addForeignKey('fk-sc-c', 'service_city', 'city_id', 'city', 'id');
         $this->addForeignKey('fk-sc-a', 'service_city', 'service_id', 'service', 'id');
 
+        $this->createTable('category_city', [
+            'id' => $this->primaryKey(),
+            'city_id' => $this->integer(),
+            'category_id' => $this->integer(),
+        ]);
+
+        $this->addForeignKey('fk-cc-c', 'category_city', 'city_id', 'city', 'id');
+        $this->addForeignKey('fk-cc-ca', 'category_city', 'category_id', 'category', 'id');
+
 
         $this->createTable('service_area_coverage', [
             'id' => $this->primaryKey(),
@@ -465,6 +474,8 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropForeignKey('fk-gar-rvt', 'global_availability_rule');
         $this->dropForeignKey('fk-ar-rt', 'availability_rule');
         $this->dropForeignKey('fk-gar-rt', 'global_availability_rule');
+        $this->dropForeignKey('fk-cc-c', 'category_city');
+        $this->dropForeignKey('fk-cc-ca', 'category_city');
 
         $this->dropTable('service_attribute_option');
         $this->dropTable('service_attribute');
@@ -499,6 +510,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('service_composite_attribute_parent');
         $this->dropTable('service_composite_attribute');
         $this->dropTable('service_composite_attribute_child');
+        $this->dropTable('category_city');
 
         $this->dropTable('calendar');
         $this->dropTable('availability_exception');
@@ -507,5 +519,7 @@ class m180411_112456_add_attribute_table extends Migration
         $this->dropTable('global_availability_rule');
         $this->dropTable('rule_value_type');
         $this->dropTable('rule_type');
+
+
     }
 }
