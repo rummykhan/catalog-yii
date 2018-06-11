@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 /* @var $model \common\forms\AddCoverageArea */
 /** @var $provider \common\models\Provider */
 
-$this->title = 'Add / Update Service Area';
+$this->title = 'Service Area';
 $this->params['breadcrumbs'][] = ['label' => 'Providers', 'url' => ['/provider/index']];
 $this->params['breadcrumbs'][] = ['label' => $provider->username, 'url' => ['/provider/view', 'id' => $provider->id]];
 $this->params['breadcrumbs'][] = ['label' => 'Service Area', 'url' => ['/provider/service-area', 'provider_id' => $provider->id]];

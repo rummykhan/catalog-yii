@@ -9,6 +9,7 @@ use common\models\CalendarSearch;
 use common\models\GlobalAvailabilityException;
 use common\models\GlobalAvailabilityRule;
 use common\models\ServiceArea;
+use common\models\ServiceAreaSearch;
 use RummyKhan\Collection\Arr;
 use Yii;
 use common\models\Provider;
@@ -193,8 +194,11 @@ class ProviderController extends Controller
     {
         $model = $this->findModel($provider_id);
 
+        $searchModel = new ServiceAreaSearch();
+        $searchModel->provider_id = $provider_id;
+        $dataProvider = $searchModel->search(Yii::$app->getRequest()->getQueryParams());
 
-        return $this->render('service-area/index', compact('model'));
+        return $this->render('service-area/index', compact('model', 'searchModel', 'dataProvider'));
     }
 
     public function actionCuServiceArea($provider_id, $area_id = null)
@@ -214,12 +218,32 @@ class ProviderController extends Controller
             return $this->redirect(['/provider/cu-service-area', 'provider_id' => $area->provider_id, 'area_id' => $area->id]);
         }
 
-
         $coveredAreas = [];
         if ($serviceArea) {
             $coveredAreas = $serviceArea->getServiceAreaCoverages()->all();
+            $model->area_name = $serviceArea->name;
+            $model->city_id = $serviceArea->city_id;
         }
 
         return $this->render('service-area/cu', compact('provider', 'model', 'coveredAreas'));
+    }
+
+    public function actionDeleteServiceArea($provider_id, $area_id)
+    {
+        $provider = $this->findModel($provider_id);
+
+        /** @var Calendar $calendar */
+        $calendar = $provider->getServiceAreas()->where(['id' => $area_id])->one();
+
+        if (!$calendar) {
+            throw new NotFoundHttpException();
+        }
+
+
+        $calendar->deleted = true;
+        $calendar->save();
+
+        Yii::$app->getSession()->addFlash('message', 'Service area deleted successfully!');
+        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 }

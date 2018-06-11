@@ -230,7 +230,8 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(),
             'city_id' => $this->integer(),
-            'provider_id' => $this->integer()
+            'provider_id' => $this->integer(),
+            'deleted' => $this->boolean()->defaultValue(false)
         ]);
 
         $this->addForeignKey('fk-sa-c', 'service_area', 'city_id', 'city', 'id');
