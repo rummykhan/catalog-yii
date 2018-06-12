@@ -15,6 +15,8 @@ use common\models\GlobalAvailabilityRule;
 use common\models\ProvidedServiceArea;
 use common\models\ProvidedServiceAreaSearch;
 use common\models\ProvidedRequestType;
+use common\models\ProvidedServiceType;
+use common\models\ProvidedServiceTypeSearch;
 use common\models\Provider;
 use common\models\RequestType;
 use RummyKhan\Collection\Arr;
@@ -72,8 +74,14 @@ class ProvidedServiceController extends AuthReqWebController
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+        $searchModel = new ProvidedServiceTypeSearch();
+        $searchModel->provided_service_id = $id;
+        $dataProvider = $searchModel->search(Yii::$app->getRequest()->getQueryParams());
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider
         ]);
     }
 
@@ -99,66 +107,6 @@ class ProvidedServiceController extends AuthReqWebController
             'model' => $model,
             'provider' => Provider::findOne($provider_id)
         ]);
-    }
-
-    /**
-     * Updates an existing ProvidedService model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $serviceTypes = Yii::$app->getRequest()->post('service_type');
-        $providedService = $this->findModel($id);
-
-        /** @var RequestType $serviceType */
-        foreach ($providedService->service->getActiveRequestTypes() as $serviceType) {
-
-            // if service type is checked
-            if (isset($serviceTypes[$serviceType->id])) {
-
-                // if not attached..
-
-                $providedRequestType = ProvidedRequestType::find()
-                    ->where(['provided_service_id' => $id])
-                    ->andWhere(['service_request_type_id' => $serviceType->id])
-                    ->andWhere(['deleted' => false])
-                    ->one();
-
-                if ($providedRequestType) {
-                    continue;
-                }
-
-                // attach it
-
-                $providedRequestType = new ProvidedRequestType();
-                $providedRequestType->provided_service_id = $providedService->id;
-                $providedRequestType->service_request_type_id = $serviceType->id;
-                $providedRequestType->save();
-                continue;
-            }
-
-
-            // if service type is not checked..
-
-            $providedRequestType = ProvidedRequestType::find()
-                ->where(['provided_service_id' => $id])
-                ->andWhere(['service_request_type_id' => $serviceType->id])
-                ->andWhere(['deleted' => false])
-                ->one();
-
-            if (!$providedRequestType) {
-                continue;
-            }
-
-            $providedRequestType->deleted = true;
-            $providedRequestType->save();
-            // remove it.
-        }
-
-        return $this->redirect(Yii::$app->getRequest()->getReferrer());
     }
 
     /**
@@ -191,125 +139,24 @@ class ProvidedServiceController extends AuthReqWebController
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionAddType($id)
+    public function actionSetPricing($id, $hash = null)
     {
-        $providedService = $this->findModel($id);
-
-        $model = new AddType();
-        $model->provided_service_id = $id;
-
-        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
-
-            return $this->redirect(['/provided-service/view', 'id' => $id]);
-        }
-
-        return $this->render('add-type', [
-            'providedService' => $providedService,
-            'model' => $model
-        ]);
-    }
-
-    public function actionViewCoverageAreas($id)
-    {
-        $model = $this->findModel($id);
-
-        $searchModel = new ProvidedServiceAreaSearch();
-        $searchModel->provided_service_id = $model->id;
-        $dataProvider = $searchModel->search(Yii::$app->getRequest()->getQueryParams());
-
-        return $this->render('view-coverage-area', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'model' => $model
-        ]);
-    }
-
-    public function actionAddCoverageArea($id, $type = null, $area = null)
-    {
-        $providedService = $this->findModel($id);
-
-        if (count($providedService->providedRequestTypes) === 0) {
-            return $this->redirect(['/provided-service/add-type', 'id' => $id]);
-        }
-        // check service request types
-        // if there is none redirect him to add the service request types
-        // else show him the add coverage
-
-
-        if (empty($type)) {
-            $providedRequestType = $providedService->getProvidedRequestTypes()->one();
-        } else {
-            $providedRequestType = ProvidedRequestType::findOne($type);
-        }
-
-        /** @var ProvidedServiceArea $providedServiceArea */
-        $providedServiceArea = ProvidedServiceArea::find()->where(['id' => $area])->one();
-
-        $model = new AddCoverageArea();
-
-        $coveredAreas = [];
-
-        if ($providedServiceArea) {
-            $model->provided_service_area_id = $providedServiceArea->id;
-        }
-
-        if ($providedServiceArea && $providedServiceArea->serviceArea) {
-            $model->city_id = $providedServiceArea->serviceArea->city_id;
-            $model->area_name = $providedServiceArea->serviceArea->name;
-
-            $coveredAreas = $providedServiceArea->serviceArea->serviceAreaCoverages;
-        }
-
-        if ($model->load(Yii::$app->getRequest()->post()) && $model->attach()) {
-            Yii::$app->getSession()->addFlash('success', 'Coverage areas updated');
-            return $this->redirect([
-                '/provided-service/view-coverage-areas',
-                'id' => $providedService->id,
-                'type' => $providedRequestType->id,
-                'area' => $model->provided_service_area->id
-            ]);
-        }
-
-        $model->provided_request_type_id = $providedRequestType->id;
-        $model->provided_service_id = $id;
-
-        return $this->render('add-coverage', [
-            'providedService' => $providedService,
-            'model' => $model,
-            'providedRequestType' => $providedRequestType,
-            'coveredAreas' => $coveredAreas
-        ]);
-    }
-
-    public function actionSetPricing($id, $area, $hash = null)
-    {
-        /** @var ProvidedRequestType $providedRequestType */
-        $providedRequestType = ProvidedRequestType::find()
+        /** @var ProvidedRequestType $providedServiceType */
+        $providedServiceType = ProvidedServiceType::find()
             ->andWhere(['id' => $id])
             ->andWhere(['deleted' => false])
             ->one();
 
-        if (!$providedRequestType) {
+        if (!$providedServiceType) {
             throw new NotFoundHttpException();
         }
 
-        $model = $providedRequestType->providedService;
-
-        if (count($providedRequestType->providedServiceAreas) === 0) {
-            throw new NotFoundHttpException("No areas set");
-        }
-
-        /** @var ProvidedServiceArea $providedServiceArea */
-        $providedServiceArea = $providedRequestType->getProvidedServiceAreas()->where(['id' => $area])->one();
-
-        if (!$providedServiceArea     ) {
-            throw new NotFoundHttpException();
-        }
+        $model = $providedServiceType->providedService;
 
         if (Yii::$app->getRequest()->isPost) {
             $data = Yii::$app->getRequest()->post();
 
-            $model->savePrices($data, $area, $hash);
+            $model->savePrices($data, $providedServiceType, $hash);
 
             Yii::$app->getSession()->addFlash('success', 'Prices updated');
 
@@ -322,8 +169,7 @@ class ProvidedServiceController extends AuthReqWebController
             'model' => $model,
             'service' => $model->service,
             'provider' => $model->provider,
-            'providedServiceArea' => $providedServiceArea,
-            'providedRequestType' => $providedRequestType,
+            'providedRequestType' => $providedServiceType,
             'motherMatrix' => $motherMatrix
         ]);
     }
@@ -359,40 +205,30 @@ class ProvidedServiceController extends AuthReqWebController
         ]);
     }
 
-    public function actionSetAvailability($id, $area)
+    public function actionEditType($id)
     {
-        /** @var ProvidedRequestType $providedRequestType */
-        $providedRequestType = ProvidedRequestType::find()
-            ->andWhere(['id' => $id])
-            ->andWhere(['deleted' => false])
-            ->one();
+        $model = ProvidedServiceType::findOne($id);
 
-        if (!$providedRequestType) {
+        if (!$model) {
             throw new NotFoundHttpException();
         }
 
-        $model = $providedRequestType->providedService;
+        return $this->render('provided-service-type/edit', compact('model'));
+    }
 
-        /** @var ProvidedServiceArea $area */
-        $area = $providedRequestType->getProvidedServiceAreas()->where(['id' => $area])->one();
+    public function actionAddType($id)
+    {
+        $providedService = $this->findModel($id);
 
-        if (!$area) {
-            throw new NotFoundHttpException();
+        $model = new ProvidedServiceType();
+        $model->provided_service_id = $providedService->id;
+
+        if ($model->load(Yii::$app->getRequest()->post()) && $model->validateUnique() && $model->save()) {
+            return $this->redirect(['/provided-service/view', 'id' => $providedService->id]);
         }
 
-        $globalRules = $area->getGlobalRules();
-        $localRules = $area->getLocalRules();
 
-        return $this->render('set-availability', [
-            'model' => $model,
-            'providedRequestType' => $providedRequestType,
-            'area' => $area,
-            'service' => $model->service,
-            'provider' => $model->provider,
-            'type' => $providedRequestType,
-            'globalRules' => $globalRules,
-            'localRules' => $localRules,
-        ]);
+        return $this->render('provided-service-type/edit', compact('model'));
     }
 
 

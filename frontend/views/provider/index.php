@@ -24,14 +24,17 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             [
-                'label' => 'username',
-                'value' => function ($model) {
-                    return Html::a($model->username, ['/provider/view', 'id' => $model->id]);
+                'label' => 'Actions',
+                'value' => function($model){
+                    return Html::a('View', ['/provider/view', 'id' => $model->id], ['class' => 'btn btn-primary btn-sm']);
                 },
                 'format' => 'html'
             ],
+            'username',
+            'first_name',
+            'last_name',
             'email',
-            'created_at',
+
         ],
     ]); ?>
 </div>

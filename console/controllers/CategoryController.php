@@ -19,6 +19,11 @@ use yii\helpers\Console;
 
 class CategoryController extends Controller
 {
+    public static $countryMap = [
+        'AE' => 'United Arab Emirates',
+        'SA' => 'Saudi Arabia',
+    ];
+
     public static $cityMap = [
         'dubai' => 'Dubai',
         'abu-dhabi' => 'Abu Dhabi',

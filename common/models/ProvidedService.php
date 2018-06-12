@@ -449,8 +449,8 @@ class ProvidedService extends \yii\db\ActiveRecord
      */
     public function getProvidedRequestTypes()
     {
-        return $this->hasMany(ProvidedRequestType::className(), ['provided_service_id' => 'id'])
-            ->andWhere(['provided_request_type.deleted' => false]);
+        return $this->hasMany(ProvidedServiceType::className(), ['provided_service_id' => 'id']);
+            //->andWhere(['provided_request_type.deleted' => false]);
     }
 
     public function getPriceOfNoImpactRow($service_attribute_option_id, $area_id)

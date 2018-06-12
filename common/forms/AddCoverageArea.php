@@ -64,6 +64,7 @@ class AddCoverageArea extends Model
             return false;
         }
 
+
         return $serviceArea;
     }
 
@@ -80,6 +81,9 @@ class AddCoverageArea extends Model
             $serviceArea->save();
         } else {
             $serviceArea = ServiceArea::findOne($this->service_area_id);
+            $serviceArea->name = $this->area_name;
+            $serviceArea->city_id = $this->city_id;
+            $serviceArea->save();
         }
 
         return $serviceArea;

@@ -6,12 +6,16 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\ProvidedService;
+use yii\db\Expression;
+use yii\db\Query;
 
 /**
  * ProvidedServiceSearch represents the model behind the search form of `common\models\ProvidedService`.
  */
 class ProvidedServiceSearch extends ProvidedService
 {
+    public $service_name;
+
     /**
      * @inheritdoc
      */
@@ -20,6 +24,7 @@ class ProvidedServiceSearch extends ProvidedService
         return [
             [['id', 'service_id', 'provider_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
+            ['service_name', 'safe']
         ];
     }
 
@@ -41,7 +46,16 @@ class ProvidedServiceSearch extends ProvidedService
      */
     public function search($params)
     {
-        $query = ProvidedService::find();
+        $query = (new Query())
+            ->select([
+                'provided_service.id',
+                'provided_service.service_id',
+                'provided_service.provider_id',
+                new Expression('service.name as service_name')
+            ])
+            ->from('provided_service')
+            ->join('inner join', 'service', 'provided_service.service_id=service.id')
+            ->where(['provided_service.provider_id' => $this->provider_id]);
 
         // add conditions that should always apply here
 
@@ -65,6 +79,8 @@ class ProvidedServiceSearch extends ProvidedService
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ]);
+
+        $query->andFilterWhere(['LIKE', 'service.name', $this->service_name]);
 
         return $dataProvider;
     }

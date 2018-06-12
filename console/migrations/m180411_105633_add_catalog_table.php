@@ -69,9 +69,13 @@ class m180411_105633_add_catalog_table extends Migration
 
         $this->createTable('provider', [
             'id' => $this->primaryKey(),
+            'first_name' => $this->string(),
+            'last_name' => $this->string(),
             'username' => $this->string()->unique(),
             'password' => $this->string(),
             'email' => $this->string()->unique(),
+            'status' => $this->integer(),
+            'country_id' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime()
         ]);

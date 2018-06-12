@@ -9,11 +9,14 @@
 namespace console\controllers;
 
 
+use common\helpers\Matrix;
+use common\helpers\ServiceAttributeMatrix;
 use common\models\FieldType;
 use common\models\InputType;
 use common\models\PriceType;
 use common\models\PricingAttribute;
 use common\models\PricingAttributeGroup;
+use common\models\Service;
 use common\models\ServiceAttributeOption;
 use common\models\ServiceAttributeValidation;
 use common\models\UserInputType;
@@ -63,8 +66,6 @@ class ServiceAttributeController extends Controller
                     $this->addBasketAttribute($oldServiceAttribute);
                     break;
             }
-
-
         }
     }
 
@@ -244,6 +245,8 @@ class ServiceAttributeController extends Controller
              * {"value" => 7}
              */
             $this->createAttribute($attribute, $options, $pricingAttributeGroup);
+
+            $this->createMatrix($oldServiceAttribute->service_id);
         }
     }
 
@@ -323,6 +326,16 @@ class ServiceAttributeController extends Controller
 
         $this->stdout($attributeValues['service_id'] . " - " . $attributeValues['name'] . ' - ' . $attributeValues['question']);
         $this->stdout("\r\n");
+    }
+
+    protected function createMatrix($serviceId)
+    {
+        $service = Service::findOne($serviceId);
+        $motherMatrix = new ServiceAttributeMatrix($service);
+
+        foreach ($motherMatrix->getMatrices() as $matrix) {
+            $matrix->saveMatrixRows();
+        }
     }
 
 

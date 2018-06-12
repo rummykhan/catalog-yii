@@ -243,7 +243,8 @@ class m180411_112456_add_attribute_table extends Migration
             'provided_service_id' => $this->integer(),
             'calendar_id' => $this->integer(),
             'service_area_id' => $this->integer(),
-            'service_request_type_id' => $this->integer()
+            'service_request_type_id' => $this->integer(),
+            'deleted' => $this->boolean()->defaultValue(false)
         ]);
 
         $this->addForeignKey('fk-pst-ps', 'provided_service_type', 'provided_service_id', 'provided_service', 'id');

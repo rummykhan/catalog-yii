@@ -516,4 +516,16 @@ class Service extends \yii\db\ActiveRecord
                 ->all()
         )->pluck('request_type_id')->toArray();
     }
+
+    public function getRequestTypesList()
+    {
+        return collect(
+            ServiceRequestType::find()
+                ->with('requestType')
+                ->where(['service_id' => $this->id])
+                ->andWhere(['deleted' => false])
+                ->asArray()
+                ->all()
+        )->pluck('requestType.name', 'id')->toArray();
+    }
 }

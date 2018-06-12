@@ -2,6 +2,7 @@
 
 use common\models\ProvidedService;
 use common\models\ProvidedServiceArea;
+use common\models\ProvidedServiceType;
 use RummyKhan\Collection\Arr;
 use yii\web\View;
 use kartik\select2\Select2;
@@ -10,7 +11,7 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $model ProvidedService */
 /* @var $type string */
-/* @var $providedServiceArea ProvidedServiceArea */
+/* @var $providedServiceType ProvidedServiceType */
 /* @var $matrix \common\helpers\Matrix */
 
 $attributeGroups = $matrix->getAttributesGroup();
@@ -21,7 +22,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
 
 ?>
 
-<?php if (count($providedServiceArea->providedServiceCompositePricings) > 0) { ?>
+<?php if (count($providedServiceType->providedServiceCompositePricings) > 0) { ?>
 
     <div class="row">
         <div class="col-md-12">
@@ -36,7 +37,7 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
                 </thead>
                 <tbody>
 
-                <?php foreach ($providedServiceArea->providedServiceCompositePricings as $pricing) { ?>
+                <?php foreach ($providedServiceType->providedServiceCompositePricings as $pricing) { ?>
                     <?php if (!$matrix->hasIdentifier($pricing->pricingAttributeParent->getOptionIdsFormattedName())) {
                         continue;
                     } ?>

@@ -34,8 +34,10 @@ $this->params['breadcrumbs'][] = ['label' => $this->title];
                 'name',
                 [
                     'label' => 'City',
-                    'value' => function($model){
-                        return $model->city->name;
+                    'value' => function ($model) {
+
+
+                        return $model->city ? $model->city->name : null;
                     }
                 ],
                 [

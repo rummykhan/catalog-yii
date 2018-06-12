@@ -3,6 +3,7 @@
 use common\models\ProvidedRequestType;
 use common\models\ProvidedService;
 use common\models\ProvidedServiceArea;
+use common\models\ProvidedServiceType;
 use RummyKhan\Collection\Arr;
 use yii\web\View;
 use kartik\select2\Select2;
@@ -11,9 +12,8 @@ use yii\widgets\ActiveForm;
 /* @var $this View */
 /* @var $model ProvidedService */
 /* @var $type string */
-/* @var $providedServiceArea ProvidedServiceArea */
 /* @var $matrix \common\helpers\Matrix */
-/** @var $providedRequestType ProvidedRequestType */
+/* @var $providedServiceType ProvidedServiceType */
 
 $attributeGroups = $matrix->getAttributesGroup();
 
@@ -28,9 +28,6 @@ $columns = count($attributeGroups) > 0 ? intval(9 / count($attributeGroups)) : 0
     <?php ActiveForm::begin([
         'action' => [
             '/provided-service/set-dropdown-pricing',
-            'id' => $providedRequestType->id,
-            'area' => $providedServiceArea->id,
-            'type' => $type
         ],
         'method' => 'POST'
     ]) ?>
