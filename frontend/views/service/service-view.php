@@ -49,6 +49,10 @@ use yii\widgets\DetailView;
                 /** @var $service \common\models\Service */
                 return implode(',', collect($service->getCities()->asArray()->all())->pluck('name')->toArray());
             }
+        ],
+        [
+            'label' => 'Mobile UI Type',
+            'value' => $service->mobile_ui_style_label,
         ]
     ],
 ]) ?>

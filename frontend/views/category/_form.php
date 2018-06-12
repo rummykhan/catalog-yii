@@ -44,6 +44,17 @@ LodashAsset::register($this);
         <div class="col-md-6">
 
             <div class="form-group">
+                <label for="">Mobile UI Type</label>
+                <?= Select2::widget(array(
+                    'model' => $model,
+                    'attribute' => 'mobile_ui_style',
+                    'data' => $model->mobile_ui_style_list,
+                    'value' => $model->mobile_ui_style,
+                    'options' => array('placeholder' => 'Select Mobile UI Type'),
+                )) ?>
+            </div>
+
+            <div class="form-group">
                 <label for="">Select Country</label>
                 <?= Select2::widget(array(
                     'name' => 'country',

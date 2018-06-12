@@ -20,6 +20,7 @@ use yiidreamteam\upload\ImageUploadBehavior;
  *
  * @property int $id
  * @property int $service_id
+ * @property string $question
  * @property string $name
  * @property string $name_ar
  * @property string $description
@@ -64,7 +65,7 @@ class ServiceAttribute extends \yii\db\ActiveRecord
         return [
             [['service_id', 'order'], 'integer'],
             [['name'], 'required'],
-            [['name', 'description', 'mobile_description'], 'safe'],
+            [['name', 'description', 'mobile_description', 'question'], 'safe'],
             [['deleted'], 'boolean'],
             [['service_id'], 'exist', 'skipOnError' => true, 'targetClass' => Service::className(), 'targetAttribute' => ['service_id' => 'id']],
             [['input_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => InputType::className(), 'targetAttribute' => ['input_type_id' => 'id']],

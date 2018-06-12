@@ -18,8 +18,10 @@ class m180411_105633_add_catalog_table extends Migration
             'slug' => $this->string(),
             'image' => $this->string(),
             'description' => $this->string(),
+            'mobile_description' => $this->string(),
             'active' => $this->boolean()->defaultValue(false),
             'order' => $this->integer(),
+            'mobile_ui_style' => $this->integer(),
             'parent_id' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime()
@@ -31,6 +33,7 @@ class m180411_105633_add_catalog_table extends Migration
             'language' => $this->string(),
             'name' => $this->string(),
             'description' => $this->string(),
+            'mobile_description' => $this->string(),
         ]);
 
         $this->addForeignKey('fk-parent-id-category-id', 'category', 'parent_id', 'category', 'id');
@@ -45,6 +48,7 @@ class m180411_105633_add_catalog_table extends Migration
             'mobile_description' => $this->string(),
             'active' => $this->boolean()->defaultValue(false),
             'order' => $this->integer(),
+            'mobile_ui_style' => $this->integer(),
             'category_id' => $this->integer(),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime()

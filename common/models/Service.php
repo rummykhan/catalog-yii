@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\helpers\OptionsBehavior;
 use omgdef\multilingual\MultilingualBehavior;
 use omgdef\multilingual\MultilingualQuery;
 use RummyKhan\Collection\Arr;
@@ -27,6 +28,9 @@ use yiidreamteam\upload\ImageUploadBehavior;
  * @property int $category_id
  * @property string $created_at
  * @property string $updated_at
+ * @property int $mobile_ui_style
+ * @property array $mobile_ui_style_list
+ * @property string $mobile_ui_style_label
  *
  * @property Category $category
  * @property ServiceAttribute[] $serviceAttributes
@@ -41,6 +45,9 @@ use yiidreamteam\upload\ImageUploadBehavior;
  */
 class Service extends \yii\db\ActiveRecord
 {
+    const MOBILE_UI_TYPE_HORIZONTAL = 10;
+    const MOBILE_UI_TYPE_VERTICAL = 20;
+
     /**
      * @inheritdoc
      */
@@ -55,7 +62,7 @@ class Service extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'order'], 'integer'],
+            [['category_id', 'order', 'mobile_ui_style'], 'integer'],
             [['created_at', 'updated_at', 'description', 'mobile_description'], 'safe'],
             [['name', 'slug'], 'string', 'max' => 255],
             ['image', 'file'],
@@ -97,6 +104,14 @@ class Service extends \yii\db\ActiveRecord
             [
                 'class' => SluggableBehavior::className(),
                 'attribute' => 'name',
+            ],
+            [
+                'class' => OptionsBehavior::className(),
+                'attribute' => 'mobile_ui_style',
+                'options' => [
+                    static::MOBILE_UI_TYPE_HORIZONTAL => 'Horizontal',
+                    static::MOBILE_UI_TYPE_VERTICAL => 'Vertical',
+                ]
             ]
         ];
     }

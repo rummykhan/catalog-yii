@@ -57,6 +57,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'Cities',
                 'value' => implode(',', $model->getSelectedCities()),
             ],
+            [
+                'label' => 'Mobile UI Style',
+                'value' => $model->mobile_ui_style_label
+            ],
             'created_at',
             'updated_at',
         ],

@@ -82,6 +82,7 @@ class m180411_112456_add_attribute_table extends Migration
             'id' => $this->primaryKey(),
             'service_id' => $this->integer(),
             'name' => $this->string(),
+            'question' => $this->string(),
             'description' => $this->string(),
             'mobile_description' => $this->string(),
             'icon' => $this->string(),
